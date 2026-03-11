@@ -6,6 +6,7 @@ import * as z from 'zod';
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { Calendar as CalendarIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +25,7 @@ import { Card, CardContent } from '../ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { cn } from '@/lib/utils';
 import { Calendar } from '../ui/calendar';
+import { Skeleton } from '../ui/skeleton';
 
 
 const formSchema = z.object({
@@ -44,6 +46,12 @@ interface AppointmentFormProps {
 
 export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -143,7 +151,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? (
+                          {field.value && isClient ? (
                             format(field.value, "PPP", { locale: es })
                           ) : (
                             <span>Seleccione una fecha</span>
@@ -153,7 +161,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
+                      {isClient ? <Calendar
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
@@ -162,7 +170,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                         }
                         initialFocus
                         locale={es}
-                      />
+                      /> : <div className="w-[280px] h-[311px] p-3"><Skeleton className="h-full w-full" /></div>}
                     </PopoverContent>
                   </Popover>
                   <FormMessage />

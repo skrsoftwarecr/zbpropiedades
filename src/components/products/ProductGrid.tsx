@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProductCard } from './ProductCard';
 import type { Product } from '@/lib/types';
 import { Search } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductGridProps {
   products: Product[];
@@ -16,6 +17,11 @@ export function ProductGrid({ products }: ProductGridProps) {
   const [category, setCategory] = useState('all');
   const [condition, setCondition] = useState('all');
   const [sortBy, setSortBy] = useState('name-asc');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter(product =>
@@ -53,38 +59,48 @@ export function ProductGrid({ products }: ProductGridProps) {
   return (
     <div>
       <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-        <div className="relative lg:col-span-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-                placeholder="Buscar repuestos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-            />
-        </div>
-        
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger>
-            <SelectValue placeholder="Categoría" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas las Categorías</SelectItem>
-            <SelectItem value="Original">Original</SelectItem>
-            <SelectItem value="Aftermarket">Aftermarket</SelectItem>
-          </SelectContent>
-        </Select>
+        {isClient ? (
+          <>
+            <div className="relative lg:col-span-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                    placeholder="Buscar repuestos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                />
+            </div>
+            
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Categoría" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las Categorías</SelectItem>
+                <SelectItem value="Original">Original</SelectItem>
+                <SelectItem value="Aftermarket">Aftermarket</SelectItem>
+              </SelectContent>
+            </Select>
 
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger>
-            <SelectValue placeholder="Ordenar por" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="name-asc">Nombre (A-Z)</SelectItem>
-            <SelectItem value="name-desc">Nombre (Z-A)</SelectItem>
-            <SelectItem value="price-asc">Precio (Menor a Mayor)</SelectItem>
-            <SelectItem value="price-desc">Precio (Mayor a Menor)</SelectItem>
-          </SelectContent>
-        </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger>
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name-asc">Nombre (A-Z)</SelectItem>
+                <SelectItem value="name-desc">Nombre (Z-A)</SelectItem>
+                <SelectItem value="price-asc">Precio (Menor a Mayor)</SelectItem>
+                <SelectItem value="price-desc">Precio (Mayor a Menor)</SelectItem>
+              </SelectContent>
+            </Select>
+          </>
+        ) : (
+          <>
+            <Skeleton className="h-10 w-full lg:col-span-2" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </>
+        )}
       </div>
 
       {filteredAndSortedProducts.length > 0 ? (
