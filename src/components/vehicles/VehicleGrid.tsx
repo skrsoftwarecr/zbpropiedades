@@ -15,7 +15,7 @@ interface VehicleGridProps {
 
 const uniqueModels = (vehicles: Vehicle[]) => [...new Set(vehicles.map(v => v.model))];
 const priceRange = (vehicles: Vehicle[]) => {
-    if (vehicles.length === 0) return [0, 100000];
+    if (vehicles.length === 0) return [0, 50000000];
     const prices = vehicles.map(v => v.price);
     return [Math.min(...prices), Math.max(...prices)];
 }
@@ -28,6 +28,9 @@ export function VehicleGrid({ vehicles }: VehicleGridProps) {
   const [minPrice, maxPrice] = priceRange(vehicles);
   const [price, setPrice] = useState([minPrice, maxPrice]);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  }
 
   const filteredAndSortedVehicles = useMemo(() => {
     let filtered = vehicles.filter(vehicle =>
@@ -69,7 +72,7 @@ export function VehicleGrid({ vehicles }: VehicleGridProps) {
         <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-                placeholder="Search model, year..."
+                placeholder="Buscar modelo, año..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -78,28 +81,28 @@ export function VehicleGrid({ vehicles }: VehicleGridProps) {
         
         <Select value={model} onValueChange={setModel}>
           <SelectTrigger>
-            <SelectValue placeholder="Model" />
+            <SelectValue placeholder="Modelo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Models</SelectItem>
+            <SelectItem value="all">Todos los Modelos</SelectItem>
             {models.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
           </SelectContent>
         </Select>
 
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger>
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder="Ordenar por" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="price-desc">Price (High to Low)</SelectItem>
-            <SelectItem value="price-asc">Price (Low to High)</SelectItem>
-            <SelectItem value="year-desc">Year (Newest First)</SelectItem>
-            <SelectItem value="mileage-asc">Mileage (Lowest First)</SelectItem>
+            <SelectItem value="price-desc">Precio (Mayor a Menor)</SelectItem>
+            <SelectItem value="price-asc">Precio (Menor a Mayor)</SelectItem>
+            <SelectItem value="year-desc">Año (Más Nuevos Primero)</SelectItem>
+            <SelectItem value="mileage-asc">Kilometraje (Menor a Mayor)</SelectItem>
           </SelectContent>
         </Select>
         
         <div className="md:col-span-4 lg:col-span-4 mt-2">
-            <label className="block text-sm font-medium mb-2">Price Range: ${price[0].toLocaleString()} - ${price[1].toLocaleString()}</label>
+            <label className="block text-sm font-medium mb-2">Rango de Precio: {formatPrice(price[0])} - {formatPrice(price[1])}</label>
             <Slider
                 min={minPrice}
                 max={maxPrice}
@@ -118,8 +121,8 @@ export function VehicleGrid({ vehicles }: VehicleGridProps) {
         </div>
       ) : (
          <div className="text-center py-16">
-            <p className="text-xl font-medium">No vehicles found</p>
-            <p className="text-muted-foreground mt-2">Try adjusting your search or filters.</p>
+            <p className="text-xl font-medium">No se encontraron vehículos</p>
+            <p className="text-muted-foreground mt-2">Intente ajustar su búsqueda o filtros.</p>
         </div>
       )}
     </div>

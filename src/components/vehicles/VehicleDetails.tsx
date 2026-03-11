@@ -27,6 +27,10 @@ const SpecItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label
 export function VehicleDetails({ vehicle }: VehicleDetailsProps) {
   const vehicleImages = vehicle.imageIds.map(id => PlaceHolderImages.find(p => p.id === id)).filter(Boolean);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  }
+
   return (
     <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
       <div className="lg:col-span-3">
@@ -53,12 +57,12 @@ export function VehicleDetails({ vehicle }: VehicleDetailsProps) {
 
       <div className="lg:col-span-2 flex flex-col">
         <h1 className="text-3xl lg:text-4xl font-bold font-headline">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
-        <p className="text-3xl font-bold my-4 text-primary">${vehicle.price.toLocaleString()}</p>
+        <p className="text-3xl font-bold my-4 text-primary">{formatPrice(vehicle.price)}</p>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
-            <SpecItem icon={Gauge} label="Mileage" value={`${vehicle.mileage.toLocaleString()} mi`} />
-            <SpecItem icon={Wrench} label="Engine" value={vehicle.engine} />
-            <SpecItem icon={GitBranch} label="Transmission" value={vehicle.transmission} />
+            <SpecItem icon={Gauge} label="Kilometraje" value={`${vehicle.mileage.toLocaleString('es-CR')} km`} />
+            <SpecItem icon={Wrench} label="Motor" value={vehicle.engine} />
+            <SpecItem icon={GitBranch} label="Transmisión" value={vehicle.transmission} />
             <SpecItem icon={PaintBucket} label="Exterior" value={vehicle.exteriorColor} />
             <SpecItem icon={Palette} label="Interior" value={vehicle.interiorColor} />
             <SpecItem icon={Car} label="VIN" value={vehicle.vin.slice(0, 8) + '...'} />
@@ -66,10 +70,10 @@ export function VehicleDetails({ vehicle }: VehicleDetailsProps) {
       </div>
 
       <div className="lg:col-span-5 mt-8">
-        <h2 className="text-2xl font-bold font-headline mb-4">Description</h2>
+        <h2 className="text-2xl font-bold font-headline mb-4">Descripción</h2>
         <p className="text-muted-foreground leading-relaxed">{vehicle.description}</p>
         
-        <h2 className="text-2xl font-bold font-headline mt-8 mb-4">Features</h2>
+        <h2 className="text-2xl font-bold font-headline mt-8 mb-4">Características</h2>
         <div className="flex flex-wrap gap-2">
             {vehicle.features.map(feature => (
                 <Badge key={feature} variant="secondary">{feature}</Badge>

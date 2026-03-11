@@ -28,6 +28,10 @@ export function ProductCard({ product }: ProductCardProps) {
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  }
+
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-all hover:shadow-lg hover:shadow-primary/10">
       <CardHeader className="p-0">
@@ -52,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className="text-sm text-muted-foreground">{product.category}</p>
       </CardContent>
       <CardFooter className="p-4 flex justify-between items-center">
-        <p className="text-lg font-bold">${product.price.toFixed(2)}</p>
+        <p className="text-lg font-bold">{formatPrice(product.price)}</p>
         <Button
           size="icon"
           onClick={handleAddToCart}
@@ -60,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
             'transition-all',
             isAdded && 'bg-green-500 hover:bg-green-600'
           )}
-          aria-label={isAdded ? "Added to cart" : "Add to cart"}
+          aria-label={isAdded ? "Agregado al carrito" : "Agregar al carrito"}
         >
           {isAdded ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
         </Button>

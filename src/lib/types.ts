@@ -5,7 +5,7 @@ export interface Product {
   price: number;
   description: string;
   stock: number;
-  condition: 'New' | 'Used';
+  condition: 'Nuevo' | 'Usado';
   compatibility: string[];
   imageId: string;
 }
@@ -19,7 +19,7 @@ export interface Vehicle {
   mileage: number;
   vin: string;
   engine: string;
-  transmission: 'Automatic' | 'Manual';
+  transmission: 'Automático' | 'Manual';
   exteriorColor: string;
   interiorColor: string;
   features: string[];

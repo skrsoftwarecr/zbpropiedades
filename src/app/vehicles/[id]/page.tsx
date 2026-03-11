@@ -24,7 +24,7 @@ export default async function VehicleDetailPage({ params }: VehicleDetailPagePro
             <Button variant="ghost" asChild>
                 <Link href="/vehicles">
                     <ChevronLeft className="h-4 w-4 mr-2" />
-                    Back to Vehicles
+                    Volver a Vehículos
                 </Link>
             </Button>
         </div>
@@ -33,7 +33,7 @@ export default async function VehicleDetailPage({ params }: VehicleDetailPagePro
         <Separator className="my-12 md:my-16" />
 
         <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold font-headline text-center mb-8">Schedule an Inspection</h2>
+            <h2 className="text-3xl font-bold font-headline text-center mb-8">Agendar una Inspección</h2>
             <AppointmentForm vehicleId={vehicle.id} />
         </div>
     </div>

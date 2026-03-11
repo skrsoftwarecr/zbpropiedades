@@ -9,8 +9,8 @@ import { useCart } from '@/context/CartContext';
 import { Logo } from '@/components/shared/Logo';
 
 const navLinks = [
-  { href: '/parts', label: 'Parts' },
-  { href: '/vehicles', label: 'Vehicles' },
+  { href: '/parts', label: 'Repuestos' },
+  { href: '/vehicles', label: 'Vehículos' },
 ];
 
 export function Header() {
@@ -47,7 +47,7 @@ export function Header() {
                   {cartItemCount}
                 </span>
               )}
-              <span className="sr-only">Shopping Cart</span>
+              <span className="sr-only">Carrito de Compras</span>
             </Link>
           </Button>
 
@@ -56,7 +56,7 @@ export function Header() {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
-                  <span className="sr-only">Toggle menu</span>
+                  <span className="sr-only">Alternar menú</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">

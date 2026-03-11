@@ -22,7 +22,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <Button variant="ghost" asChild>
                 <Link href="/parts">
                     <ChevronLeft className="h-4 w-4 mr-2" />
-                    Back to Parts
+                    Volver a Repuestos
                 </Link>
             </Button>
         </div>

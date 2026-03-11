@@ -7,8 +7,8 @@ import { Footer } from '@/components/layout/Footer';
 import { CartProvider } from '@/context/CartContext';
 
 export const metadata: Metadata = {
-  title: 'Bimmer CR - BMW Parts and Vehicles',
-  description: 'Your premium source for original and aftermarket BMW parts and certified used vehicles.',
+  title: 'Bimmer CR - Repuestos y Vehículos BMW',
+  description: 'Su fuente premium de repuestos originales y de posventa para BMW y vehículos usados certificados.',
 };
 
 export default function RootLayout({
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="es" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

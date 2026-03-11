@@ -56,7 +56,7 @@ export function ProductGrid({ products }: ProductGridProps) {
         <div className="relative lg:col-span-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-                placeholder="Search for parts..."
+                placeholder="Buscar repuestos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -65,10 +65,10 @@ export function ProductGrid({ products }: ProductGridProps) {
         
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder="Categoría" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="all">Todas las Categorías</SelectItem>
             <SelectItem value="Original">Original</SelectItem>
             <SelectItem value="Aftermarket">Aftermarket</SelectItem>
           </SelectContent>
@@ -76,13 +76,13 @@ export function ProductGrid({ products }: ProductGridProps) {
 
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger>
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder="Ordenar por" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-            <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-            <SelectItem value="price-asc">Price (Low to High)</SelectItem>
-            <SelectItem value="price-desc">Price (High to Low)</SelectItem>
+            <SelectItem value="name-asc">Nombre (A-Z)</SelectItem>
+            <SelectItem value="name-desc">Nombre (Z-A)</SelectItem>
+            <SelectItem value="price-asc">Precio (Menor a Mayor)</SelectItem>
+            <SelectItem value="price-desc">Precio (Mayor a Menor)</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -95,8 +95,8 @@ export function ProductGrid({ products }: ProductGridProps) {
         </div>
       ) : (
         <div className="text-center py-16">
-            <p className="text-xl font-medium">No products found</p>
-            <p className="text-muted-foreground mt-2">Try adjusting your search or filters.</p>
+            <p className="text-xl font-medium">No se encontraron productos</p>
+            <p className="text-muted-foreground mt-2">Intente ajustar su búsqueda o filtros.</p>
         </div>
       )}
     </div>

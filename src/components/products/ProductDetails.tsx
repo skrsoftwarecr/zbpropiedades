@@ -31,11 +31,15 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   const productImage = PlaceHolderImages.find(p => p.id === product.imageId);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  }
+
   const handleAddToCart = () => {
     addToCart(product, quantity);
     setIsAdded(true);
     toast({
-        title: "Added to cart",
+        title: "Agregado al carrito",
         description: `${quantity}x ${product.name}`,
     });
     setTimeout(() => setIsAdded(false), 2000);
@@ -72,22 +76,22 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       <div className="flex flex-col">
         <Badge variant={product.category === 'Original' ? 'default' : 'secondary'} className="w-fit mb-2">{product.category}</Badge>
         <h1 className="text-3xl lg:text-4xl font-bold font-headline">{product.name}</h1>
-        <p className="text-3xl font-bold my-4">${product.price.toFixed(2)}</p>
+        <p className="text-3xl font-bold my-4">{formatPrice(product.price)}</p>
         
         <p className="text-muted-foreground leading-relaxed">{product.description}</p>
         
         <div className="mt-6 pt-6 border-t">
-          <h3 className="text-lg font-semibold mb-2">Specifications</h3>
+          <h3 className="text-lg font-semibold mb-2">Especificaciones</h3>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            <li><strong>Condition:</strong> {product.condition}</li>
-            <li><strong>In Stock:</strong> {product.stock > 0 ? `${product.stock} units` : 'Out of Stock'}</li>
-            <li><strong>Compatibility:</strong> {product.compatibility.join(', ')}</li>
+            <li><strong>Condición:</strong> {product.condition}</li>
+            <li><strong>En Stock:</strong> {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}</li>
+            <li><strong>Compatibilidad:</strong> {product.compatibility.join(', ')}</li>
           </ul>
         </div>
 
         <div className="mt-auto pt-6">
             <div className="flex items-center gap-4 mb-4">
-                <p className="font-medium">Quantity:</p>
+                <p className="font-medium">Cantidad:</p>
                 <div className="flex items-center border rounded-md">
                     <Button variant="ghost" size="icon" onClick={decrementQuantity} className="h-10 w-10">
                         <Minus className="h-4 w-4" />
@@ -108,7 +112,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               <div className={cn("transition-transform duration-300", isAdded ? 'rotate-0' : '-rotate-90')}>
                 {isAdded ? <Check className="h-6 w-6 mr-2" /> : <ShoppingCart className="h-6 w-6 mr-2" />}
               </div>
-              {product.stock === 0 ? 'Out of Stock' : isAdded ? 'Added!' : 'Add to Cart'}
+              {product.stock === 0 ? 'Agotado' : isAdded ? '¡Agregado!' : 'Agregar al Carrito'}
             </Button>
         </div>
       </div>

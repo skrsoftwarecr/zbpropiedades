@@ -29,17 +29,17 @@ export default async function Home() {
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-headline tracking-tight leading-tight">
-            The Ultimate BMW Experience
+            La Experiencia BMW Definitiva
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-neutral-200">
-            Discover a curated selection of premium parts and meticulously inspected vehicles.
+            Descubra una selección curada de repuestos premium y vehículos meticulosamente inspeccionados.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Button asChild size="lg" className="font-semibold text-lg">
-              <Link href="/parts">Shop Parts</Link>
+              <Link href="/parts">Comprar Repuestos</Link>
             </Button>
             <Button asChild size="lg" variant="secondary" className="font-semibold text-lg">
-              <Link href="/vehicles">View Vehicles</Link>
+              <Link href="/vehicles">Ver Vehículos</Link>
             </Button>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default async function Home() {
       <section className="py-16 md:py-24 bg-card">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center font-headline mb-12">
-            Featured Parts
+            Repuestos Destacados
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product) => (
@@ -57,7 +57,7 @@ export default async function Home() {
           </div>
           <div className="text-center mt-12">
             <Button asChild>
-              <Link href="/parts">Explore All Parts</Link>
+              <Link href="/parts">Explorar Todos los Repuestos</Link>
             </Button>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default async function Home() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center font-headline mb-12">
-            Featured Vehicles
+            Vehículos Destacados
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredVehicles.map((vehicle) => (
@@ -75,7 +75,7 @@ export default async function Home() {
           </div>
           <div className="text-center mt-12">
             <Button asChild>
-              <Link href="/vehicles">Explore All Vehicles</Link>
+              <Link href="/vehicles">Explorar Todos los Vehículos</Link>
             </Button>
           </div>
         </div>

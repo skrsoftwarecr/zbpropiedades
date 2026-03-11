@@ -49,12 +49,12 @@ export async function scheduleInspection(formData: FormData) {
         message: formData.get('message'),
     };
     
-    console.log('--- Inspection Appointment Scheduled ---');
+    console.log('--- Cita de Inspección Agendada ---');
     console.log(data);
     await delay(1000);
 
     // In a real app, this would save to Firestore 'citas' collection
-    return { success: true, message: 'Appointment scheduled successfully!' };
+    return { success: true, message: 'Cita agendada con éxito!' };
 }
 
 export async function placeOrder(formData: FormData) {
@@ -69,10 +69,10 @@ export async function placeOrder(formData: FormData) {
         cart: formData.get('cart'),
     };
     
-    console.log('--- Order Placed ---');
+    console.log('--- Orden Realizada ---');
     console.log(data);
     await delay(1500);
 
     // In a real app, this would save to Firestore 'pedidos' collection
-    return { success: true, message: 'Order placed successfully!', orderId: `BMCR-${Date.now()}` };
+    return { success: true, message: 'Orden realizada con éxito!', orderId: `BMCR-${Date.now()}` };
 }

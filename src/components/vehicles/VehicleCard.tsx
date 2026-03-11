@@ -14,6 +14,10 @@ interface VehicleCardProps {
 export function VehicleCard({ vehicle }: VehicleCardProps) {
   const vehicleImage = PlaceHolderImages.find(p => p.id === vehicle.imageIds[0]);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  }
+
   return (
     <Link href={`/vehicles/${vehicle.id}`} className="block group">
       <Card className="overflow-hidden h-full transition-all duration-300 group-hover:shadow-xl group-hover:shadow-primary/20 group-hover:border-primary/50">
@@ -30,7 +34,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
               />
             )}
           </div>
-          <Badge variant="secondary" className="absolute top-3 right-3">${vehicle.price.toLocaleString()}</Badge>
+          <Badge variant="secondary" className="absolute top-3 right-3">{formatPrice(vehicle.price)}</Badge>
         </CardHeader>
         <CardContent className="p-4">
           <CardTitle className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
@@ -39,7 +43,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Gauge className="w-4 h-4" />
-              <span>{vehicle.mileage.toLocaleString()} mi</span>
+              <span>{vehicle.mileage.toLocaleString('es-CR')} km</span>
             </div>
             <div className="flex items-center gap-2">
               <Car className="w-4 h-4" />

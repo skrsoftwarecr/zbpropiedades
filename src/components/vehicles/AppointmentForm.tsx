@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from "date-fns"
+import { es } from "date-fns/locale"
 import { Calendar as CalendarIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -26,11 +27,11 @@ import { Calendar } from '../ui/calendar';
 
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email.' }),
-  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+  name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
+  email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
+  phone: z.string().min(8, { message: 'Por favor ingrese un número de teléfono válido.' }),
   preferredDate: z.date({
-    required_error: "A date is required.",
+    required_error: "Se requiere una fecha.",
   }),
   message: z.string().optional(),
 });
@@ -67,15 +68,15 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
     const result = await scheduleInspection(formData);
     if (result.success) {
       toast({
-        title: 'Appointment Requested',
-        description: 'We have received your request and will contact you shortly to confirm.',
+        title: 'Cita Solicitada',
+        description: 'Hemos recibido su solicitud y le contactaremos pronto para confirmar.',
       });
       form.reset();
     } else {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'There was a problem submitting your request. Please try again.',
+        description: 'Hubo un problema al enviar su solicitud. Por favor, inténtelo de nuevo.',
       });
     }
   };
@@ -91,7 +92,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                 name="name"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>Nombre Completo</FormLabel>
                     <FormControl>
                         <Input placeholder="John Doe" {...field} />
                     </FormControl>
@@ -104,9 +105,9 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                 name="email"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Correo Electrónico</FormLabel>
                     <FormControl>
-                        <Input placeholder="you@example.com" {...field} />
+                        <Input placeholder="usted@ejemplo.com" {...field} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -118,9 +119,9 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>Número de Teléfono</FormLabel>
                   <FormControl>
-                    <Input placeholder="(555) 555-5555" {...field} />
+                    <Input placeholder="8888-8888" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,7 +132,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
               name="preferredDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Preferred Date</FormLabel>
+                  <FormLabel>Fecha Preferida</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -143,9 +144,9 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "PPP", { locale: es })
                           ) : (
-                            <span>Pick a date</span>
+                            <span>Seleccione una fecha</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -160,6 +161,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                           date < new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
+                        locale={es}
                       />
                     </PopoverContent>
                   </Popover>
@@ -172,10 +174,10 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Message (Optional)</FormLabel>
+                  <FormLabel>Mensaje (Opcional)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Any questions or specific times you're available?"
+                      placeholder="¿Alguna pregunta o momentos específicos en que esté disponible?"
                       className="resize-none"
                       {...field}
                     />
@@ -185,7 +187,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
               )}
             />
             <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Submitting...' : 'Request Appointment'}
+              {form.formState.isSubmitting ? 'Enviando...' : 'Solicitar Cita'}
             </Button>
           </form>
         </Form>
