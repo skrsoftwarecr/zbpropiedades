@@ -4,10 +4,42 @@ import { ProductDetails } from '@/components/products/ProductDetails';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
+import type { Metadata } from 'next';
+import type { Product } from '@/lib/types';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type ProductDetailPageProps = {
   params: { id: string };
 };
+
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+  const product: Product | undefined = await getProductById(params.id);
+
+  if (!product) {
+    return {
+      title: 'Producto no encontrado',
+    }
+  }
+  
+  const productImage = PlaceHolderImages.find(p => p.id === product.imageId);
+
+  return {
+    title: product.name,
+    description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      images: productImage ? [
+        {
+          url: productImage.imageUrl,
+          width: 500,
+          height: 500,
+          alt: product.name,
+        }
+      ] : [],
+    }
+  }
+}
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const product = await getProductById(params.id);

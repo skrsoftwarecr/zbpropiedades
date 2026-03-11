@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { Logo } from '@/components/shared/Logo';
 
 const navLinks = [
+  { href: '/', label: 'Inicio' },
   { href: '/parts', label: 'Repuestos' },
   { href: '/vehicles', label: 'Vehículos' },
 ];

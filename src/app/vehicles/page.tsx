@@ -1,5 +1,11 @@
 import { getVehicles } from '@/lib/actions';
 import { VehicleGrid } from '@/components/vehicles/VehicleGrid';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Vehículos BMW Usados en Venta',
+  description: 'Explore nuestra selección de vehículos BMW usados y certificados en Costa Rica. Encuentre el M2, M4, X5 y más modelos en excelentes condiciones en Bimmer CR.',
+};
 
 export default async function VehiclesPage() {
   const allVehicles = await getVehicles();

@@ -6,10 +6,43 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AppointmentForm } from '@/components/vehicles/AppointmentForm';
+import type { Metadata } from 'next';
+import type { Vehicle } from '@/lib/types';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type VehicleDetailPageProps = {
   params: { id: string };
 };
+
+export async function generateMetadata({ params }: VehicleDetailPageProps): Promise<Metadata> {
+  const vehicle: Vehicle | undefined = await getVehicleById(params.id);
+
+  if (!vehicle) {
+    return {
+      title: 'Vehículo no encontrado',
+    }
+  }
+
+  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+  const vehicleImage = PlaceHolderImages.find(p => p.id === vehicle.imageIds[0]);
+
+  return {
+    title: title,
+    description: vehicle.description,
+    openGraph: {
+      title: title,
+      description: vehicle.description,
+      images: vehicleImage ? [
+        {
+          url: vehicleImage.imageUrl,
+          width: 600,
+          height: 400,
+          alt: title,
+        }
+      ] : [],
+    }
+  }
+}
 
 export default async function VehicleDetailPage({ params }: VehicleDetailPageProps) {
   const vehicle = await getVehicleById(params.id);

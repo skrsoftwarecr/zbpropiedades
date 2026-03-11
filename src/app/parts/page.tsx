@@ -1,5 +1,11 @@
 import { getProducts } from '@/lib/actions';
 import { ProductGrid } from '@/components/products/ProductGrid';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Catálogo de Repuestos BMW',
+  description: 'Explore nuestro extenso catálogo de repuestos originales y aftermarket para todos los modelos de BMW. Encuentre filtros, frenos, partes de motor y más en Bimmer CR.',
+};
 
 export default async function PartsPage() {
   const allProducts = await getProducts();

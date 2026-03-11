@@ -1,4 +1,14 @@
 import { CheckoutForm } from '@/components/checkout/CheckoutForm';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Finalizar Compra',
+    description: 'Complete su información de pago y envío para finalizar su orden en Bimmer CR.',
+    robots: {
+        index: false,
+        follow: false,
+    },
+};
 
 export default function CheckoutPage() {
   return (

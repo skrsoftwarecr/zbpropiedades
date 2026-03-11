@@ -1,4 +1,14 @@
 import { CartView } from '@/components/cart/CartView';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Carrito de Compras',
+  description: 'Revise los artículos en su carrito de compras y proceda al pago. Bimmer CR.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function CartPage() {
   return (
