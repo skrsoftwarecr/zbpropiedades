@@ -1,3 +1,130 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-1",
+      "description": "Dramatic shot of a BMW M4 driving on a mountain road",
+      "imageUrl": "https://picsum.photos/seed/bmwhero/1920/1080",
+      "imageHint": "bmw car"
+    },
+    {
+      "id": "part-1",
+      "description": "BMW M Performance Kidney Grille",
+      "imageUrl": "https://picsum.photos/seed/grille/500/500",
+      "imageHint": "car part"
+    },
+    {
+      "id": "part-2",
+      "description": "BBS CI-R Performance Wheel",
+      "imageUrl": "https://picsum.photos/seed/wheel/500/500",
+      "imageHint": "car wheel"
+    },
+    {
+      "id": "part-3",
+      "description": "Original BMW Oil Filter Kit",
+      "imageUrl": "https://picsum.photos/seed/oilfilter/500/500",
+      "imageHint": "car filter"
+    },
+    {
+      "id": "part-4",
+      "description": "Akrapovič Titanium Exhaust System",
+      "imageUrl": "https://picsum.photos/seed/exhaust/500/500",
+      "imageHint": "car exhaust"
+    },
+    {
+      "id": "part-5",
+      "description": "BMW M Performance Carbon Fiber Mirror Caps",
+      "imageUrl": "https://picsum.photos/seed/mirrorcap/500/500",
+      "imageHint": "car mirror"
+    },
+    {
+      "id": "part-6",
+      "description": "Zimmermann Performance Brake Rotors",
+      "imageUrl": "https://picsum.photos/seed/brakerotor/500/500",
+      "imageHint": "car brake"
+    },
+    {
+      "id": "part-7",
+      "description": "BMW M Performance Alcantara Steering Wheel",
+      "imageUrl": "https://picsum.photos/seed/steeringwheel/500/500",
+      "imageHint": "steering wheel"
+    },
+    {
+      "id": "part-8",
+      "description": "KW V3 Coilover Suspension Kit",
+      "imageUrl": "https://picsum.photos/seed/suspension/500/500",
+      "imageHint": "car suspension"
+    },
+    {
+      "id": "vehicle-1",
+      "description": "Green BMW M4 Competition front view",
+      "imageUrl": "https://picsum.photos/seed/greenm4/600/400",
+      "imageHint": "bmw m4"
+    },
+    {
+      "id": "vehicle-interior-1",
+      "description": "Green BMW M4 Competition interior with orange seats",
+      "imageUrl": "https://picsum.photos/seed/m4interior/600/400",
+      "imageHint": "car interior"
+    },
+    {
+      "id": "vehicle-detail-1",
+      "description": "Close up of Green BMW M4 wheel",
+      "imageUrl": "https://picsum.photos/seed/m4wheel/600/400",
+      "imageHint": "car wheel"
+    },
+    {
+      "id": "vehicle-2",
+      "description": "Black BMW X5 M50i front view",
+      "imageUrl": "https://picsum.photos/seed/blackx5/600/400",
+      "imageHint": "bmw x5"
+    },
+    {
+      "id": "vehicle-interior-2",
+      "description": "Black BMW X5 M50i interior",
+      "imageUrl": "https://picsum.photos/seed/x5interior/600/400",
+      "imageHint": "suv interior"
+    },
+    {
+      "id": "vehicle-detail-2",
+      "description": "Close up of Black BMW X5 headlight",
+      "imageUrl": "https://picsum.photos/seed/x5headlight/600/400",
+      "imageHint": "car headlight"
+    },
+    {
+      "id": "vehicle-3",
+      "description": "Blue BMW M2 CS side profile",
+      "imageUrl": "https://picsum.photos/seed/bluem2/600/400",
+      "imageHint": "bmw m2"
+    },
+    {
+      "id": "vehicle-interior-3",
+      "description": "Blue BMW M2 CS interior with alcantara",
+      "imageUrl": "https://picsum.photos/seed/m2interior/600/400",
+      "imageHint": "sportscar interior"
+    },
+    {
+      "id": "vehicle-detail-3",
+      "description": "Close up of Blue BMW M2 CS carbon spoiler",
+      "imageUrl": "https://picsum.photos/seed/m2spoiler/600/400",
+      "imageHint": "car spoiler"
+    },
+    {
+      "id": "vehicle-4",
+      "description": "Grey BMW 330i front quarter view",
+      "imageUrl": "https://picsum.photos/seed/grey330i/600/400",
+      "imageHint": "bmw 3series"
+    },
+    {
+      "id": "vehicle-interior-4",
+      "description": "Grey BMW 330i interior with red seats",
+      "imageUrl": "https://picsum.photos/seed/330iinterior/600/400",
+      "imageHint": "sedan interior"
+    },
+    {
+      "id": "vehicle-detail-4",
+      "description": "Close up of Grey BMW 330i dashboard screen",
+      "imageUrl": "https://picsum.photos/seed/330iscreen/600/400",
+      "imageHint": "car dashboard"
+    }
+  ]
 }

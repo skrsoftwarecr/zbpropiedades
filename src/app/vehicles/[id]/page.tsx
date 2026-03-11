@@ -1,0 +1,41 @@
+import { getVehicleById } from '@/lib/actions';
+import { notFound } from 'next/navigation';
+import { VehicleDetails } from '@/components/vehicles/VehicleDetails';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { AppointmentForm } from '@/components/vehicles/AppointmentForm';
+
+type VehicleDetailPageProps = {
+  params: { id: string };
+};
+
+export default async function VehicleDetailPage({ params }: VehicleDetailPageProps) {
+  const vehicle = await getVehicleById(params.id);
+
+  if (!vehicle) {
+    notFound();
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="mb-6">
+            <Button variant="ghost" asChild>
+                <Link href="/vehicles">
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Back to Vehicles
+                </Link>
+            </Button>
+        </div>
+        <VehicleDetails vehicle={vehicle} />
+
+        <Separator className="my-12 md:my-16" />
+
+        <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold font-headline text-center mb-8">Schedule an Inspection</h2>
+            <AppointmentForm vehicleId={vehicle.id} />
+        </div>
+    </div>
+  );
+}
