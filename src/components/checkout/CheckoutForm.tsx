@@ -25,7 +25,16 @@ const formSchema = z.object({
   address: z.string().min(5, { message: 'La dirección es requerida.' }),
   city: z.string().min(2, { message: 'La ciudad es requerida.' }),
   zip: z.string().min(4, { message: 'Un código postal válido es requerido.' }),
-  paymentMethod: z.enum(['credit-card', 'paypal'], { required_error: 'Por favor seleccione un método de pago.' }),
+  paymentMethod: z.enum(['credit-card', 'paypal', 'transfer'], { required_error: 'Por favor seleccione un método de pago.' }),
+  receipt: z.any().optional(),
+}).refine(data => {
+    if (data.paymentMethod === 'transfer' && (!data.receipt || data.receipt.length === 0)) {
+        return false;
+    }
+    return true;
+}, {
+    message: 'Se requiere un comprobante de pago para este método.',
+    path: ['receipt'],
 });
 
 type CheckoutFormValues = z.infer<typeof formSchema>;
@@ -35,6 +44,7 @@ export function CheckoutForm() {
   const { cart, clearCart } = useCart();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('personal');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
@@ -51,24 +61,49 @@ export function CheckoutForm() {
   const total = subtotal * 1.13; // with 13% tax
 
   const onSubmit = async (values: CheckoutFormValues) => {
-    const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-    formData.append('cart', JSON.stringify(cart));
+    setIsSubmitting(true);
+    let receiptPayload: { base64: string; mimeType: string; fileName: string } | undefined = undefined;
 
-    const result = await placeOrder(formData);
+    if (values.paymentMethod === 'transfer' && values.receipt?.[0]) {
+      const file = values.receipt[0];
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve((reader.result as string).split(',')[1]);
+          reader.onerror = error => reject(error);
+        });
+        receiptPayload = {
+          base64: base64,
+          mimeType: file.type,
+          fileName: file.name
+        };
+      } catch (error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo procesar el archivo del comprobante.' });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+    
+    const result = await placeOrder({
+      ...values,
+      cart,
+      receipt: receiptPayload,
+    });
+
     if (result.success) {
       toast({
         title: '¡Orden Realizada!',
-        description: `Su orden #${result.orderId} ha sido realizada con éxito.`,
+        description: `Su orden #${result.orderId} ha sido realizada con éxito. Recibirá una confirmación por correo.`,
       });
       clearCart();
       router.push('/');
     } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'Error al realizar la orden.' });
+      toast({ variant: 'destructive', title: 'Error', description: result.message || 'Error al realizar la orden.' });
     }
+    setIsSubmitting(false);
   };
+
 
   const handleNext = async (fieldNames: (keyof CheckoutFormValues)[]) => {
     const isValid = await form.trigger(fieldNames);
@@ -131,12 +166,36 @@ export function CheckoutForm() {
                                 <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
                                     <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="credit-card" /></FormControl><FormLabel className="font-normal">Tarjeta de Crédito</FormLabel></FormItem>
                                     <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="paypal" /></FormControl><FormLabel className="font-normal">PayPal</FormLabel></FormItem>
+                                    <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="transfer" /></FormControl><FormLabel className="font-normal">Transferencia / SINPE Móvil</FormLabel></FormItem>
                                 </RadioGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
-                    <Button type="button" onClick={() => handleNext(['paymentMethod'])} className="mt-6 w-full">Revisar Orden</Button>
+                    
+                    {form.watch('paymentMethod') === 'transfer' && (
+                        <FormField
+                            control={form.control}
+                            name="receipt"
+                            render={({ field: { onChange, onBlur, name, ref } }) => (
+                            <FormItem className='mt-4'>
+                                <FormLabel>Comprobante de Pago</FormLabel>
+                                <FormControl>
+                                <Input
+                                    type="file"
+                                    accept="image/*,.pdf"
+                                    onBlur={onBlur}
+                                    name={name}
+                                    onChange={(e) => onChange(e.target.files)}
+                                    ref={ref}
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    )}
+                    <Button type="button" onClick={() => handleNext(['paymentMethod', 'receipt'])} className="mt-6 w-full">Revisar Orden</Button>
                 </TabsContent>
 
                 <TabsContent value="summary" className="mt-0">
@@ -153,8 +212,8 @@ export function CheckoutForm() {
                             <span>{formatPrice(total)}</span>
                         </div>
                     </div>
-                     <Button type="submit" size="lg" className="w-full mt-6" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? 'Realizando Orden...' : 'Realizar Orden'}
+                     <Button type="submit" size="lg" className="w-full mt-6" disabled={isSubmitting}>
+                        {isSubmitting ? 'Realizando Orden...' : 'Realizar Orden'}
                     </Button>
                 </TabsContent>
             </CardContent>
