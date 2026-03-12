@@ -8,51 +8,51 @@
     },
     {
       "id": "cta-repuestos",
-      "description": "A wall of car parts in a warehouse",
-      "imageUrl": "https://picsum.photos/seed/ctaparts/800/600",
-      "imageHint": "car parts"
+      "description": "Close-up of a high-performance BMW wheel and brake assembly.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2023/04/photo_2023-04-12_21-20-24.jpg",
+      "imageHint": "bmw wheel"
     },
     {
       "id": "cta-vehiculos",
-      "description": "A BMW car in a modern showroom",
-      "imageUrl": "https://picsum.photos/seed/ctavehicles/800/600",
-      "imageHint": "bmw showroom"
+      "description": "A pristine white BMW M4 ready for the road.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2023/04/photo_2023-04-12_21-20-19.jpg",
+      "imageHint": "bmw car"
     },
     {
       "id": "cta-vender-vehiculo",
-      "description": "A person handing over car keys to another person.",
-      "imageUrl": "https://picsum.photos/seed/ctasellcar/800/600",
-      "imageHint": "selling car"
+      "description": "Interior of a luxury vehicle, showcasing its premium quality.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2024/04/WhatsApp-Image-2024-04-24-at-13.40.45.jpeg",
+      "imageHint": "luxury car interior"
     },
     {
       "id": "cta-taller",
-      "description": "A clean and modern car repair workshop",
-      "imageUrl": "https://picsum.photos/seed/ctaworkshop/800/600",
-      "imageHint": "car workshop"
+      "description": "A high-performance BMW being serviced in a professional workshop.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2023/04/photo_2023-04-12_21-20-22-1.jpg",
+      "imageHint": "bmw service"
     },
     {
       "id": "taller-hero",
-      "description": "Professional BMW mechanic working on an engine.",
-      "imageUrl": "https://picsum.photos/seed/bmw-repair/1920/800",
-      "imageHint": "car repair"
+      "description": "A dynamic shot of a BMW showcasing its performance and design.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2023/04/photo_2023-04-12_21-20-26.jpg",
+      "imageHint": "bmw performance"
     },
     {
       "id": "servicio-mecanica",
-      "description": "Mechanic arriving in a service van.",
-      "imageUrl": "https://picsum.photos/seed/servicemechanic/800/600",
-      "imageHint": "service van"
+      "description": "Expert mechanic performing diagnostics on a BMW.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2023/04/photo_2023-04-12_21-20-21.jpg",
+      "imageHint": "car diagnostics"
     },
     {
       "id": "servicio-mantenimiento",
-      "description": "Mechanic performing an oil change.",
-      "imageUrl": "https://picsum.photos/seed/servicemaintenance/800/600",
-      "imageHint": "oil change"
+      "description": "A clean and powerful BMW engine undergoing preventive maintenance.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2023/04/photo_2023-04-12_21-20-28.jpg",
+      "imageHint": "bmw engine"
     },
     {
       "id": "servicio-pintura",
-      "description": "Car in a professional paint booth, showing a glossy finish.",
-      "imageUrl": "https://picsum.photos/seed/autobody/800/600",
-      "imageHint": "auto body"
+      "description": "A BMW with a flawless, glossy black paint finish after a professional service.",
+      "imageUrl": "https://pugachev.miami/wp-content/uploads/2023/04/photo_2023-04-12_21-20-25-1.jpg",
+      "imageHint": "car paint"
     }
   ]
 }

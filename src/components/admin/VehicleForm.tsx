@@ -50,7 +50,13 @@ const formSchema = z.object({
   availabilityStatus: z.enum(['Available', 'Pending Inspection', 'Sold']),
   description: z.string().min(10, 'La descripción es muy corta.'),
   features: z.string().min(1, 'Agregue al menos una característica.'),
-  imageUrls: z.string().min(1, 'Agregue al menos una URL de imagen.'),
+  imageUrls: z.string()
+    .min(1, 'Agregue al menos una URL de imagen.')
+    .refine(value => {
+        const urls = value.split('\n').map(item => item.trim()).filter(Boolean);
+        if (urls.length === 0) return false;
+        return urls.every(url => z.string().url({ message: `La URL '${url.slice(0,30)}...' no es válida.` }).safeParse(url).success);
+    }, 'Una o más URLs no son válidas. Asegúrese de que cada línea contenga una URL completa (ej: https://...).'),
 });
 
 type VehicleFormValues = z.infer<typeof formSchema>;
@@ -184,7 +190,7 @@ export function VehicleForm({ isOpen, onOpenChange, vehicle }: VehicleFormProps)
                 <FormItem><FormLabel>Características (una por línea)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="imageUrls" render={({ field }) => (
-                <FormItem><FormLabel>URLs de Imagen (uno por línea)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>URLs de Imagen (una por línea)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
             )} />
 
             <SheetFooter className="pt-4">

@@ -45,7 +45,13 @@ const formSchema = z.object({
   condition: z.enum(['Nuevo', 'Usado']),
   description: z.string().min(10, 'La descripción es muy corta.'),
   compatibility: z.string().min(1, 'Agregue al menos un modelo compatible.'),
-  imageUrls: z.string().min(1, 'Agregue al menos una URL de imagen.'),
+  imageUrls: z.string()
+    .min(1, 'Agregue al menos una URL de imagen.')
+    .refine(value => {
+        const urls = value.split('\n').map(item => item.trim()).filter(Boolean);
+        if (urls.length === 0) return false;
+        return urls.every(url => z.string().url({ message: `La URL '${url.slice(0,30)}...' no es válida.` }).safeParse(url).success);
+    }, 'Una o más URLs no son válidas. Asegúrese de que cada línea contenga una URL completa (ej: https://...).'),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
