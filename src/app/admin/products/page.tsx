@@ -22,26 +22,26 @@ export default function AdminProductsPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = React.useCallback((product: Product) => {
     setSelectedProduct(product);
     setIsFormOpen(true);
-  };
+  }, []);
 
-  const handleAddNew = () => {
+  const handleAddNew = React.useCallback(() => {
     setSelectedProduct(null);
     setIsFormOpen(true);
-  }
+  }, []);
 
-  const handleDelete = (productId: string) => {
+  const handleDelete = React.useCallback((productId: string) => {
     try {
         deleteProduct(firestore, productId);
         toast({ title: 'Repuesto Eliminado', description: 'El repuesto se ha eliminado correctamente.' });
     } catch(error) {
         toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar el repuesto.' });
     }
-  };
+  }, [firestore, toast]);
 
-  const columns = React.useMemo(() => getColumns({ onEdit: handleEdit, onDelete: handleDelete }), []);
+  const columns = React.useMemo(() => getColumns({ onEdit: handleEdit, onDelete: handleDelete }), [handleEdit, handleDelete]);
   
   if (isLoading) {
     return (

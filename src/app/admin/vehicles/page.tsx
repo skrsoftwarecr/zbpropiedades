@@ -22,26 +22,26 @@ export default function AdminVehiclesPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selectedVehicle, setSelectedVehicle] = React.useState<Vehicle | null>(null);
 
-  const handleEdit = (vehicle: Vehicle) => {
+  const handleEdit = React.useCallback((vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
     setIsFormOpen(true);
-  };
+  }, []);
   
-  const handleAddNew = () => {
+  const handleAddNew = React.useCallback(() => {
     setSelectedVehicle(null);
     setIsFormOpen(true);
-  }
+  }, []);
 
-  const handleDelete = (vehicleId: string) => {
+  const handleDelete = React.useCallback((vehicleId: string) => {
     try {
         deleteVehicle(firestore, vehicleId);
         toast({ title: 'Vehículo Eliminado', description: 'El vehículo se ha eliminado correctamente.' });
     } catch(error) {
         toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar el vehículo.' });
     }
-  };
+  }, [firestore, toast]);
 
-  const columns = React.useMemo(() => getColumns({ onEdit: handleEdit, onDelete: handleDelete }), []);
+  const columns = React.useMemo(() => getColumns({ onEdit: handleEdit, onDelete: handleDelete }), [handleEdit, handleDelete]);
 
    if (isLoading) {
     return (

@@ -20,16 +20,16 @@ export default function AdminAppointmentsPage() {
   );
   const { data: appointments, isLoading } = useCollection<Appointment>(appointmentsQuery);
 
-  const handleStatusChange = (appointmentId: string, status: 'Completed' | 'Cancelled') => {
+  const handleStatusChange = React.useCallback((appointmentId: string, status: 'Completed' | 'Cancelled') => {
     try {
       updateAppointmentStatus(firestore, appointmentId, status);
       toast({ title: 'Estado Actualizado', description: `La cita ha sido marcada como ${status}.` });
     } catch (error) {
       toast({ variant: 'destructive', title: 'Error', description: 'No se pudo actualizar el estado de la cita.' });
     }
-  };
+  }, [firestore, toast]);
 
-  const columns = React.useMemo(() => getColumns({ onStatusChange: handleStatusChange }), [firestore]);
+  const columns = React.useMemo(() => getColumns({ onStatusChange: handleStatusChange }), [handleStatusChange]);
 
   if (isLoading) {
     return (
@@ -55,5 +55,3 @@ export default function AdminAppointmentsPage() {
     </>
   );
 }
-
-    
