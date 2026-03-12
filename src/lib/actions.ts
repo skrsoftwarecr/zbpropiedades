@@ -30,6 +30,8 @@ export async function getProducts(): Promise<Product[]> {
             condition: data.condition,
             compatibility: data.compatibility,
             imageUrls: data.imageUrls,
+            createdAt: data.createdAt?.toDate(),
+            updatedAt: data.updatedAt?.toDate(),
         } as Product
     });
     return productList;
@@ -57,7 +59,9 @@ export async function getVehicles(): Promise<Vehicle[]> {
             features: data.features,
             description: data.description,
             imageUrls: data.imageUrls,
-            availabilityStatus: data.availabilityStatus
+            availabilityStatus: data.availabilityStatus,
+            createdAt: data.createdAt?.toDate(),
+            updatedAt: data.updatedAt?.toDate(),
         } as Vehicle
     });
     return vehicleList;
@@ -92,7 +96,6 @@ export async function sendAppointmentEmail(appointmentData: AppointmentEmailData
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
-            redirect: 'follow',
         });
         
         if (!response.ok) {
@@ -144,7 +147,6 @@ export async function placeOrder(orderData: PlaceOrderArgs) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
-            redirect: 'follow'
         });
         
         if (!response.ok) {
