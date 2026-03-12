@@ -85,13 +85,16 @@ export function UserAuthForm() {
       await signInWithGoogle(auth);
       // After sign-in, the `user` object will update,
       // and the `useEffect` above will trigger the admin check and redirect.
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Hubo un problema al iniciar sesión con Google.',
-      });
+    } catch (error: any) {
+      // Don't show an error toast if the user simply closed the popup.
+      if (error.code !== 'auth/popup-closed-by-user') {
+        console.error(error);
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Hubo un problema al iniciar sesión con Google.',
+        });
+      }
       setIsLoading(false);
     }
     // Don't set isLoading to false on success because a redirect is in progress.
