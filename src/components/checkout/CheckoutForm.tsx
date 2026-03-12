@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/context/CartContext';
@@ -16,6 +16,7 @@ import { placeOrder } from '@/lib/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Upload } from 'lucide-react';
 
 
 const formSchema = z.object({
@@ -85,8 +86,11 @@ export function CheckoutForm() {
       }
     }
     
+    // Omit the 'receipt' FileList from the values passed to the server action
+    const { receipt, ...serializableValues } = values;
+
     const result = await placeOrder({
-      ...values,
+      ...serializableValues,
       cart,
       receipt: receiptPayload,
     });
@@ -174,12 +178,13 @@ export function CheckoutForm() {
                     )} />
                     
                     {form.watch('paymentMethod') === 'transfer' && (
+                       <div className="p-4 border-dashed border-2 rounded-md mt-4 bg-muted/50">
                         <FormField
                             control={form.control}
                             name="receipt"
                             render={({ field: { onChange, onBlur, name, ref } }) => (
-                            <FormItem className='mt-4'>
-                                <FormLabel>Comprobante de Pago</FormLabel>
+                            <FormItem>
+                                <FormLabel className="font-semibold text-base flex items-center gap-2"><Upload className="h-5 w-5" /> Adjuntar Comprobante de Pago</FormLabel>
                                 <FormControl>
                                 <Input
                                     type="file"
@@ -188,12 +193,17 @@ export function CheckoutForm() {
                                     name={name}
                                     onChange={(e) => onChange(e.target.files)}
                                     ref={ref}
+                                    className="file:font-semibold file:text-primary file:bg-primary/10 hover:file:bg-primary/20 cursor-pointer"
                                 />
                                 </FormControl>
+                                <FormDescription>
+                                    Por favor, adjunte una captura de pantalla o PDF del SINPE Móvil o la transferencia bancaria.
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                             )}
                         />
+                       </div>
                     )}
                     <Button type="button" onClick={() => handleNext(['paymentMethod', 'receipt'])} className="mt-6 w-full">Revisar Orden</Button>
                 </TabsContent>
