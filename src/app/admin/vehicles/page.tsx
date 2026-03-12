@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase/provider';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { Vehicle } from '@/lib/types';
 import { getColumns } from './columns';
@@ -41,7 +41,7 @@ export default function AdminVehiclesPage() {
     }
   };
 
-  const columns = React.useMemo(() => getColumns({ onEdit: handleEdit, onDelete: handleDelete }), [firestore]);
+  const columns = React.useMemo(() => getColumns({ onEdit: handleEdit, onDelete: handleDelete }), []);
 
    if (isLoading) {
     return (

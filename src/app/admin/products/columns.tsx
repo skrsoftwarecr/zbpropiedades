@@ -91,7 +91,7 @@ export const getColumns = ({ onEdit, onDelete }: ProductColumnsProps): ColumnDef
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onEdit(product)}>Editar</DropdownMenuItem>
                 <AlertDialogTrigger asChild>
-                    <DropdownMenuItem className="text-destructive focus:bg-destructive/30">Eliminar</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive focus:bg-destructive/30 focus:text-destructive-foreground">Eliminar</DropdownMenuItem>
                 </AlertDialogTrigger>
             </DropdownMenuContent>
             </DropdownMenu>
