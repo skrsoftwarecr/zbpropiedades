@@ -30,7 +30,6 @@ export function addProduct(firestore: Firestore, productData: ProductData) {
       requestResourceData: productData,
     });
     errorEmitter.emit('permission-error', contextualError);
-    throw contextualError;
   });
 }
 
@@ -50,7 +49,6 @@ export function updateProduct(
       requestResourceData: productData,
     });
     errorEmitter.emit('permission-error', contextualError);
-    throw contextualError;
   });
 }
 
@@ -62,7 +60,6 @@ export function deleteProduct(firestore: Firestore, productId: string) {
       path: productDoc.path,
     });
     errorEmitter.emit('permission-error', contextualError);
-    throw contextualError;
   });
 }
 
@@ -83,7 +80,6 @@ export function addVehicle(firestore: Firestore, vehicleData: VehicleData) {
       requestResourceData: vehicleData,
     });
     errorEmitter.emit('permission-error', contextualError);
-    throw contextualError;
   });
 }
 
@@ -103,7 +99,6 @@ export function updateVehicle(
       requestResourceData: vehicleData,
     });
     errorEmitter.emit('permission-error', contextualError);
-    throw contextualError;
   });
 }
 
@@ -115,7 +110,6 @@ export function deleteVehicle(firestore: Firestore, vehicleId: string) {
       path: vehicleDoc.path,
     });
     errorEmitter.emit('permission-error', contextualError);
-    throw contextualError;
   });
 }
 
@@ -136,7 +130,6 @@ export function addAppointment(firestore: Firestore, appointmentData: Appointmen
             requestResourceData: appointmentData,
         });
         errorEmitter.emit('permission-error', contextualError);
-        throw contextualError;
     });
 }
 
@@ -156,8 +149,5 @@ export function updateAppointmentStatus(
             requestResourceData: { status },
         });
         errorEmitter.emit('permission-error', contextualError);
-        throw contextualError;
     });
 }
-
-    
