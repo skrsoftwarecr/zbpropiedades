@@ -2,8 +2,7 @@
 
 import { useEffect, useState, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useUser, useFirestore } from '@/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -62,64 +61,34 @@ export default function AdminLayout({
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const firestore = useFirestore();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // We are still waiting for the user's authentication status to be resolved.
+    // Wait until the user's authentication status is resolved.
     if (isUserLoading) {
       return;
     }
 
-    // The user is not logged in. Redirect them to the login page.
+    // User is not logged in, redirect to login page.
     if (!user) {
       router.replace('/login');
       return;
     }
-    
-    // TEMPORARY: Hardcode admin access for a specific email.
-    // For a production app, this should be replaced with a proper role management system.
+
+    // User is logged in, check if they are the authorized admin.
     if (user.email === 'skrsoftwarecr@gmail.com') {
-      setIsAdmin(true);
-      setIsCheckingAdmin(false);
-      return;
+      setIsAuthorized(true);
+    } else {
+      // If not the authorized admin, redirect to the homepage.
+      router.replace('/');
     }
 
-    // If we have already confirmed that the user is an admin, we don't need to check again.
-    // This makes navigating between admin pages much faster.
-    if (isAdmin) {
-        setIsCheckingAdmin(false);
-        return;
-    }
+    setIsChecking(false);
 
-    const checkAdminStatus = async () => {
-      if (!firestore) return;
+  }, [user, isUserLoading, router]);
 
-      setIsCheckingAdmin(true);
-      try {
-        const adminDocRef = doc(firestore, 'admins', user.uid);
-        const adminDoc = await getDoc(adminDocRef);
-        
-        if (adminDoc.exists()) {
-          setIsAdmin(true);
-        } else {
-          // If the user is not an admin, redirect them to the home page.
-          console.warn('User is not an admin. Redirecting...');
-          router.replace('/');
-        }
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        router.replace('/'); // Redirect on error for security.
-      } finally {
-        setIsCheckingAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, [user, isUserLoading, firestore, router, isAdmin]);
-
-  if (isUserLoading || isCheckingAdmin || !isAdmin) {
+  if (isChecking || !isAuthorized) {
     return (
       <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
         <div className="hidden border-r bg-muted/40 md:block">

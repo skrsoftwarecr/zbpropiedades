@@ -2,13 +2,10 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, useFirestore } from '@/firebase/provider';
+import { useAuth, useUser } from '@/firebase/provider';
 import { signInWithGoogle, signOutUser } from '@/firebase/auth-service';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { doc, getDoc } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 
 const GoogleIcon = () => (
   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -34,59 +31,35 @@ const GoogleIcon = () => (
 
 export function UserAuthForm() {
   const auth = useAuth();
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
 
-  const checkAdminAndRedirect = React.useCallback((uid: string) => {
-    const adminDocRef = doc(firestore, 'admins', uid);
-    
-    getDoc(adminDocRef).then(adminDoc => {
-      if (adminDoc.exists()) {
-        router.push('/admin');
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Acceso Denegado',
-          description: 'No tienes permisos de administrador.',
-        });
-        signOutUser(auth).finally(() => router.push('/'));
-      }
-    }).catch(error => {
-        // Emit the contextual error for better debugging in development
-        const permissionError = new FirestorePermissionError({
-            path: adminDocRef.path,
-            operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-
-        // Also provide immediate user feedback
-        console.error('Error checking admin status:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Error de Autenticación',
-          description: 'No se pudo verificar tu estado de administrador.',
-        });
-        signOutUser(auth).finally(() => router.push('/'));
-    });
-  }, [auth, firestore, router, toast]);
-
+  // Redirect if an admin is already logged in
   React.useEffect(() => {
-    if (user) {
-      checkAdminAndRedirect(user.uid);
+    if (!isUserLoading && user && user.email === 'skrsoftwarecr@gmail.com') {
+      router.replace('/admin');
     }
-  }, [user, checkAdminAndRedirect]);
+  }, [user, isUserLoading, router]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signInWithGoogle(auth);
-      // After sign-in, the `user` object will update,
-      // and the `useEffect` above will trigger the admin check and redirect.
+      const userCredential = await signInWithGoogle(auth);
+      const loggedInUser = userCredential.user;
+
+      if (loggedInUser.email === 'skrsoftwarecr@gmail.com') {
+        router.push('/admin');
+      } else {
+        await signOutUser(auth);
+        toast({
+          variant: 'destructive',
+          title: 'Acceso no autorizado',
+          description: 'Este correo no tiene permisos de administrador.',
+        });
+      }
     } catch (error: any) {
-      // Don't show an error toast if the user simply closed the popup.
       if (error.code !== 'auth/popup-closed-by-user') {
         console.error(error);
         toast({
@@ -95,14 +68,14 @@ export function UserAuthForm() {
             description: 'Hubo un problema al iniciar sesión con Google.',
         });
       }
+    } finally {
       setIsLoading(false);
     }
-    // Don't set isLoading to false on success because a redirect is in progress.
   };
 
   return (
     <div className="grid gap-6">
-      <Button variant="outline" type="button" disabled={isLoading} onClick={handleGoogleSignIn}>
+      <Button variant="outline" type="button" disabled={isLoading || (!isUserLoading && !!user)} onClick={handleGoogleSignIn}>
         {isLoading ? (
           <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
