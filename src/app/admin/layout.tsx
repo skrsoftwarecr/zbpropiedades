@@ -20,14 +20,12 @@ const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
     { href: '/admin/appointments', label: 'Citas', icon: CalendarClock },
   ];
 
-  const LinkComponent = isSheet ? SheetClose : 'div';
-
   return (
     <nav className="flex flex-col gap-2 p-4">
       {navLinks.map((link) => {
         const isActive = pathname === link.href;
-        return (
-          <LinkComponent key={link.href} {...(isSheet ? { asChild: true } : {})}>
+        
+        const linkContent = (
             <Link
               href={link.href}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-muted text-primary' : ''
@@ -36,7 +34,20 @@ const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
               <link.icon className="h-4 w-4" />
               {link.label}
             </Link>
-          </LinkComponent>
+        );
+
+        if (isSheet) {
+          return (
+            <SheetClose asChild key={link.href}>
+              {linkContent}
+            </SheetClose>
+          );
+        }
+
+        return (
+          <div key={link.href}>
+            {linkContent}
+          </div>
         );
       })}
     </nav>
@@ -67,6 +78,14 @@ export default function AdminLayout({
       return;
     }
     
+    // TEMPORARY: Hardcode admin access for a specific email.
+    // For a production app, this should be replaced with a proper role management system.
+    if (user.email === 'skrsoftwarecr@gmail.com') {
+      setIsAdmin(true);
+      setIsCheckingAdmin(false);
+      return;
+    }
+
     // If we have already confirmed that the user is an admin, we don't need to check again.
     // This makes navigating between admin pages much faster.
     if (isAdmin) {
