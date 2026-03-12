@@ -2,11 +2,13 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser } from '@/firebase/provider';
+import { useAuth, useUser, useFirestore } from '@/firebase/provider';
 import { signInWithGoogle, signOutUser } from '@/firebase/auth-service';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const GoogleIcon = () => (
   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -32,23 +34,16 @@ const GoogleIcon = () => (
 
 export function UserAuthForm() {
   const auth = useAuth();
-  const firestore = getFirestore(auth.app);
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const { user } = useUser();
 
-  React.useEffect(() => {
-    if (user) {
-      // User is already signed in, check for admin privileges
-      checkAdminAndRedirect(user.uid);
-    }
-  }, [user]);
-
-  const checkAdminAndRedirect = async (uid: string) => {
+  const checkAdminAndRedirect = React.useCallback((uid: string) => {
     const adminDocRef = doc(firestore, 'admins', uid);
-    try {
-      const adminDoc = await getDoc(adminDocRef);
+    
+    getDoc(adminDocRef).then(adminDoc => {
       if (adminDoc.exists()) {
         router.push('/admin');
       } else {
@@ -57,28 +52,39 @@ export function UserAuthForm() {
           title: 'Acceso Denegado',
           description: 'No tienes permisos de administrador.',
         });
-        await signOutUser(auth);
-        router.push('/');
+        signOutUser(auth).finally(() => router.push('/'));
       }
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error de Autenticación',
-        description: 'No se pudo verificar tu estado de administrador.',
-      });
-      await signOutUser(auth);
-      router.push('/');
+    }).catch(error => {
+        // Emit the contextual error for better debugging in development
+        const permissionError = new FirestorePermissionError({
+            path: adminDocRef.path,
+            operation: 'get',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+
+        // Also provide immediate user feedback
+        console.error('Error checking admin status:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Error de Autenticación',
+          description: 'No se pudo verificar tu estado de administrador.',
+        });
+        signOutUser(auth).finally(() => router.push('/'));
+    });
+  }, [auth, firestore, router, toast]);
+
+  React.useEffect(() => {
+    if (user) {
+      checkAdminAndRedirect(user.uid);
     }
-  };
+  }, [user, checkAdminAndRedirect]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const userCredential = await signInWithGoogle(auth);
-      if (userCredential && userCredential.user) {
-        await checkAdminAndRedirect(userCredential.user.uid);
-      }
+      await signInWithGoogle(auth);
+      // After sign-in, the `user` object will update,
+      // and the `useEffect` above will trigger the admin check and redirect.
     } catch (error) {
       console.error(error);
       toast({
@@ -88,6 +94,7 @@ export function UserAuthForm() {
       });
       setIsLoading(false);
     }
+    // Don't set isLoading to false on success because a redirect is in progress.
   };
 
   return (

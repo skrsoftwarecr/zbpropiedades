@@ -39,7 +39,8 @@ service cloud.firestore {
     /**
      * Checks if the currently authenticated user is an administrator.
      * Admin status is determined by the existence of a document in the /admins collection
-     * with an ID matching the user's UID.
+     * with an ID matching the user's UID. The `get` rule on `/admins/{adminId}` must
+     * permit this `exists()` check.
      */
     function isAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
@@ -66,14 +67,17 @@ service cloud.firestore {
     // --------------------------------
 
     /**
-     * @description Manages admin role documents. Only other admins can read or write here.
+     * @description Manages admin role documents.
      * @path /admins/{adminId}
-     * @allow (get) An admin reading another admin's document.
-     * @deny (get) A non-admin user trying to read an admin document.
+     * @allow (get) An authenticated user can check their own admin status.
+     * @allow (list) An admin can list all other admins.
+     * @deny (get) A non-admin user trying to read another user's admin document.
      * @principle Implements Database-Backed Access Control (DBAC) for admin roles.
      */
     match /admins/{adminId} {
-      allow get, list: if isAdmin();
+      allow get: if isOwner(adminId);
+      allow list: if isAdmin();
+      // NOTE: The first admin must be created manually in the Firebase Console.
       allow create, update, delete: if isAdmin();
     }
 
