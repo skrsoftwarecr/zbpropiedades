@@ -7,6 +7,24 @@
       "imageHint": "bmw car"
     },
     {
+      "id": "cta-repuestos",
+      "description": "A wall of car parts in a warehouse",
+      "imageUrl": "https://picsum.photos/seed/ctaparts/800/600",
+      "imageHint": "car parts"
+    },
+    {
+      "id": "cta-vehiculos",
+      "description": "A BMW car in a modern showroom",
+      "imageUrl": "https://picsum.photos/seed/ctavehicles/800/600",
+      "imageHint": "bmw showroom"
+    },
+    {
+      "id": "cta-taller",
+      "description": "A clean and modern car repair workshop",
+      "imageUrl": "https://picsum.photos/seed/ctaworkshop/800/600",
+      "imageHint": "car workshop"
+    },
+    {
       "id": "part-1",
       "description": "BMW M Performance Kidney Grille",
       "imageUrl": "https://picsum.photos/seed/grille/500/500",
