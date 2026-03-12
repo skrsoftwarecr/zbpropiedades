@@ -75,14 +75,13 @@ service cloud.firestore {
      * @principle Implements Database-Backed Access Control (DBAC) for admin roles.
      */
     match /admins/{adminId} {
-      allow get: if isOwner(adminId);
+      allow get: if isSignedIn();
       allow list: if isAdmin();
-      // NOTE: The first admin must be created manually in the Firebase Console.
       allow create, update, delete: if isAdmin();
     }
 
     // --------------------------------
-    // Public Catalog Collections
+    // Public Catalog & Data Collections
     // --------------------------------
 
     /**
@@ -131,6 +130,18 @@ service cloud.firestore {
     match /vehicles/{vehicleId} {
       allow get, list: if true;
       allow create, update, delete: if isAdmin();
+    }
+    
+    /**
+     * @description Appointment requests. Writable by anyone, readable only by admins.
+     * @path /appointments/{appointmentId}
+     * @allow (create) Any user can create an appointment request.
+     * @deny (read) Regular users cannot read or list appointments.
+     * @principle Allows public write for appointment submission, secures data for admin review.
+     */
+    match /appointments/{appointmentId} {
+        allow create: if true;
+        allow get, list, update, delete: if isAdmin();
     }
 
     // --------------------------------
@@ -209,20 +220,8 @@ service cloud.firestore {
           allow delete: if isExistingOwner(firebaseUserId);
         }
       }
-
-      /**
-       * @description A customer's scheduled appointments, private to the owner.
-       * @path /customerProfiles/{firebaseUserId}/appointments/{appointmentId}
-       * @allow (list) An owner listing their own appointments.
-       * @deny (get) A user trying to view another user's appointment.
-       * @principle Restricts access to a user's own data tree and validates relational integrity.
-       */
-      match /appointments/{appointmentId} {
-        allow get, list: if isOwner(firebaseUserId);
-        allow create: if isOwner(firebaseUserId) && request.resource.data.customerId == firebaseUserId;
-        allow update: if isExistingOwner(firebaseUserId) && request.resource.data.customerId == resource.data.customerId;
-        allow delete: if isExistingOwner(firebaseUserId);
-      }
     }
   }
 }
+
+    

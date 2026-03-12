@@ -8,6 +8,7 @@ import { es } from "date-fns/locale"
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -20,7 +21,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { scheduleInspection } from '@/lib/actions';
+import { sendAppointmentEmail } from '@/lib/actions';
+import { addAppointment } from '@/lib/firestore-service';
 import { Card, CardContent } from '../ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { cn } from '@/lib/utils';
@@ -46,6 +48,7 @@ interface AppointmentFormProps {
 
 export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
   const { toast } = useToast();
+  const firestore = useFirestore();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -63,29 +66,36 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
   });
 
   const onSubmit = async (values: AppointmentFormValues) => {
-    const formData = new FormData();
-    formData.append('vehicleId', vehicleId);
-    formData.append('name', values.name);
-    formData.append('email', values.email);
-    formData.append('phone', values.phone);
-    formData.append('preferredDate', values.preferredDate.toISOString());
-    if (values.message) {
-      formData.append('message', values.message);
+    const appointmentData = {
+        ...values,
+        vehicleId,
+        status: 'Pending' as const,
     }
 
-    const result = await scheduleInspection(formData);
-    if (result.success) {
-      toast({
-        title: 'Cita Solicitada',
-        description: 'Hemos recibido su solicitud y le contactaremos pronto para confirmar.',
-      });
-      form.reset();
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Hubo un problema al enviar su solicitud. Por favor, inténtelo de nuevo.',
-      });
+    try {
+        // 1. Save to Firestore client-side
+        addAppointment(firestore, appointmentData);
+
+        // 2. Trigger server action to send email
+        const result = await sendAppointmentEmail(appointmentData);
+
+        if (result.success) {
+            toast({
+                title: 'Cita Solicitada',
+                description: 'Hemos recibido su solicitud y le contactaremos pronto para confirmar.',
+            });
+            form.reset();
+        } else {
+             throw new Error(result.message || 'Error al enviar el correo de la cita.');
+        }
+
+    } catch (error) {
+        console.error("Error submitting appointment:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Hubo un problema al enviar su solicitud. Por favor, inténtelo de nuevo.',
+        });
     }
   };
 
@@ -166,7 +176,7 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
-                          date < new Date() || date < new Date("1900-01-01")
+                          date < new Date(new Date().setDate(new Date().getDate() - 1))
                         }
                         initialFocus
                         locale={es}
@@ -203,3 +213,5 @@ export function AppointmentForm({ vehicleId }: AppointmentFormProps) {
     </Card>
   );
 }
+
+    

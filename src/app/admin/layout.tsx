@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Car, LayoutDashboard, Package, PanelLeft } from 'lucide-react';
+import { Car, LayoutDashboard, Package, PanelLeft, CalendarClock } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Logo } from '@/components/shared/Logo';
 
@@ -17,12 +17,13 @@ const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/products', label: 'Repuestos', icon: Package },
     { href: '/admin/vehicles', label: 'Vehículos', icon: Car },
+    { href: '/admin/appointments', label: 'Citas', icon: CalendarClock },
   ];
 
   const LinkComponent = isSheet ? SheetClose : 'div';
 
   return (
-    <nav className="flex flex-col gap-2">
+    <nav className="flex flex-col gap-2 p-4">
       {navLinks.map((link) => {
         const isActive = pathname === link.href;
         return (
@@ -46,7 +47,7 @@ const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
@@ -66,14 +67,16 @@ export default function AdminLayout({
 
     const checkAdmin = async () => {
       setIsCheckingAdmin(true);
-      const adminDocRef = doc(firestore, 'admins', user.uid);
-      const adminDoc = await getDoc(adminDocRef);
+      if (firestore) {
+        const adminDocRef = doc(firestore, 'admins', user.uid);
+        const adminDoc = await getDoc(adminDocRef);
 
-      if (adminDoc.exists()) {
-        setIsAdmin(true);
-      } else {
-        console.warn('User is not an admin. Redirecting...');
-        router.replace('/');
+        if (adminDoc.exists()) {
+          setIsAdmin(true);
+        } else {
+          console.warn('User is not an admin. Redirecting...');
+          router.replace('/');
+        }
       }
       setIsCheckingAdmin(false);
     };
@@ -138,10 +141,14 @@ export default function AdminLayout({
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-              <nav className="grid gap-2 text-lg font-medium p-4">
-                  <AdminSidebarNav isSheet />
-              </nav>
+            <SheetContent side="left" className="flex flex-col p-0">
+              <div className="p-4">
+                  <Link href="/" className="flex items-center gap-2 font-semibold text-lg">
+                    <Logo className="h-6 w-6 text-primary" />
+                    Bimmer CR Admin
+                  </Link>
+              </div>
+              <AdminSidebarNav isSheet />
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
@@ -155,3 +162,5 @@ export default function AdminLayout({
     </div>
   );
 }
+
+    

@@ -59,7 +59,11 @@ export interface Appointment {
     name: string;
     email: string;
     phone: string;
-    preferredDate: Date;
+    preferredDate: any; // Stored as Timestamp from server
     message?: string;
-    createdAt: Date;
+    status: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
+    createdAt: any; // Stored as Timestamp from server
+    updatedAt?: any;
 }
+
+    

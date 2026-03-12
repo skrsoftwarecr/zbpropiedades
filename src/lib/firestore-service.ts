@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import type { Product, Vehicle } from '@/lib/types';
+import type { Product, Vehicle, Appointment } from '@/lib/types';
 
 // --- Product Actions ---
 
@@ -118,3 +118,46 @@ export function deleteVehicle(firestore: Firestore, vehicleId: string) {
     throw contextualError;
   });
 }
+
+// --- Appointment Actions ---
+
+type AppointmentData = Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>;
+
+export function addAppointment(firestore: Firestore, appointmentData: AppointmentData) {
+    const appointmentsCollection = collection(firestore, 'appointments');
+    addDoc(appointmentsCollection, {
+        ...appointmentData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+    }).catch((error) => {
+        const contextualError = new FirestorePermissionError({
+            operation: 'create',
+            path: appointmentsCollection.path,
+            requestResourceData: appointmentData,
+        });
+        errorEmitter.emit('permission-error', contextualError);
+        throw contextualError;
+    });
+}
+
+export function updateAppointmentStatus(
+    firestore: Firestore,
+    appointmentId: string,
+    status: 'Completed' | 'Cancelled' | 'Pending'
+) {
+    const appointmentDoc = doc(firestore, 'appointments', appointmentId);
+    updateDoc(appointmentDoc, {
+        status,
+        updatedAt: serverTimestamp(),
+    }).catch((error) => {
+        const contextualError = new FirestorePermissionError({
+            operation: 'update',
+            path: appointmentDoc.path,
+            requestResourceData: { status },
+        });
+        errorEmitter.emit('permission-error', contextualError);
+        throw contextualError;
+    });
+}
+
+    
