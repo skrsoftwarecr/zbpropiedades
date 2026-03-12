@@ -56,33 +56,49 @@ export default function AdminLayout({
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
   useEffect(() => {
+    // We are still waiting for the user's authentication status to be resolved.
     if (isUserLoading) {
       return;
     }
 
+    // The user is not logged in. Redirect them to the login page.
     if (!user) {
       router.replace('/login');
       return;
     }
+    
+    // If we have already confirmed that the user is an admin, we don't need to check again.
+    // This makes navigating between admin pages much faster.
+    if (isAdmin) {
+        setIsCheckingAdmin(false);
+        return;
+    }
 
-    const checkAdmin = async () => {
+    const checkAdminStatus = async () => {
+      if (!firestore) return;
+
       setIsCheckingAdmin(true);
-      if (firestore) {
+      try {
         const adminDocRef = doc(firestore, 'admins', user.uid);
         const adminDoc = await getDoc(adminDocRef);
-
+        
         if (adminDoc.exists()) {
           setIsAdmin(true);
         } else {
+          // If the user is not an admin, redirect them to the home page.
           console.warn('User is not an admin. Redirecting...');
           router.replace('/');
         }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        router.replace('/'); // Redirect on error for security.
+      } finally {
+        setIsCheckingAdmin(false);
       }
-      setIsCheckingAdmin(false);
     };
 
-    checkAdmin();
-  }, [user, isUserLoading, router, firestore]);
+    checkAdminStatus();
+  }, [user, isUserLoading, firestore, router, isAdmin]);
 
   if (isUserLoading || isCheckingAdmin || !isAdmin) {
     return (
@@ -162,5 +178,3 @@ export default function AdminLayout({
     </div>
   );
 }
-
-    
