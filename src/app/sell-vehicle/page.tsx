@@ -83,21 +83,19 @@ export default function SellVehiclePage() {
   });
 
   const onSubmit = (values: SellVehicleFormValues) => {
-    const message = `
-¡Hola! Quisiera vender mi vehículo. Aquí están los detalles:
-----------------------------------
+    const message = `¡Hola! Quisiera vender mi vehículo. Aquí están los detalles:
+
 *Vendedor:* ${values.name}
 *Teléfono:* ${values.phone}
-----------------------------------
+
 *Marca:* ${values.brand}
 *Modelo:* ${values.model}
 *Año:* ${values.year}
 *Estado:* ${values.condition}
 *Precio solicitado:* ₡${values.price.toLocaleString('es-CR')}
 *Detalles de daños:* ${values.damages || 'No especificados'}
-----------------------------------
-Espero su contacto para negociar. ¡Gracias!
-    `.trim().replace(/\s+/g, ' ');
+
+Espero su contacto para negociar. ¡Gracias!`;
 
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
