@@ -69,7 +69,7 @@ export default async function Home() {
             />
             <CommercialBlock
               title="Taller"
-              href="#"
+              href="/taller"
               imageId="cta-taller"
             />
           </div>
