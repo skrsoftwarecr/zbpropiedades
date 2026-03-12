@@ -11,17 +11,19 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { VehicleCard } from '@/components/vehicles/VehicleCard';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Ticker } from '@/components/shared/Ticker';
-import { ArrowRight, Wrench, Car } from 'lucide-react';
+import { ArrowRight, Wrench, Car, Handshake } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const CommercialBlock = ({
   title,
   href,
   imageId,
+  icon: Icon
 }: {
   title: string;
   href: string;
   imageId: string;
+  icon?: React.ElementType;
 }) => {
   const image = PlaceHolderImages.find((p) => p.id === imageId);
   return (
@@ -40,7 +42,10 @@ const CommercialBlock = ({
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
       <div className="relative flex h-full flex-col justify-end p-6 text-primary-foreground">
-        <h2 className="text-3xl font-bold font-headline drop-shadow-md">{title}</h2>
+        <h2 className="text-3xl font-bold font-headline drop-shadow-md flex items-center gap-3">
+          {Icon && <Icon className="h-8 w-8" />}
+          {title}
+        </h2>
         <div className="mt-2 flex items-center font-semibold text-primary-foreground/90 transition-colors group-hover:text-primary">
           <span>Ver más</span>
           <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -85,16 +90,24 @@ export default function Home() {
 
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             <CommercialBlock
               title="Repuestos"
               href="/parts"
               imageId="cta-repuestos"
+              icon={Wrench}
             />
             <CommercialBlock
               title="Vehículos"
               href="/vehicles"
               imageId="cta-vehiculos"
+              icon={Car}
+            />
+             <CommercialBlock
+              title="Vende tu Vehículo"
+              href="/sell-vehicle"
+              imageId="cta-vender-vehiculo"
+              icon={Handshake}
             />
             <CommercialBlock
               title="Taller"

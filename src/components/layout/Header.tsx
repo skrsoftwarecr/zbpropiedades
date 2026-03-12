@@ -26,6 +26,7 @@ const navLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/parts', label: 'Repuestos' },
   { href: '/vehicles', label: 'Vehículos' },
+  { href: '/sell-vehicle', label: 'Vende tu Vehículo' },
   { href: '/taller', label: 'Taller' },
 ];
 

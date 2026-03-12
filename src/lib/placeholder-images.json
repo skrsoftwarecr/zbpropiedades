@@ -19,6 +19,12 @@
       "imageHint": "bmw showroom"
     },
     {
+      "id": "cta-vender-vehiculo",
+      "description": "A person handing over car keys to another person.",
+      "imageUrl": "https://picsum.photos/seed/ctasellcar/800/600",
+      "imageHint": "selling car"
+    },
+    {
       "id": "cta-taller",
       "description": "A clean and modern car repair workshop",
       "imageUrl": "https://picsum.photos/seed/ctaworkshop/800/600",
