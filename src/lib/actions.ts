@@ -1,6 +1,68 @@
 'use server';
 
-import type { CartItem } from './types';
+import type { CartItem, Product, Vehicle } from './types';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { firebaseConfig } from '@/firebase/config';
+
+// Server-side firebase initialization for actions
+function getFirebaseForServer() {
+    if (!getApps().length) {
+        return initializeApp(firebaseConfig);
+    }
+    return getApp();
+}
+
+export async function getProducts(): Promise<Product[]> {
+    const app = getFirebaseForServer();
+    const db = getFirestore(app);
+    const productsCol = collection(db, 'products');
+    const productSnapshot = await getDocs(productsCol);
+    const productList = productSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return { 
+            id: doc.id,
+            name: data.name,
+            category: data.category,
+            price: data.price,
+            description: data.description,
+            stock: data.stock,
+            condition: data.condition,
+            compatibility: data.compatibility,
+            imageUrls: data.imageUrls,
+        } as Product
+    });
+    return productList;
+}
+
+export async function getVehicles(): Promise<Vehicle[]> {
+    const app = getFirebaseForServer();
+    const db = getFirestore(app);
+    const vehiclesCol = collection(db, 'vehicles');
+    const vehicleSnapshot = await getDocs(vehiclesCol);
+    const vehicleList = vehicleSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            make: data.make,
+            model: data.model,
+            year: data.year,
+            price: data.price,
+            mileage: data.mileage,
+            vin: data.vin,
+            engine: data.engine,
+            transmission: data.transmission,
+            exteriorColor: data.exteriorColor,
+            interiorColor: data.interiorColor,
+            features: data.features,
+            description: data.description,
+            imageUrls: data.imageUrls,
+            availabilityStatus: data.availabilityStatus
+        } as Vehicle
+    });
+    return vehicleList;
+}
+
 
 interface AppointmentEmailData {
     vehicleId: string;
@@ -104,5 +166,3 @@ export async function placeOrder(orderData: PlaceOrderArgs) {
         return { success: false, message: 'No se pudo conectar con el servicio de pedidos.' };
     }
 }
-
-    
