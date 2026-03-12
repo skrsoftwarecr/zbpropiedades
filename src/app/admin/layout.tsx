@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser, useFirestore } from '@/firebase/provider';
 import { doc, getDoc } from 'firebase/firestore';
@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Car, LayoutDashboard, Package, PanelLeft } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Logo } from '@/components/shared/Logo';
 
 const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
@@ -41,10 +41,6 @@ const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
     </nav>
   );
 };
-
-function SheetClose({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
-}
 
 
 export default function AdminLayout({
