@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import Image from 'next/image';
 
 const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -39,6 +40,30 @@ interface VehicleColumnsProps {
 }
 
 export const getColumns = ({ onEdit, onDelete }: VehicleColumnsProps): ColumnDef<Vehicle>[] => [
+    {
+    id: 'image',
+    header: 'Imagen',
+    cell: ({ row }) => {
+      const imageUrl = row.original.imageUrls?.[0];
+      return (
+        <div className="w-20 h-12 flex items-center justify-center">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={`${row.original.make} ${row.original.model}`}
+              width={80}
+              height={48}
+              className="rounded-md object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-20 h-12 bg-muted rounded-md" />
+          )}
+        </div>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'model',
     header: 'Modelo',

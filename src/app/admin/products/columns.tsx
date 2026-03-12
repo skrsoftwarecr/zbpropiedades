@@ -24,9 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+import Image from 'next/image';
 
 const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -38,6 +36,30 @@ interface ProductColumnsProps {
 }
 
 export const getColumns = ({ onEdit, onDelete }: ProductColumnsProps): ColumnDef<Product>[] => [
+  {
+    id: 'image',
+    header: 'Imagen',
+    cell: ({ row }) => {
+      const imageUrl = row.original.imageUrls?.[0];
+      return (
+        <div className="w-12 h-12 flex items-center justify-center">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={row.original.name}
+              width={48}
+              height={48}
+              className="rounded-md object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-12 h-12 bg-muted rounded-md" />
+          )}
+        </div>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'name',
     header: 'Nombre',
