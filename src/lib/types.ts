@@ -8,8 +8,6 @@ export interface Product {
   condition: 'Nuevo' | 'Usado';
   compatibility: string[];
   imageUrls: string[];
-  isFeatured?: boolean;
-  discountPercentage?: number;
 }
 
 export interface Vehicle {
@@ -27,7 +25,6 @@ export interface Vehicle {
   features: string[];
   description: string;
   imageUrls: string[];
-  isFeatured?: boolean;
 }
 
 export interface CartItem extends Product {

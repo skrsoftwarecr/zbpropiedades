@@ -10,13 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 
 interface ProductDetailsProps {
   product: Product;
@@ -27,10 +20,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [isAdded, setIsAdded] = useState(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
-
-  const originalPrice = product.price;
-  const discount = product.discountPercentage || 0;
-  const discountedPrice = originalPrice - (originalPrice * discount / 100);
+  
+  const productImage = product.imageUrls?.[0] || 'https://picsum.photos/seed/placeholder/500/500';
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -52,40 +43,24 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   return (
     <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
       <div className="w-full">
-        <Carousel className="w-full">
-          <CarouselContent>
-            {product.imageUrls.map((url, index) => (
-              <CarouselItem key={index}>
-                  <div className="aspect-square relative w-full overflow-hidden rounded-lg border">
-                      <Image
-                      src={url}
-                      alt={`${product.name} ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      />
-                  </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
+        <div className="aspect-square relative w-full overflow-hidden rounded-lg border">
+            <Image
+            src={productImage}
+            alt={product.name}
+            fill
+            className="object-cover"
+            />
+        </div>
       </div>
 
       <div className="flex flex-col">
         <div className='flex items-center gap-2 mb-2'>
             <Badge variant={product.category === 'Original' ? 'default' : 'secondary'} className="w-fit">{product.category}</Badge>
-            {discount > 0 && (
-                <Badge variant="destructive">-{discount}% de descuento</Badge>
-            )}
         </div>
         <h1 className="text-3xl lg:text-4xl font-bold font-headline">{product.name}</h1>
         
         <div className="flex items-baseline gap-4 my-4">
-            <p className="text-3xl font-bold">{formatPrice(discountedPrice)}</p>
-            {discount > 0 && (
-                <p className="text-xl font-medium text-muted-foreground line-through">{formatPrice(originalPrice)}</p>
-            )}
+            <p className="text-3xl font-bold">{formatPrice(product.price)}</p>
         </div>
         
         <p className="text-muted-foreground leading-relaxed">{product.description}</p>

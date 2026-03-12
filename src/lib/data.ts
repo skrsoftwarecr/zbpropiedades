@@ -11,8 +11,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['G20 3 Series', 'G22 4 Series'],
     imageUrls: ['https://picsum.photos/seed/grille/500/500', 'https://picsum.photos/seed/grille2/500/500'],
-    isFeatured: true,
-    discountPercentage: 10,
   },
   {
     id: 'p2',
@@ -24,7 +22,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['F80 M3', 'F82 M4', 'F10 5 Series'],
     imageUrls: ['https://picsum.photos/seed/wheel/500/500'],
-    isFeatured: true,
   },
   {
     id: 'p3',
@@ -36,7 +33,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['Most E-chassis and F-chassis models'],
     imageUrls: ['https://picsum.photos/seed/oilfilter/500/500'],
-    isFeatured: true,
   },
   {
     id: 'p4',
@@ -48,8 +44,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['F87 M2 Competition'],
     imageUrls: ['https://picsum.photos/seed/exhaust/500/500', 'https://picsum.photos/seed/exhaust2/500/500', 'https://picsum.photos/seed/exhaust3/500/500'],
-    isFeatured: true,
-    discountPercentage: 5,
   },
    {
     id: 'p5',
@@ -61,7 +55,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['G80 M3', 'G82 M4'],
     imageUrls: ['https://picsum.photos/seed/mirrorcap/500/500'],
-    isFeatured: false,
   },
   {
     id: 'p6',
@@ -73,7 +66,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['E90 335i', 'E92 335i'],
     imageUrls: ['https://picsum.photos/seed/brakerotor/500/500'],
-    isFeatured: false,
   },
   {
     id: 'p7',
@@ -85,7 +77,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['F22 2 Series', 'F30 3 Series'],
     imageUrls: ['https://picsum.photos/seed/steeringwheel/500/500'],
-    isFeatured: false,
   },
   {
     id: 'p8',
@@ -97,7 +88,6 @@ export const products: Product[] = [
     condition: 'Nuevo',
     compatibility: ['F80 M3', 'F82 M4'],
     imageUrls: ['https://picsum.photos/seed/suspension/500/500'],
-    isFeatured: false,
   },
 ];
 
@@ -117,7 +107,6 @@ export const vehicles: Vehicle[] = [
     features: ['Carbon Fiber Roof', 'M-Sport Seats', 'Harman Kardon Sound', 'Executive Package'],
     description: 'A stunning, low-mileage example of the G82 M4 Competition. This vehicle is in immaculate condition and comes with a full service history.',
     imageUrls: ['https://picsum.photos/seed/greenm4/600/400', 'https://picsum.photos/seed/m4interior/600/400', 'https://picsum.photos/seed/m4wheel/600/400'],
-    isFeatured: true,
   },
   {
     id: 'v2',
@@ -134,7 +123,6 @@ export const vehicles: Vehicle[] = [
     features: ['Driving Assistance Pro', 'Panoramic Sunroof', '22" M Wheels', 'Parking Assistance Package'],
     description: 'The perfect blend of luxury and performance. This X5 M50i offers thrilling power and ultimate comfort for the whole family.',
     imageUrls: ['https://picsum.photos/seed/blackx5/600/400', 'https://picsum.photos/seed/x5interior/600/400', 'https://picsum.photos/seed/x5headlight/600/400'],
-    isFeatured: true,
   },
   {
     id: 'v3',
@@ -151,7 +139,6 @@ export const vehicles: Vehicle[] = [
     features: ['Carbon Fiber Roof', 'Adaptive M Suspension', 'M-Sport Brakes', 'Gold Wheels'],
     description: 'A future classic. This limited-edition M2 CS with a 6-speed manual transmission is a pure driver\'s car. Meticulously maintained and collector-owned.',
     imageUrls: ['https://picsum.photos/seed/bluem2/600/400', 'https://picsum.photos/seed/m2interior/600/400', 'https://picsum.photos/seed/m2spoiler/600/400'],
-    isFeatured: true,
   },
   {
     id: 'v4',
@@ -168,6 +155,5 @@ export const vehicles: Vehicle[] = [
     features: ['M Sport Package', 'Live Cockpit Pro', 'Shadowline Trim', 'Premium Package'],
     description: 'Like-new G20 330i with the desirable M-Sport package and a striking color combination. Balance of factory warranty remaining.',
     imageUrls: ['https://picsum.photos/seed/grey330i/600/400', 'https://picsum.photos/seed/330iinterior/600/400', 'https://picsum.photos/seed/330iscreen/600/400'],
-    isFeatured: false,
   },
 ];
