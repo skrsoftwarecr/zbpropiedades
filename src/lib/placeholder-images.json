@@ -3,55 +3,55 @@
     {
       "id": "hero-1",
       "description": "Dramatic shot of a BMW M4 driving on a mountain road",
-      "imageUrl": "https://picsum.photos/seed/bmwhero/1920/1080",
+      "imageUrl": "/images/hero-1.jpg",
       "imageHint": "bmw car"
     },
     {
       "id": "cta-repuestos",
       "description": "Close-up of a high-performance BMW wheel and brake assembly.",
-      "imageUrl": "https://picsum.photos/seed/repuestos/600/450",
+      "imageUrl": "/images/cta-repuestos.jpg",
       "imageHint": "bmw wheel"
     },
     {
       "id": "cta-vehiculos",
       "description": "A pristine white BMW M4 ready for the road.",
-      "imageUrl": "https://picsum.photos/seed/vehiculos/600/450",
+      "imageUrl": "/images/cta-vehiculos.jpg",
       "imageHint": "bmw car"
     },
     {
       "id": "cta-vender-vehiculo",
       "description": "Interior of a luxury vehicle, showcasing its premium quality.",
-      "imageUrl": "https://picsum.photos/seed/vender/600/450",
+      "imageUrl": "/images/cta-vender-vehiculo.jpg",
       "imageHint": "luxury car interior"
     },
     {
       "id": "cta-taller",
       "description": "A high-performance BMW being serviced in a professional workshop.",
-      "imageUrl": "https://picsum.photos/seed/taller/600/450",
+      "imageUrl": "/images/cta-taller.jpg",
       "imageHint": "bmw service"
     },
     {
       "id": "taller-hero",
       "description": "A dynamic shot of a BMW showcasing its performance and design.",
-      "imageUrl": "https://picsum.photos/seed/tallerhero/1280/500",
+      "imageUrl": "/images/taller-hero.jpg",
       "imageHint": "bmw performance"
     },
     {
       "id": "servicio-mecanica",
       "description": "Expert mechanic performing diagnostics on a BMW.",
-      "imageUrl": "https://picsum.photos/seed/mecanica/600/338",
+      "imageUrl": "/images/servicio-mecanica.jpg",
       "imageHint": "car diagnostics"
     },
     {
       "id": "servicio-mantenimiento",
       "description": "A clean and powerful BMW engine undergoing preventive maintenance.",
-      "imageUrl": "https://picsum.photos/seed/mantenimiento/600/338",
+      "imageUrl": "/images/servicio-mantenimiento.jpg",
       "imageHint": "bmw engine"
     },
     {
       "id": "servicio-pintura",
       "description": "A BMW with a flawless, glossy black paint finish after a professional service.",
-      "imageUrl": "https://picsum.photos/seed/pintura/600/338",
+      "imageUrl": "/images/servicio-pintura.jpg",
       "imageHint": "car paint"
     }
   ]
