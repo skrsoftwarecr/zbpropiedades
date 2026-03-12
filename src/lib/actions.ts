@@ -5,33 +5,9 @@ import type { CartItem } from './types';
 // Simulate network delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// The data fetching functions are temporarily modified to return empty arrays.
-// The data will now be fetched directly from Firestore on the client-side.
-// This will be fully replaced in a future step.
-export async function getProducts(filters: { [key: string]: any } = {}): Promise<any[]> {
-  return [];
-}
-
-export async function getProductById(id: string): Promise<any | undefined> {
-  return undefined;
-}
-
-export async function getFeaturedProducts(): Promise<any[]> {
-  return [];
-}
-
-export async function getVehicles(filters: { [key: string]: any } = {}): Promise<any[]> {
-  return [];
-}
-
-export async function getVehicleById(id: string): Promise<any | undefined> {
-  return undefined;
-}
-
-export async function getFeaturedVehicles(): Promise<any[]> {
-  return [];
-}
-
+// NOTE: The product and vehicle data fetching functions have been removed.
+// Data is now fetched directly from Firestore on the client-side
+// in their respective page components.
 
 // Mock action for form submission
 export async function scheduleInspection(formData: FormData) {

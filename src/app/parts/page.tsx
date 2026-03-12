@@ -1,14 +1,14 @@
-import { getProducts } from '@/lib/actions';
+'use client';
+
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import type { Product } from '@/lib/types';
 import { ProductGrid } from '@/components/products/ProductGrid';
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Catálogo de Repuestos BMW',
-  description: 'Explore nuestro extenso catálogo de repuestos originales y aftermarket para todos los modelos de BMW. Encuentre filtros, frenos, partes de motor y más en Bimmer CR.',
-};
-
-export default async function PartsPage() {
-  const allProducts = await getProducts();
+export default function PartsPage() {
+  const firestore = useFirestore();
+  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products'), orderBy('createdAt', 'desc')), [firestore]);
+  const { data: allProducts, isLoading } = useCollection<Product>(productsQuery);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -18,7 +18,7 @@ export default async function PartsPage() {
           Encuentre los repuestos originales y de posventa perfectos para su BMW.
         </p>
       </div>
-      <ProductGrid products={allProducts} />
+      <ProductGrid products={allProducts || []} isLoading={isLoading} />
     </div>
   );
 }

@@ -1,13 +1,18 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
+import type { Product, Vehicle } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/products/ProductCard';
 import { VehicleCard } from '@/components/vehicles/VehicleCard';
-import { getFeaturedProducts, getFeaturedVehicles } from '@/lib/actions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Ticker } from '@/components/shared/Ticker';
 import { ArrowRight, Wrench, Car } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const CommercialBlock = ({
   title,
@@ -45,10 +50,34 @@ const CommercialBlock = ({
   );
 };
 
+const SectionSkeleton = ({ count, gridCols = 4 }: { count: number, gridCols?: number }) => (
+    <div className={`grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-${gridCols}`}>
+        {[...Array(count)].map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="aspect-square w-full rounded-xl" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-4 w-2/5" />
+                </div>
+                 <div className="flex justify-between items-center pt-2">
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-10 w-10 rounded-md" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
 
-export default async function Home() {
-  const featuredProducts = await getFeaturedProducts();
-  const featuredVehicles = await getFeaturedVehicles();
+
+export default function Home() {
+  const firestore = useFirestore();
+
+  const featuredProductsQuery = useMemoFirebase(() => query(collection(firestore, 'products'), orderBy('createdAt', 'desc'), limit(4)), [firestore]);
+  const { data: featuredProducts, isLoading: isLoadingProducts } = useCollection<Product>(featuredProductsQuery);
+  
+  const featuredVehiclesQuery = useMemoFirebase(() => query(collection(firestore, 'vehicles'), orderBy('createdAt', 'desc'), limit(3)), [firestore]);
+  const { data: featuredVehicles, isLoading: isLoadingVehicles } = useCollection<Vehicle>(featuredVehiclesQuery);
+
 
   return (
     <div className="flex flex-col">
@@ -84,11 +113,15 @@ export default async function Home() {
               Repuestos Destacados
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {isLoadingProducts ? (
+            <SectionSkeleton count={4} />
+          ) : (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProducts?.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
           <div className="mt-12 text-center">
             <Button asChild>
               <Link href="/parts">Explorar Todos los Repuestos</Link>
@@ -105,11 +138,15 @@ export default async function Home() {
               Vehículos Destacados
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {featuredVehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
-            ))}
-          </div>
+          {isLoadingVehicles ? (
+            <SectionSkeleton count={3} gridCols={3} />
+          ) : (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {featuredVehicles?.map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))}
+            </div>
+          )}
           <div className="mt-12 text-center">
             <Button asChild>
               <Link href="/vehicles">Explorar Todos los Vehículos</Link>

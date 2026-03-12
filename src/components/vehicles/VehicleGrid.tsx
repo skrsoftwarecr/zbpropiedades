@@ -7,11 +7,11 @@ import { Slider } from '@/components/ui/slider';
 import { VehicleCard } from './VehicleCard';
 import type { Vehicle } from '@/lib/types';
 import { Search } from 'lucide-react';
-import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 
 interface VehicleGridProps {
   vehicles: Vehicle[];
+  isLoading?: boolean;
 }
 
 const uniqueModels = (vehicles: Vehicle[]) => [...new Set(vehicles.map(v => v.model))].sort();
@@ -21,18 +21,34 @@ const priceRange = (vehicles: Vehicle[]) => {
     return [Math.min(...prices), Math.max(...prices)];
 }
 
-export function VehicleGrid({ vehicles }: VehicleGridProps) {
+const GridSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="aspect-video w-full rounded-xl" />
+                <div className="space-y-2 p-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <div className="flex justify-between items-center pt-2">
+                        <Skeleton className="h-4 w-1/3" />
+                        <Skeleton className="h-4 w-1/3" />
+                    </div>
+                </div>
+            </div>
+        ))}
+    </div>
+)
+
+export function VehicleGrid({ vehicles, isLoading }: VehicleGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [model, setModel] = useState('all');
   const [sortBy, setSortBy] = useState('price-desc');
-  const [isClient, setIsClient] = useState(false);
   
-  const [minPrice, maxPrice] = priceRange(vehicles);
+  const [minPrice, maxPrice] = useMemo(() => priceRange(vehicles), [vehicles]);
   const [price, setPrice] = useState([minPrice, maxPrice]);
-
+  
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    setPrice([minPrice, maxPrice]);
+  }, [minPrice, maxPrice]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -75,7 +91,17 @@ export function VehicleGrid({ vehicles }: VehicleGridProps) {
   return (
     <div>
       <div className="mb-8 p-4 border rounded-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-        {isClient ? (
+        {isLoading ? (
+          <>
+            <Skeleton className="h-10 w-full md:col-span-2" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <div className="md:col-span-4 lg:col-span-4 mt-2">
+              <Skeleton className="h-5 w-3/4 mb-2" />
+              <Skeleton className="h-5 w-full" />
+            </div>
+          </>
+        ) : (
           <>
             <div className="relative md:col-span-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -114,26 +140,18 @@ export function VehicleGrid({ vehicles }: VehicleGridProps) {
                 <Slider
                     min={minPrice}
                     max={maxPrice}
-                    step={(maxPrice-minPrice)/100}
+                    step={(maxPrice-minPrice)/100 || 1}
                     value={price}
                     onValueChange={setPrice}
                 />
             </div>
           </>
-        ) : (
-          <>
-            <Skeleton className="h-10 w-full md:col-span-2" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <div className="md:col-span-4 lg:col-span-4 mt-2">
-              <Skeleton className="h-5 w-3/4 mb-2" />
-              <Skeleton className="h-5 w-full" />
-            </div>
-          </>
         )}
       </div>
 
-      {filteredAndSortedVehicles.length > 0 ? (
+      {isLoading ? (
+        <GridSkeleton />
+      ) : filteredAndSortedVehicles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredAndSortedVehicles.map(vehicle => (
             <VehicleCard key={vehicle.id} vehicle={vehicle} />

@@ -45,16 +45,35 @@ const ContactPrompt = ({ whatsappNumber }: { whatsappNumber: string }) => (
     </div>
 );
 
+const GridSkeleton = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+        {[...Array(8)].map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="aspect-square w-full rounded-xl" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-4 w-2/5" />
+                </div>
+                    <div className="flex justify-between items-center pt-2">
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-10 w-10 rounded-md" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
+
 interface ProductGridProps {
   products: Product[];
+  isLoading?: boolean;
 }
 
-export function ProductGrid({ products }: ProductGridProps) {
+export function ProductGrid({ products, isLoading }: ProductGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
   const [condition, setCondition] = useState('all');
   const [sortBy, setSortBy] = useState('name-asc');
-  const [isClient, setIsClient] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState('');
 
   useEffect(() => {
@@ -62,7 +81,6 @@ export function ProductGrid({ products }: ProductGridProps) {
     const phoneNumbers = ['50687216913', '50670210104', '50671733091'];
     const randomIndex = Math.floor(Math.random() * phoneNumbers.length);
     setWhatsappNumber(phoneNumbers[randomIndex]);
-    setIsClient(true);
   }, []);
 
   const filteredAndSortedProducts = useMemo(() => {
@@ -101,8 +119,6 @@ export function ProductGrid({ products }: ProductGridProps) {
   return (
     <div>
       <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-        {isClient ? (
-          <>
             <div className="relative lg:col-span-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -135,45 +151,21 @@ export function ProductGrid({ products }: ProductGridProps) {
                 <SelectItem value="price-desc">Precio (Mayor a Menor)</SelectItem>
               </SelectContent>
             </Select>
-          </>
-        ) : (
-          <>
-            <Skeleton className="h-10 w-full lg:col-span-2" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </>
-        )}
       </div>
         
-      {isClient ? (
-        filteredAndSortedProducts.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-              {filteredAndSortedProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-            <ContactPrompt whatsappNumber={whatsappNumber} />
-          </>
-        ) : (
-          <ContactPrompt whatsappNumber={whatsappNumber} />
-        )
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-            {[...Array(8)].map((_, i) => (
-                <div key={i} className="flex flex-col space-y-3">
-                    <Skeleton className="h-[225px] w-full rounded-xl" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-4/5" />
-                        <Skeleton className="h-4 w-2/5" />
-                    </div>
-                     <div className="flex justify-between items-center pt-2">
-                        <Skeleton className="h-6 w-1/3" />
-                        <Skeleton className="h-10 w-10 rounded-md" />
-                    </div>
-                </div>
+      {isLoading ? (
+        <GridSkeleton />
+      ) : filteredAndSortedProducts.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+            {filteredAndSortedProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
             ))}
-        </div>
+          </div>
+          <ContactPrompt whatsappNumber={whatsappNumber} />
+        </>
+      ) : (
+        <ContactPrompt whatsappNumber={whatsappNumber} />
       )}
     </div>
   );
