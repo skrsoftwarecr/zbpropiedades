@@ -50,7 +50,7 @@ export function UserAuthForm() {
       const loggedInUser = userCredential.user;
 
       if (loggedInUser.email === 'skrsoftwarecr@gmail.com') {
-        router.push('/admin');
+        router.replace('/admin');
       } else {
         await signOutUser(auth);
         toast({
