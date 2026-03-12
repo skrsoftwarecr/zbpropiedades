@@ -1,42 +1,37 @@
 'use server';
 
-import { products, vehicles } from './data';
-import type { Product, Vehicle, CartItem } from './types';
+import type { CartItem } from './types';
 
 // Simulate network delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export async function getProducts(filters: { [key: string]: any } = {}): Promise<Product[]> {
-  await delay(300);
-  // In a real app, you'd filter this on the database query
-  return products;
+// The data fetching functions are temporarily modified to return empty arrays.
+// The data will now be fetched directly from Firestore on the client-side.
+// This will be fully replaced in a future step.
+export async function getProducts(filters: { [key: string]: any } = {}): Promise<any[]> {
+  return [];
 }
 
-export async function getProductById(id: string): Promise<Product | undefined> {
-  await delay(200);
-  return products.find(p => p.id === id);
+export async function getProductById(id: string): Promise<any | undefined> {
+  return undefined;
 }
 
-export async function getFeaturedProducts(): Promise<Product[]> {
-  await delay(100);
-  return products.slice(0, 4);
+export async function getFeaturedProducts(): Promise<any[]> {
+  return [];
 }
 
-export async function getVehicles(filters: { [key: string]: any } = {}): Promise<Vehicle[]> {
-  await delay(300);
-  // In a real app, you'd filter this on the database query
-  return vehicles;
+export async function getVehicles(filters: { [key: string]: any } = {}): Promise<any[]> {
+  return [];
 }
 
-export async function getVehicleById(id: string): Promise<Vehicle | undefined> {
-  await delay(200);
-  return vehicles.find(v => v.id === id);
+export async function getVehicleById(id: string): Promise<any | undefined> {
+  return undefined;
 }
 
-export async function getFeaturedVehicles(): Promise<Vehicle[]> {
-  await delay(100);
-  return vehicles.slice(0, 3);
+export async function getFeaturedVehicles(): Promise<any[]> {
+  return [];
 }
+
 
 // Mock action for form submission
 export async function scheduleInspection(formData: FormData) {

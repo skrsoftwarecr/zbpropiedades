@@ -8,6 +8,8 @@ export interface Product {
   condition: 'Nuevo' | 'Usado';
   compatibility: string[];
   imageUrls: string[];
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface Vehicle {
@@ -25,6 +27,9 @@ export interface Vehicle {
   features: string[];
   description: string;
   imageUrls: string[];
+  availabilityStatus: 'Available' | 'Pending Inspection' | 'Sold';
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface CartItem extends Product {

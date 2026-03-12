@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
@@ -11,14 +12,22 @@ export const metadata: Metadata = {
 
 export default function AdminDashboardPage() {
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline">Panel de Administración</h1>
-        <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-          Bienvenido al panel de control de Bimmer CR.
-        </p>
+    <>
+      <div className="flex items-center">
+        <h1 className="text-lg font-semibold md:text-2xl">Dashboard</h1>
       </div>
-      <p className='text-center'>Seleccione una opción del menú para comenzar a administrar el catálogo.</p>
-    </div>
+      <div
+        className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
+      >
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h3 className="text-2xl font-bold tracking-tight">
+            ¡Bienvenido al Panel de Administración!
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Seleccione una opción del menú lateral para comenzar a administrar el catálogo de repuestos o vehículos.
+          </p>
+        </div>
+      </div>
+    </>
   );
 }
