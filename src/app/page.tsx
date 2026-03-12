@@ -22,21 +22,21 @@ const CommercialBlock = ({
   return (
     <Link
       href={href}
-      className="group relative block aspect-[4/3] w-full overflow-hidden border-2 border-foreground shadow-[8px_8px_0_hsl(var(--foreground))] transition-transform will-change-transform hover:scale-[1.02] hover:shadow-[10px_10px_0_hsl(var(--foreground))]"
+      className="group relative block aspect-[4/3] w-full overflow-hidden rounded-lg border transition-all duration-300 hover:shadow-xl hover:shadow-primary/20"
     >
       {image && (
         <Image
           src={image.imageUrl}
           alt={image.description}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-110"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
           data-ai-hint={image.imageHint}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
       <div className="relative flex h-full flex-col justify-end p-6 text-primary-foreground">
-        <h2 className="text-3xl font-bold font-headline">{title}</h2>
-        <div className="mt-2 flex items-center font-semibold transition-colors group-hover:text-primary">
+        <h2 className="text-3xl font-bold font-headline drop-shadow-md">{title}</h2>
+        <div className="mt-2 flex items-center font-semibold text-primary-foreground/90 transition-colors group-hover:text-primary">
           <span>Ver más</span>
           <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
         </div>
