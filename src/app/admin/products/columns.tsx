@@ -111,7 +111,7 @@ export const getColumns = ({ onEdit, onDelete }: ProductColumnsProps): ColumnDef
                     Copiar ID
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onEdit(product)}>Editar</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onEdit(product)}>Editar</DropdownMenuItem>
                 <AlertDialogTrigger asChild>
                     <DropdownMenuItem className="text-destructive focus:bg-destructive/30 focus:text-destructive-foreground">Eliminar</DropdownMenuItem>
                 </AlertDialogTrigger>
