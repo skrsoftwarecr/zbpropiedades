@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useUser, useFirestore } from '@/firebase/provider';
+import { useUser, useFirestore } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
@@ -26,7 +26,7 @@ const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
       {navLinks.map((link) => {
         const isActive = pathname === link.href;
         return (
-          <LinkComponent key={link.href} asChild={isSheet}>
+          <LinkComponent key={link.href} {...(isSheet ? { asChild: true } : {})}>
             <Link
               href={link.href}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${isActive ? 'bg-muted text-primary' : ''
@@ -139,7 +139,9 @@ export default function AdminLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
-              <AdminSidebarNav isSheet />
+              <nav className="grid gap-2 text-lg font-medium p-4">
+                  <AdminSidebarNav isSheet />
+              </nav>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
