@@ -10,6 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 interface ProductDetailsProps {
   product: Product;
@@ -21,7 +28,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const { addToCart } = useCart();
   const { toast } = useToast();
   
-  const productImage = product.imageUrls?.[0] || 'https://picsum.photos/seed/placeholder/500/500';
+  const productImages = product.imageUrls?.length > 0 ? product.imageUrls : ['https://picsum.photos/seed/placeholder/500/500'];
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -43,14 +50,35 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   return (
     <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
       <div className="w-full">
-        <div className="aspect-square relative w-full overflow-hidden rounded-lg border">
-            <Image
-            src={productImage}
-            alt={product.name}
-            fill
-            className="object-cover"
-            />
-        </div>
+        {productImages.length > 1 ? (
+          <Carousel className="w-full group">
+            <CarouselContent>
+              {productImages.map((url, index) => (
+                <CarouselItem key={index}>
+                    <div className="aspect-square relative w-full overflow-hidden rounded-lg border">
+                      <Image
+                        src={url}
+                        alt={`${product.name} - imagen ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Carousel>
+        ) : (
+            <div className="aspect-square relative w-full overflow-hidden rounded-lg border">
+                <Image
+                src={productImages[0]}
+                alt={product.name}
+                fill
+                className="object-cover"
+                />
+            </div>
+        )}
       </div>
 
       <div className="flex flex-col">

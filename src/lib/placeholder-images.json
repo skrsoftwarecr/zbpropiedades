@@ -27,8 +27,8 @@
     {
       "id": "taller-hero",
       "description": "Professional BMW mechanic working on an engine.",
-      "imageUrl": "https://picsum.photos/seed/tallerhero/1920/800",
-      "imageHint": "car mechanic"
+      "imageUrl": "https://picsum.photos/seed/bmw-repair/1920/800",
+      "imageHint": "car repair"
     },
     {
       "id": "servicio-mecanica",
@@ -44,9 +44,9 @@
     },
     {
       "id": "servicio-pintura",
-      "description": "Car in a professional paint booth.",
-      "imageUrl": "https://picsum.photos/seed/servicepaint/800/600",
-      "imageHint": "car painting"
+      "description": "Car in a professional paint booth, showing a glossy finish.",
+      "imageUrl": "https://picsum.photos/seed/autobody/800/600",
+      "imageHint": "auto body"
     }
   ]
 }

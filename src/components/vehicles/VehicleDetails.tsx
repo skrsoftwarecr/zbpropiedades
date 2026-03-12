@@ -3,6 +3,13 @@ import { Car, Gauge, GitBranch, PaintBucket, Palette, Wrench } from 'lucide-reac
 
 import type { Vehicle } from '@/lib/types';
 import { Badge } from '../ui/badge';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 interface VehicleDetailsProps {
   vehicle: Vehicle;
@@ -21,21 +28,44 @@ export function VehicleDetails({ vehicle }: VehicleDetailsProps) {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   }
   
-  const vehicleImage = vehicle.imageUrls?.[0] || 'https://picsum.photos/seed/placeholder/600/400';
+  const vehicleImages = vehicle.imageUrls?.length > 0 ? vehicle.imageUrls : ['https://picsum.photos/seed/placeholder/600/400'];
 
   return (
     <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
       <div className="lg:col-span-3">
-         <div className="w-full rounded-lg overflow-hidden border">
-            <div className="aspect-video relative w-full">
-                <Image
-                    src={vehicleImage}
-                    alt={`${vehicle.make} ${vehicle.model} image`}
-                    fill
-                    className="object-cover"
-                />
-            </div>
-        </div>
+        {vehicleImages.length > 1 ? (
+          <Carousel className="w-full group">
+            <CarouselContent>
+              {vehicleImages.map((url, index) => (
+                <CarouselItem key={index}>
+                    <div className="w-full rounded-lg overflow-hidden border">
+                        <div className="aspect-video relative w-full">
+                            <Image
+                                src={url}
+                                alt={`${vehicle.make} ${vehicle.model} image ${index + 1}`}
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Carousel>
+        ) : (
+          <div className="w-full rounded-lg overflow-hidden border">
+              <div className="aspect-video relative w-full">
+                  <Image
+                      src={vehicleImages[0]}
+                      alt={`${vehicle.make} ${vehicle.model} image`}
+                      fill
+                      className="object-cover"
+                  />
+              </div>
+          </div>
+        )}
       </div>
 
       <div className="lg:col-span-2 flex flex-col">
