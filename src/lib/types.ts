@@ -7,7 +7,9 @@ export interface Product {
   stock: number;
   condition: 'Nuevo' | 'Usado';
   compatibility: string[];
-  imageId: string;
+  imageUrls: string[];
+  isFeatured?: boolean;
+  discountPercentage?: number;
 }
 
 export interface Vehicle {
@@ -24,7 +26,8 @@ export interface Vehicle {
   interiorColor: string;
   features: string[];
   description: string;
-  imageIds: string[];
+  imageUrls: string[];
+  isFeatured?: boolean;
 }
 
 export interface CartItem extends Product {

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
@@ -37,12 +36,12 @@ export function CartView() {
     <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-start">
       <div className="lg:col-span-2 space-y-4">
         {cart.map(item => {
-          const itemImage = PlaceHolderImages.find(p => p.id === item.imageId);
+          const itemImage = item.imageUrls?.[0];
           return (
             <div key={item.id} className="flex items-start gap-4 p-4 border rounded-lg">
-              <div className="relative h-24 w-24 rounded-md overflow-hidden flex-shrink-0">
+              <div className="relative h-24 w-24 rounded-md overflow-hidden flex-shrink-0 bg-muted">
                 {itemImage && (
-                  <Image src={itemImage.imageUrl} alt={item.name} fill className="object-cover" data-ai-hint={itemImage.imageHint} />
+                  <Image src={itemImage} alt={item.name} fill className="object-cover" />
                 )}
               </div>
               <div className="flex-grow">

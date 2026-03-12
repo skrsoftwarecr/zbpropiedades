@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import type { Metadata } from 'next';
 import type { Product } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type ProductDetailPageProps = {
   params: { id: string };
@@ -21,7 +20,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
     }
   }
   
-  const productImage = PlaceHolderImages.find(p => p.id === product.imageId);
+  const productImageUrl = product.imageUrls?.[0];
 
   return {
     title: product.name,
@@ -29,9 +28,9 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
     openGraph: {
       title: product.name,
       description: product.description,
-      images: productImage ? [
+      images: productImageUrl ? [
         {
-          url: productImage.imageUrl,
+          url: productImageUrl,
           width: 500,
           height: 500,
           alt: product.name,

@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { Car, Gauge, GitBranch, PaintBucket, Palette, Wrench } from 'lucide-react';
 
 import type { Vehicle } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
   Carousel,
   CarouselContent,
@@ -25,7 +24,6 @@ const SpecItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label
 )
 
 export function VehicleDetails({ vehicle }: VehicleDetailsProps) {
-  const vehicleImages = vehicle.imageIds.map(id => PlaceHolderImages.find(p => p.id === id)).filter(Boolean);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -36,15 +34,14 @@ export function VehicleDetails({ vehicle }: VehicleDetailsProps) {
       <div className="lg:col-span-3">
          <Carousel className="w-full rounded-lg overflow-hidden border">
             <CarouselContent>
-                {vehicleImages.map((image, index) => image && (
+                {vehicle.imageUrls.map((url, index) => (
                     <CarouselItem key={index}>
                         <div className="aspect-video relative w-full">
                             <Image
-                                src={image.imageUrl}
+                                src={url}
                                 alt={`${vehicle.make} ${vehicle.model} image ${index + 1}`}
                                 fill
                                 className="object-cover"
-                                data-ai-hint={image.imageHint}
                             />
                         </div>
                     </CarouselItem>

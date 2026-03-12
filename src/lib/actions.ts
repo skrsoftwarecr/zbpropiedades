@@ -19,7 +19,7 @@ export async function getProductById(id: string): Promise<Product | undefined> {
 
 export async function getFeaturedProducts(): Promise<Product[]> {
   await delay(100);
-  return products.slice(0, 4);
+  return products.filter(p => p.isFeatured);
 }
 
 export async function getVehicles(filters: { [key: string]: any } = {}): Promise<Vehicle[]> {
@@ -35,7 +35,7 @@ export async function getVehicleById(id: string): Promise<Vehicle | undefined> {
 
 export async function getFeaturedVehicles(): Promise<Vehicle[]> {
   await delay(100);
-  return vehicles.slice(0, 3);
+  return vehicles.filter(v => v.isFeatured);
 }
 
 // Mock action for form submission

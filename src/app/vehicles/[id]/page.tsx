@@ -8,7 +8,6 @@ import { Separator } from '@/components/ui/separator';
 import { AppointmentForm } from '@/components/vehicles/AppointmentForm';
 import type { Metadata } from 'next';
 import type { Vehicle } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type VehicleDetailPageProps = {
   params: { id: string };
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }: VehicleDetailPageProps): Prom
   }
 
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
-  const vehicleImage = PlaceHolderImages.find(p => p.id === vehicle.imageIds[0]);
+  const vehicleImageUrl = vehicle.imageUrls?.[0];
 
   return {
     title: title,
@@ -32,9 +31,9 @@ export async function generateMetadata({ params }: VehicleDetailPageProps): Prom
     openGraph: {
       title: title,
       description: vehicle.description,
-      images: vehicleImage ? [
+      images: vehicleImageUrl ? [
         {
-          url: vehicleImage.imageUrl,
+          url: vehicleImageUrl,
           width: 600,
           height: 400,
           alt: title,

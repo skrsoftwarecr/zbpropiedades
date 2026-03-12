@@ -6,7 +6,6 @@ import { Check, ShoppingCart, Minus, Plus } from 'lucide-react';
 
 import type { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -29,7 +28,9 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  const productImage = PlaceHolderImages.find(p => p.id === product.imageId);
+  const originalPrice = product.price;
+  const discount = product.discountPercentage || 0;
+  const discountedPrice = originalPrice - (originalPrice * discount / 100);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -53,20 +54,18 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       <div className="w-full">
         <Carousel className="w-full">
           <CarouselContent>
-              <CarouselItem>
+            {product.imageUrls.map((url, index) => (
+              <CarouselItem key={index}>
                   <div className="aspect-square relative w-full overflow-hidden rounded-lg border">
-                      {productImage && (
-                          <Image
-                          src={productImage.imageUrl}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                          data-ai-hint={productImage.imageHint}
-                          />
-                      )}
+                      <Image
+                      src={url}
+                      alt={`${product.name} ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      />
                   </div>
               </CarouselItem>
-              {/* Add more images if available */}
+            ))}
           </CarouselContent>
           <CarouselPrevious />
           <CarouselNext />
@@ -74,9 +73,20 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       </div>
 
       <div className="flex flex-col">
-        <Badge variant={product.category === 'Original' ? 'default' : 'secondary'} className="w-fit mb-2">{product.category}</Badge>
+        <div className='flex items-center gap-2 mb-2'>
+            <Badge variant={product.category === 'Original' ? 'default' : 'secondary'} className="w-fit">{product.category}</Badge>
+            {discount > 0 && (
+                <Badge variant="destructive">-{discount}% de descuento</Badge>
+            )}
+        </div>
         <h1 className="text-3xl lg:text-4xl font-bold font-headline">{product.name}</h1>
-        <p className="text-3xl font-bold my-4">{formatPrice(product.price)}</p>
+        
+        <div className="flex items-baseline gap-4 my-4">
+            <p className="text-3xl font-bold">{formatPrice(discountedPrice)}</p>
+            {discount > 0 && (
+                <p className="text-xl font-medium text-muted-foreground line-through">{formatPrice(originalPrice)}</p>
+            )}
+        </div>
         
         <p className="text-muted-foreground leading-relaxed">{product.description}</p>
         
