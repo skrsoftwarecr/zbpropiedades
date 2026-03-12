@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase/provider';
 import { signInWithGoogle, signOutUser } from '@/firebase/auth-service';
+import { getRedirectResult } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -33,49 +34,70 @@ export function UserAuthForm() {
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true); // Start as loading to handle redirect
   const { user, isUserLoading } = useUser();
-
-  // Redirect if an admin is already logged in
+  
   React.useEffect(() => {
-    if (!isUserLoading && user && user.email === 'skrsoftwarecr@gmail.com') {
-      router.replace('/admin');
-    }
-  }, [user, isUserLoading, router]);
+    // This effect handles both redirect result and existing user session
+    const handleAuth = async () => {
+      // If user is already loaded and is admin, redirect
+      if (!isUserLoading && user && user.email === 'skrsoftwarecr@gmail.com') {
+        router.replace('/admin');
+        return;
+      }
+      
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          // A user has just signed in via redirect.
+          if (result.user.email === 'skrsoftwarecr@gmail.com') {
+            router.replace('/admin');
+          } else {
+            await signOutUser(auth);
+            toast({
+              variant: 'destructive',
+              title: 'Acceso no autorizado',
+              description: 'Este correo no tiene permisos de administrador.',
+            });
+            setIsLoading(false); // Stop loading after handling non-admin user
+          }
+        } else {
+          // No redirect result, check for existing non-admin user or just stop loading
+          setIsLoading(false);
+        }
+      } catch (error: any) {
+        console.error("Error getting redirect result:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Hubo un problema al verificar el inicio de sesión.',
+        });
+        setIsLoading(false);
+      }
+    };
+
+    handleAuth();
+  }, [auth, isUserLoading, user, router, toast]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const userCredential = await signInWithGoogle(auth);
-      const loggedInUser = userCredential.user;
-
-      if (loggedInUser.email === 'skrsoftwarecr@gmail.com') {
-        router.replace('/admin');
-      } else {
-        await signOutUser(auth);
-        toast({
-          variant: 'destructive',
-          title: 'Acceso no autorizado',
-          description: 'Este correo no tiene permisos de administrador.',
-        });
-      }
+      await signInWithGoogle(auth);
+      // The page will redirect, and the useEffect will handle the result.
     } catch (error: any) {
-      if (error.code !== 'auth/popup-closed-by-user') {
-        console.error(error);
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Hubo un problema al iniciar sesión con Google.',
-        });
-      }
-    } finally {
+      console.error(error);
+      toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Hubo un problema al iniciar sesión con Google.',
+      });
       setIsLoading(false);
     }
   };
 
   return (
     <div className="grid gap-6">
-      <Button variant="outline" type="button" disabled={isLoading || (!isUserLoading && !!user)} onClick={handleGoogleSignIn}>
+      <Button variant="outline" type="button" disabled={isLoading} onClick={handleGoogleSignIn}>
         {isLoading ? (
           <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
