@@ -9,13 +9,13 @@
     {
       "id": "cta-repuestos",
       "description": "Close-up of a high-performance BMW wheel and brake assembly.",
-      "imageUrl": "/images/cta-repuestos.jpg",
+      "imageUrl": "/images/Repuestos/repuestos%20portada.png",
       "imageHint": "bmw wheel"
     },
     {
       "id": "cta-vehiculos",
       "description": "A pristine white BMW M4 ready for the road.",
-      "imageUrl": "/images/cta-vehiculos.jpg",
+      "imageUrl": "/images/Carros/Carros%20portada.png",
       "imageHint": "bmw car"
     },
     {
@@ -27,13 +27,13 @@
     {
       "id": "cta-taller",
       "description": "A high-performance BMW being serviced in a professional workshop.",
-      "imageUrl": "/images/cta-taller.jpg",
+      "imageUrl": "/images/Taller/Taller%20portada.png",
       "imageHint": "bmw service"
     },
     {
       "id": "taller-hero",
       "description": "A dynamic shot of a BMW showcasing its performance and design.",
-      "imageUrl": "/images/taller-hero.jpg",
+      "imageUrl": "/images/Taller/Taller%20portada.png",
       "imageHint": "bmw performance"
     },
     {
