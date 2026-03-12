@@ -1,0 +1,224 @@
+/**
+ * # Firestore Security Rules
+ *
+ * ## Core Philosophy
+ * This ruleset enforces a dual security model tailored for an e-commerce platform. It provides public, read-only access to the product catalog while ensuring that all user-specific data (profiles, carts, orders) is strictly private and accessible only by the document owner. Administrative access for catalog management is handled through a Database-Backed Access Control (DBAC) system.
+ *
+ * ## Data Structure
+ * The data is organized into two primary categories:
+ * 1.  **Public Catalog Collections**: Top-level collections like `/products`, `/categories`, `/models`, and `/vehicles` store data that is safe for public consumption.
+ * 2.  **Private User Data**: All data belonging to a specific user is nested under the `/customerProfiles/{firebaseUserId}` path. This hierarchical structure links data directly to a user's authentication UID, simplifying ownership-based security.
+ *
+ * ## Key Security Decisions
+ * - **Admin-Only Writes**: All modifications (create, update, delete) to the public catalog collections are restricted to users designated as administrators. A user is considered an admin if a corresponding document exists for them in the `/admins` collection.
+ * - **Strict User Ownership**: Users can only read or write their own documents within the `/customerProfiles` data tree. A user cannot see or modify another user's profile, cart, or order history.
+ * - **User Listing Disabled**: The ability to list all documents in the `/customerProfiles` collection is explicitly disabled to protect user privacy.
+ * - **Default Secure**: Any path not explicitly matched is denied access by default.
+ *
+ * ## Denormalization for Authorization
+ * To create simpler and more performant rules, these rules depend on the denormalization of the owner's `customerId` (which is their `firebaseUserId`) onto subcollection documents like `cartItems` and `orderItems`. This avoids slow and costly `get()` calls to parent documents during rule evaluation, ensuring that access can be determined from the document being requested.
+ *
+ * ## Structural Segregation
+ * The separation of public data (e.g., `/products`) from private user data (e.g., `/customerProfiles/{userId}/...`) is intentional. This structure is inherently more secure and performant for list operations, as it prevents mixing public and private documents within the same collection query.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --------------------------------
+    // Helper Functions
+    // --------------------------------
+
+    /**
+     * Checks if a user is signed in.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user is an administrator.
+     * Admin status is determined by the existence of a document in the /admins collection
+     * with an ID matching the user's UID.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    /**
+     * Checks if the currently authenticated user is the owner of a document.
+     * Compares the request's auth UID with a provided userId.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Ensures an update or delete request is for an existing document by the owner.
+     * This prevents unauthorized destructive operations on non-existent paths.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --------------------------------
+    // Administrative Rules
+    // --------------------------------
+
+    /**
+     * @description Manages admin role documents. Only other admins can read or write here.
+     * @path /admins/{adminId}
+     * @allow (get) An admin reading another admin's document.
+     * @deny (get) A non-admin user trying to read an admin document.
+     * @principle Implements Database-Backed Access Control (DBAC) for admin roles.
+     */
+    match /admins/{adminId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --------------------------------
+    // Public Catalog Collections
+    // --------------------------------
+
+    /**
+     * @description Publicly readable product categories. Writable only by admins.
+     * @path /categories/{categoryId}
+     * @allow (get) Any user, authenticated or not, can read a category.
+     * @deny (create) A regular authenticated user trying to create a category.
+     * @principle Segregates public data and restricts modification to privileged roles.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Publicly readable vehicle models. Writable only by admins.
+     * @path /models/{modelId}
+     * @allow (get) Any user, authenticated or not, can read a vehicle model.
+     * @deny (update) A regular authenticated user trying to update a model.
+     * @principle Segregates public data and restricts modification to privileged roles.
+     */
+    match /models/{modelId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Publicly readable product catalog. Writable only by admins.
+     * @path /products/{productId}
+     * @allow (list) Any user, authenticated or not, can list all products.
+     * @deny (delete) A regular authenticated user trying to delete a product.
+     * @principle Segregates public data and restricts modification to privileged roles.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Publicly readable vehicle listings. Writable only by admins.
+     * @path /vehicles/{vehicleId}
+     * @allow (get) Any user, authenticated or not, can read a vehicle listing.
+     * @deny (create) A regular authenticated user trying to list a vehicle.
+     * @principle Segregates public data and restricts modification to privileged roles.
+     */
+    match /vehicles/{vehicleId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --------------------------------
+    // User-Specific Private Collections
+    // --------------------------------
+
+    /**
+     * @description Customer profile, private to the owner.
+     * @path /customerProfiles/{firebaseUserId}
+     * @allow (create) A new user creating their own profile document.
+     * @deny (get) A user trying to read another user's profile.
+     * @deny (list) Any user trying to list all customer profiles.
+     * @principle Enforces strict data ownership using the document ID as the user's UID.
+     */
+    match /customerProfiles/{firebaseUserId} {
+      allow get: if isOwner(firebaseUserId);
+      allow list: if false;
+      allow create: if isOwner(firebaseUserId) && request.resource.data.firebaseUserId == firebaseUserId;
+      allow update: if isExistingOwner(firebaseUserId) && request.resource.data.firebaseUserId == resource.data.firebaseUserId;
+      allow delete: if isExistingOwner(firebaseUserId);
+
+      /**
+       * @description A customer's shopping cart, private to the owner.
+       * @path /customerProfiles/{firebaseUserId}/carts/{cartId}
+       * @allow (create) An owner creating a new cart in their own profile.
+       * @deny (update) A user trying to update a cart in another user's profile.
+       * @principle Restricts access to a user's own data tree and validates relational integrity.
+       */
+      match /carts/{cartId} {
+        allow get, list: if isOwner(firebaseUserId);
+        allow create: if isOwner(firebaseUserId) && request.resource.data.customerId == firebaseUserId;
+        allow update: if isExistingOwner(firebaseUserId) && request.resource.data.customerId == resource.data.customerId;
+        allow delete: if isExistingOwner(firebaseUserId);
+
+        /**
+         * @description Items in a cart. Relies on a denormalized `customerId` for authorization.
+         * @path /customerProfiles/{firebaseUserId}/carts/{cartId}/cartItems/{cartItemId}
+         * @allow (create) An owner adding an item to their own cart.
+         * @deny (delete) A user trying to delete an item from another user's cart.
+         * @principle Enforces ownership via a denormalized field to avoid costly parent document lookups.
+         */
+        match /cartItems/{cartItemId} {
+          allow get, list: if isOwner(firebaseUserId);
+          // Assuming `CartItem` has a denormalized `customerId` field for security and performance.
+          allow create: if isOwner(firebaseUserId) && request.resource.data.customerId == firebaseUserId;
+          allow update: if isExistingOwner(firebaseUserId) && request.resource.data.customerId == resource.data.customerId;
+          allow delete: if isExistingOwner(firebaseUserId);
+        }
+      }
+
+      /**
+       * @description A customer's order history, private to the owner.
+       * @path /customerProfiles/{firebaseUserId}/orders/{orderId}
+       * @allow (get) An owner reading their own order details.
+       * @deny (list) A user trying to list another user's orders.
+       * @principle Restricts access to a user's own data tree and validates relational integrity.
+       */
+      match /orders/{orderId} {
+        allow get, list: if isOwner(firebaseUserId);
+        allow create: if isOwner(firebaseUserId) && request.resource.data.customerId == firebaseUserId;
+        allow update: if isExistingOwner(firebaseUserId) && request.resource.data.customerId == resource.data.customerId;
+        allow delete: if isExistingOwner(firebaseUserId);
+
+        /**
+         * @description Items in an order. Relies on a denormalized `customerId` for authorization.
+         * @path /customerProfiles/{firebaseUserId}/orders/{orderId}/orderItems/{orderItemId}
+         * @allow (get) An owner viewing an item from their own order.
+         * @deny (create) A user trying to add an item to another user's completed order.
+         * @principle Enforces ownership via a denormalized field to avoid costly parent document lookups.
+         */
+        match /orderItems/{orderItemId} {
+          allow get, list: if isOwner(firebaseUserId);
+          // Assuming `OrderItem` has a denormalized `customerId` field for security and performance.
+          allow create: if isOwner(firebaseUserId) && request.resource.data.customerId == firebaseUserId;
+          allow update: if isExistingOwner(firebaseUserId) && request.resource.data.customerId == resource.data.customerId;
+          allow delete: if isExistingOwner(firebaseUserId);
+        }
+      }
+
+      /**
+       * @description A customer's scheduled appointments, private to the owner.
+       * @path /customerProfiles/{firebaseUserId}/appointments/{appointmentId}
+       * @allow (list) An owner listing their own appointments.
+       * @deny (get) A user trying to view another user's appointment.
+       * @principle Restricts access to a user's own data tree and validates relational integrity.
+       */
+      match /appointments/{appointmentId} {
+        allow get, list: if isOwner(firebaseUserId);
+        allow create: if isOwner(firebaseUserId) && request.resource.data.customerId == firebaseUserId;
+        allow update: if isExistingOwner(firebaseUserId) && request.resource.data.customerId == resource.data.customerId;
+        allow delete: if isExistingOwner(firebaseUserId);
+      }
+    }
+  }
+}
