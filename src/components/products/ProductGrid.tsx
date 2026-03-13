@@ -72,7 +72,7 @@ interface ProductGridProps {
 export function ProductGrid({ products, isLoading }: ProductGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
-  const [condition, setCondition] = useState('all');
+  const [model, setModel] = useState('all');
   const [sortBy, setSortBy] = useState('name-asc');
   const [whatsappNumber, setWhatsappNumber] = useState('');
 
@@ -83,7 +83,15 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
     setWhatsappNumber(phoneNumbers[randomIndex]);
   }, []);
 
+  const availableModels = useMemo(() => {
+    if (!products) return [];
+    const allModels = products.flatMap(p => p.compatibility || []);
+    return [...new Set(allModels)].sort();
+  }, [products]);
+
   const filteredAndSortedProducts = useMemo(() => {
+    if (!products) return [];
+    
     let filtered = products.filter(product =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -92,8 +100,8 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
       filtered = filtered.filter(product => product.category === category);
     }
     
-    if (condition !== 'all') {
-      filtered = filtered.filter(product => product.condition === condition);
+    if (model !== 'all') {
+      filtered = filtered.filter(product => product.compatibility && product.compatibility.includes(model));
     }
 
     const [sortKey, sortDirection] = sortBy.split('-');
@@ -114,12 +122,12 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
     });
 
     return filtered;
-  }, [products, searchTerm, category, condition, sortBy]);
+  }, [products, searchTerm, category, model, sortBy]);
 
   return (
     <div>
-      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-            <div className="relative lg:col-span-2">
+      <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+            <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                     placeholder="Buscar repuestos..."
@@ -137,6 +145,18 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
                 <SelectItem value="all">Todas las Categorías</SelectItem>
                 <SelectItem value="Original">Original</SelectItem>
                 <SelectItem value="Aftermarket">Aftermarket</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={model} onValueChange={setModel} disabled={availableModels.length === 0}>
+              <SelectTrigger>
+                <SelectValue placeholder="Modelo de Vehículo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los Modelos</SelectItem>
+                {availableModels.map(m => (
+                  <SelectItem key={m} value={m}>{m}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
