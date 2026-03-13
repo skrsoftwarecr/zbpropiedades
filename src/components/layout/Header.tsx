@@ -35,6 +35,7 @@ const navLinks = [
     subItems: [
       { href: '/parts', label: 'Todos los Repuestos' },
       { href: '/parts/e36', label: 'Repuestos E36' },
+      { href: '/parts/e46', label: 'Repuestos E46' },
     ] 
   },
   { href: '/vehicles', label: 'Vehículos' },
