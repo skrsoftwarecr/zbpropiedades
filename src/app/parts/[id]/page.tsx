@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   
   const title = `${product.name} - Repuesto ${product.category} para BMW`;
-  const description = `Comprar ${product.name} para BMW en Costa Rica. ${product.description.substring(0, 120)}... Encuentre repuestos ${product.category} para su vehículo en Bimmer CR.`;
+  const description = `Comprar ${product.name} (SKU: ${product.sku}) para BMW en Costa Rica. ${product.description.substring(0, 120)}... Encuentre repuestos ${product.category} para su vehículo en Bimmer CR.`;
 
   return {
     title,
@@ -49,17 +49,44 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.imageUrls,
+    "description": product.description,
+    "sku": product.sku,
+    "brand": {
+      "@type": "Brand",
+      "name": product.category === 'Original' ? "BMW" : "Aftermarket"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `https://www.bimmercr.com/parts/${product.id}`,
+      "priceCurrency": "CRC",
+      "price": product.price,
+      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": product.condition === 'Nuevo' ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition"
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="mb-6">
-            <Button variant="ghost" asChild>
-                <Link href="/parts">
-                    <ChevronLeft className="h-4 w-4 mr-2" />
-                    Volver a Repuestos
-                </Link>
-            </Button>
-        </div>
-        <ProductDetails product={product} />
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <div className="container mx-auto px-4 py-8 md:py-12">
+          <div className="mb-6">
+              <Button variant="ghost" asChild>
+                  <Link href="/parts">
+                      <ChevronLeft className="h-4 w-4 mr-2" />
+                      Volver a Repuestos
+                  </Link>
+              </Button>
+          </div>
+          <ProductDetails product={product} />
+      </div>
+    </>
   );
 }

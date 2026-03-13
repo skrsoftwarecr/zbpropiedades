@@ -39,6 +39,7 @@ import {
 
 const formSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres.'),
+  sku: z.string().min(1, 'El SKU es requerido.'),
   category: z.enum(['Original', 'Aftermarket']),
   price: z.coerce.number().min(0, 'El precio no puede ser negativo.'),
   stock: z.coerce.number().int().min(0, 'El stock no puede ser negativo.'),
@@ -75,6 +76,7 @@ export function ProductForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: product?.name || '',
+      sku: product?.sku || '',
       category: product?.category || 'Aftermarket',
       price: product?.price || 0,
       stock: product?.stock || 0,
@@ -90,6 +92,7 @@ export function ProductForm({
     if (isOpen) {
         form.reset({
             name: product?.name || '',
+            sku: product?.sku || '',
             category: product?.category || 'Aftermarket',
             price: product?.price || 0,
             stock: product?.stock || 0,
@@ -140,6 +143,9 @@ export function ProductForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
             <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField control={form.control} name="sku" render={({ field }) => (
+                <FormItem><FormLabel>SKU</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="price" render={({ field }) => (
                 <FormItem><FormLabel>Precio (CRC)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>

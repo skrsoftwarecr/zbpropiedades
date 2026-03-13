@@ -1,6 +1,7 @@
 export interface Product {
   id: string;
   name: string;
+  sku: string;
   category: 'Original' | 'Aftermarket';
   price: number;
   description: string;

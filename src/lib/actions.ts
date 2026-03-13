@@ -26,6 +26,7 @@ export async function getProductById(productId: string): Promise<Product | null>
     return { 
         id: productSnap.id,
         name: data.name,
+        sku: data.sku,
         category: data.category,
         price: data.price,
         description: data.description,
@@ -79,6 +80,7 @@ export async function getProducts(): Promise<Product[]> {
         return { 
             id: doc.id,
             name: data.name,
+            sku: data.sku,
             category: data.category,
             price: data.price,
             description: data.description,
