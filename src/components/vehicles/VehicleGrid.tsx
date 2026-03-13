@@ -96,6 +96,7 @@ export function VehicleGrid({ vehicles, isLoading }: VehicleGridProps) {
   
   // The values to display in the label. Use the state if available, otherwise the full range.
   const displayPrice = price || [minPrice, maxPrice];
+  const isSliderDisabled = isLoading || !price || minPrice === maxPrice;
 
   return (
     <div>
@@ -150,9 +151,9 @@ export function VehicleGrid({ vehicles, isLoading }: VehicleGridProps) {
                     min={minPrice}
                     max={maxPrice}
                     step={(maxPrice-minPrice)/100 || 1}
-                    value={price} // Pass the state value to the slider
-                    onValueChange={setPrice} // Update the state on change
-                    disabled={isLoading || !price}
+                    value={price}
+                    onValueChange={setPrice}
+                    disabled={isSliderDisabled}
                 />
             </div>
           </>
