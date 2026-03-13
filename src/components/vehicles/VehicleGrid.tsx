@@ -43,9 +43,13 @@ export function VehicleGrid({ vehicles, isLoading }: VehicleGridProps) {
   const [model, setModel] = useState('all');
   const [sortBy, setSortBy] = useState('price-desc');
   
+  // The absolute min/max for the slider's range, derived from all available vehicles.
   const [minPrice, maxPrice] = useMemo(() => priceRange(vehicles), [vehicles]);
-  const [price, setPrice] = useState([minPrice, maxPrice]);
   
+  // The state for the slider's current thumbs' values.
+  const [price, setPrice] = useState<number[] | undefined>(undefined);
+
+  // Effect to initialize or reset the slider's value when the underlying data changes.
   useEffect(() => {
     setPrice([minPrice, maxPrice]);
   }, [minPrice, maxPrice]);
@@ -62,9 +66,11 @@ export function VehicleGrid({ vehicles, isLoading }: VehicleGridProps) {
     if (model !== 'all') {
       filtered = filtered.filter(vehicle => vehicle.model === model);
     }
-
-    filtered = filtered.filter(vehicle => vehicle.price >= price[0] && vehicle.price <= price[1]);
-
+    
+    // Only filter by price if the price state is set.
+    if (price) {
+      filtered = filtered.filter(vehicle => vehicle.price >= price[0] && vehicle.price <= price[1]);
+    }
 
     const [sortKey, sortDirection] = sortBy.split('-');
     
@@ -87,6 +93,9 @@ export function VehicleGrid({ vehicles, isLoading }: VehicleGridProps) {
   }, [vehicles, searchTerm, model, sortBy, price]);
   
   const models = useMemo(() => uniqueModels(vehicles), [vehicles]);
+  
+  // The values to display in the label. Use the state if available, otherwise the full range.
+  const displayPrice = price || [minPrice, maxPrice];
 
   return (
     <div>
@@ -136,13 +145,14 @@ export function VehicleGrid({ vehicles, isLoading }: VehicleGridProps) {
             </Select>
             
             <div className="md:col-span-4 lg:col-span-4 mt-2">
-                <label className="block text-sm font-medium mb-2">Rango de Precio: {formatPrice(price[0])} - {formatPrice(price[1])}</label>
+                <label className="block text-sm font-medium mb-2">Rango de Precio: {formatPrice(displayPrice[0])} - {formatPrice(displayPrice[1])}</label>
                 <Slider
                     min={minPrice}
                     max={maxPrice}
                     step={(maxPrice-minPrice)/100 || 1}
-                    value={price}
-                    onValueChange={setPrice}
+                    value={price} // Pass the state value to the slider
+                    onValueChange={setPrice} // Update the state on change
+                    disabled={isLoading || !price}
                 />
             </div>
           </>
