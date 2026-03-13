@@ -7,7 +7,7 @@ import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { useCart } from '@/context/CartContext';
 import { Logo } from '@/components/shared/Logo';
 import {
@@ -25,6 +25,7 @@ import { useRouter } from 'next/navigation';
 const navLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/parts', label: 'Repuestos' },
+  { href: '/parts/e36', label: 'Repuestos E36' },
   { href: '/vehicles', label: 'Vehículos' },
   { href: '/sell-vehicle', label: 'Vende tu Vehículo' },
   { href: '/taller', label: 'Taller' },
@@ -144,23 +145,26 @@ export function Header() {
                     </Link>
                   </SheetTitle>
                 </SheetHeader>
-                <nav className="flex flex-col gap-6 p-6">
+                <nav className="flex flex-col gap-4 p-4">
                   {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
+                     <SheetClose asChild key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                          {link.label}
+                        </Link>
+                     </SheetClose>
                   ))}
                   {user && (
-                    <Link
-                      href="/admin"
-                      className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
-                    >
-                      Admin
-                    </Link>
+                    <SheetClose asChild>
+                      <Link
+                        href="/admin"
+                        className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
+                      >
+                        Admin
+                      </Link>
+                    </SheetClose>
                   )}
                 </nav>
               </SheetContent>
