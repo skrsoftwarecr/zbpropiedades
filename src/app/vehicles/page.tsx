@@ -1,14 +1,14 @@
-'use client';
-
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
-import type { Vehicle } from '@/lib/types';
+import { getVehicles } from '@/lib/actions';
 import { VehicleGrid } from '@/components/vehicles/VehicleGrid';
+import type { Metadata } from 'next';
 
-export default function VehiclesPage() {
-  const firestore = useFirestore();
-  const vehiclesQuery = useMemoFirebase(() => query(collection(firestore, 'vehicles'), orderBy('createdAt', 'desc')), [firestore]);
-  const { data: allVehicles, isLoading } = useCollection<Vehicle>(vehiclesQuery);
+export const metadata: Metadata = {
+  title: 'Vehículos Usados BMW en Costa Rica',
+  description: 'Explore nuestra selección de vehículos BMW usados y certificados. Encuentre el BMW perfecto para usted en Bimmer CR, con filtros por modelo y precio.',
+};
+
+export default async function VehiclesPage() {
+  const allVehicles = await getVehicles();
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -18,7 +18,7 @@ export default function VehiclesPage() {
           Explore nuestra colección de BMWs pre-seleccionados y certificados.
         </p>
       </div>
-      <VehicleGrid vehicles={allVehicles || []} isLoading={isLoading} />
+      <VehicleGrid vehicles={allVehicles || []} isLoading={false} />
     </div>
   );
 }

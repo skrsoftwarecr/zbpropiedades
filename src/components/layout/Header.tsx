@@ -30,6 +30,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const navLinks = [
+  { href: '/parts', label: 'Repuestos' },
   { href: '/vehicles', label: 'Vehículos' },
   { href: '/sell-vehicle', label: 'Vende tu Vehículo' },
   { href: '/taller', label: 'Taller' },
@@ -66,21 +67,20 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-6">
-          
+        <div className="flex items-center gap-6">
           {isClient && (
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="-ml-2">
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Alternar menú</span>
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="flex flex-col p-0">
                   <SheetHeader className="border-b p-4">
-                    <SheetTitle asChild>
-                      <Link
+                    <SheetTitle>
+                       <Link
                         href="/"
                         className="flex items-center gap-2 font-bold text-lg"
                       >
@@ -90,14 +90,6 @@ export function Header() {
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-4 p-4">
-                    <SheetClose asChild>
-                        <Link
-                            href="/parts"
-                            className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                            Repuestos
-                        </Link>
-                    </SheetClose>
                     {navLinks.map((link) => (
                       <SheetClose asChild key={link.href}>
                         <Link
@@ -131,12 +123,6 @@ export function Header() {
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link
-                href="/parts"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Repuestos
-              </Link>
             {navLinks.map((link) => (
               <Link
                 key={link.href}

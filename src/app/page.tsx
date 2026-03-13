@@ -88,6 +88,24 @@ export default function Home() {
     <div className="flex flex-col">
       <Ticker />
 
+      <section className="relative h-[350px] md:h-[450px] w-full flex items-center justify-center text-primary-foreground">
+        <Image 
+            src={'https://picsum.photos/seed/bimmer-hero/1600/450'}
+            alt={'Taller de Bimmer CR con un BMW en el elevador'}
+            fill
+            className="object-cover"
+            priority
+            data-ai-hint={'bmw service'}
+        />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="relative text-center p-4">
+            <h1 className="text-4xl md:text-6xl font-bold font-headline drop-shadow-md">Su Especialista BMW en Costa Rica</h1>
+            <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-primary-foreground/90 drop-shadow">
+            Repuestos, vehículos y servicio de alta calidad para su auto.
+            </p>
+        </div>
+      </section>
+
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">

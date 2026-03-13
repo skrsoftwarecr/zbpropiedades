@@ -1,54 +1,49 @@
-'use client';
-
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { notFound, useParams } from 'next/navigation';
-import { ProductDetails } from '@/components/products/ProductDetails';
+import { getProductById } from '@/lib/actions';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
-import type { Product } from '@/lib/types';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ProductDetails } from '@/components/products/ProductDetails';
 
-const ProductDetailSkeleton = () => (
-    <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-      <div className="w-full">
-        <Skeleton className="aspect-square w-full rounded-lg" />
-      </div>
-      <div className="flex flex-col space-y-4">
-        <Skeleton className="h-6 w-1/4" />
-        <Skeleton className="h-10 w-3/4" />
-        <Skeleton className="h-8 w-1/2" />
-        <Skeleton className="h-20 w-full" />
-        <div className="pt-6 border-t space-y-2">
-            <Skeleton className="h-5 w-1/3" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-        </div>
-        <div className="mt-auto pt-6 space-y-4">
-            <Skeleton className="h-10 w-48" />
-            <Skeleton className="h-12 w-full" />
-        </div>
-      </div>
-    </div>
-)
+type Props = {
+  params: { id: string }
+}
 
-export default function ProductDetailPage() {
-  const params = useParams();
-  const productId = params.id as string;
-  const firestore = useFirestore();
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const product = await getProductById(params.id);
 
-  const productRef = useMemoFirebase(() => doc(firestore, 'products', productId), [firestore, productId]);
-  const { data: product, isLoading } = useDoc<Product>(productRef);
-
-  if (isLoading) {
-    return (
-        <div className="container mx-auto px-4 py-8 md:py-12">
-            <ProductDetailSkeleton />
-        </div>
-    );
+  if (!product) {
+    return {
+      title: 'Repuesto no encontrado',
+      description: 'El repuesto que busca no existe o no está disponible en Bimmer CR.',
+    }
   }
+  
+  const title = `${product.name} - Repuesto ${product.category} para BMW`;
+  const description = `Comprar ${product.name} para BMW en Costa Rica. ${product.description.substring(0, 120)}... Encuentre repuestos ${product.category} para su vehículo en Bimmer CR.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: product.imageUrls[0] ? [
+        {
+          url: product.imageUrls[0],
+          width: 800,
+          height: 800,
+          alt: product.name,
+        },
+      ] : [],
+    },
+  }
+}
+
+
+export default async function ProductDetailPage({ params }: Props) {
+  const product = await getProductById(params.id);
 
   if (!product) {
     notFound();

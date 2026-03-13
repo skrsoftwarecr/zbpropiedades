@@ -1,13 +1,13 @@
 import { MetadataRoute } from 'next'
  
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = 'https://example.com'; // Placeholder URL
+  const siteUrl = 'https://www.bimmercr.com'; // Use production URL
 
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/cart', '/checkout'],
+      disallow: ['/cart', '/checkout', '/admin'],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
   }

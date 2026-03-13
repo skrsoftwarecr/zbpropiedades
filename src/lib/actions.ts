@@ -2,7 +2,7 @@
 
 import type { CartItem, Product, Vehicle } from './types';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
 // Server-side firebase initialization for actions
@@ -11,6 +11,62 @@ function getFirebaseForServer() {
         return initializeApp(firebaseConfig);
     }
     return getApp();
+}
+
+export async function getProductById(productId: string): Promise<Product | null> {
+    const app = getFirebaseForServer();
+    const db = getFirestore(app);
+    const productRef = doc(db, 'products', productId);
+    const productSnap = await getDoc(productRef);
+
+    if (!productSnap.exists()) {
+        return null;
+    }
+    const data = productSnap.data();
+    return { 
+        id: productSnap.id,
+        name: data.name,
+        category: data.category,
+        price: data.price,
+        description: data.description,
+        stock: data.stock,
+        condition: data.condition,
+        compatibility: data.compatibility,
+        imageUrls: data.imageUrls,
+        createdAt: data.createdAt?.toDate(),
+        updatedAt: data.updatedAt?.toDate(),
+    } as Product;
+}
+
+export async function getVehicleById(vehicleId: string): Promise<Vehicle | null> {
+    const app = getFirebaseForServer();
+    const db = getFirestore(app);
+    const vehicleRef = doc(db, 'vehicles', vehicleId);
+    const vehicleSnap = await getDoc(vehicleRef);
+
+    if (!vehicleSnap.exists()) {
+        return null;
+    }
+    const data = vehicleSnap.data();
+    return {
+        id: vehicleSnap.id,
+        make: data.make,
+        model: data.model,
+        year: data.year,
+        price: data.price,
+        mileage: data.mileage,
+        vin: data.vin,
+        engine: data.engine,
+        transmission: data.transmission,
+        exteriorColor: data.exteriorColor,
+        interiorColor: data.interiorColor,
+        features: data.features,
+        description: data.description,
+        imageUrls: data.imageUrls,
+        availabilityStatus: data.availabilityStatus,
+        createdAt: data.createdAt?.toDate(),
+        updatedAt: data.updatedAt?.toDate(),
+    } as Vehicle;
 }
 
 export async function getProducts(): Promise<Product[]> {

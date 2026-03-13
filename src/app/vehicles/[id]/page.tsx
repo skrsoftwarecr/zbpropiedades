@@ -1,64 +1,52 @@
-'use client';
-
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { notFound, useParams } from 'next/navigation';
-import { VehicleDetails } from '@/components/vehicles/VehicleDetails';
+import { getVehicleById } from '@/lib/actions';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AppointmentForm } from '@/components/vehicles/AppointmentForm';
+import { VehicleDetails } from '@/components/vehicles/VehicleDetails';
 import type { Vehicle } from '@/lib/types';
-import { Skeleton } from '@/components/ui/skeleton';
 
-const VehicleDetailSkeleton = () => (
-    <div>
-        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
-            <div className="lg:col-span-3">
-                <Skeleton className="aspect-video w-full rounded-lg" />
-            </div>
-             <div className="lg:col-span-2 flex flex-col space-y-4">
-                <Skeleton className="h-10 w-3/4" />
-                <Skeleton className="h-8 w-1/2" />
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
-                    {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
-                </div>
-            </div>
-            <div className="lg:col-span-5 mt-8 space-y-4">
-                <Skeleton className="h-8 w-1/4" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-8 w-1/4 mt-8" />
-                <div className="flex flex-wrap gap-2">
-                    <Skeleton className="h-6 w-24" />
-                    <Skeleton className="h-6 w-20" />
-                    <Skeleton className="h-6 w-28" />
-                </div>
-            </div>
-        </div>
-         <Separator className="my-12 md:my-16" />
-        <div className="max-w-3xl mx-auto">
-            <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
-            <Skeleton className="h-96 w-full" />
-        </div>
-    </div>
-)
 
-export default function VehicleDetailPage() {
-  const params = useParams();
-  const vehicleId = params.id as string;
-  const firestore = useFirestore();
+type Props = {
+  params: { id: string }
+}
 
-  const vehicleRef = useMemoFirebase(() => doc(firestore, 'vehicles', vehicleId), [firestore, vehicleId]);
-  const { data: vehicle, isLoading } = useDoc<Vehicle>(vehicleRef);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const vehicle = await getVehicleById(params.id);
 
-  if (isLoading) {
-      return (
-        <div className="container mx-auto px-4 py-8 md:py-12">
-            <VehicleDetailSkeleton />
-        </div>
-      )
+  if (!vehicle) {
+    return {
+      title: 'Vehículo no encontrado',
+      description: 'El vehículo que busca no existe o ya no está disponible en Bimmer CR.',
+    }
   }
+  
+  const title = `BMW ${vehicle.model} ${vehicle.year} a la venta en Costa Rica`;
+  const description = `Venta de BMW ${vehicle.model} ${vehicle.year} en Bimmer CR. ${vehicle.description.substring(0, 120)}... Kilometraje: ${vehicle.mileage.toLocaleString('es-CR')} km.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: vehicle.imageUrls[0] ? [
+        {
+          url: vehicle.imageUrls[0],
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ] : [],
+    },
+  }
+}
+
+export default async function VehicleDetailPage({ params }: Props) {
+  const vehicle = await getVehicleById(params.id);
 
   if (!vehicle) {
     notFound();

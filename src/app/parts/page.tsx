@@ -1,14 +1,14 @@
-'use client';
-
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
-import type { Product } from '@/lib/types';
+import { getProducts } from '@/lib/actions';
 import { ProductGrid } from '@/components/products/ProductGrid';
+import type { Metadata } from 'next';
 
-export default function PartsPage() {
-  const firestore = useFirestore();
-  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products'), orderBy('createdAt', 'desc')), [firestore]);
-  const { data: allProducts, isLoading } = useCollection<Product>(productsQuery);
+export const metadata: Metadata = {
+  title: 'Catálogo de Repuestos para BMW',
+  description: 'Explore nuestro extenso catálogo de repuestos originales y aftermarket para todos los modelos de BMW en Costa Rica. Filtre por modelo y categoría.',
+};
+
+export default async function PartsPage() {
+  const allProducts = await getProducts();
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -18,7 +18,7 @@ export default function PartsPage() {
           Encuentre los repuestos originales y de posventa perfectos para su BMW. Use los filtros para encontrar exactamente lo que necesita.
         </p>
       </div>
-      <ProductGrid products={allProducts || []} isLoading={isLoading} />
+      <ProductGrid products={allProducts || []} isLoading={false} />
     </div>
   );
 }

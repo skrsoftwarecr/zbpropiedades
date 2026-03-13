@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getProducts, getVehicles } from '@/lib/actions';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = 'https://example.com'; // Placeholder URL
+  const siteUrl = 'https://www.bimmercr.com'; // Use production URL
 
   const staticRoutes = [
     '',
