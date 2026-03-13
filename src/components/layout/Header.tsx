@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, ShoppingCart, User as UserIcon, LogOut } from 'lucide-react';
+import { Menu, ShoppingCart, User as UserIcon, LogOut, ChevronDown } from 'lucide-react';
 import { useUser } from '@/firebase/provider';
 import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
@@ -18,14 +18,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation';
 
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
-  { href: '/parts', label: 'Repuestos' },
-  { href: '/parts/e36', label: 'Repuestos E36' },
+  { 
+    label: 'Repuestos', 
+    subItems: [
+      { href: '/parts', label: 'Todos los Repuestos' },
+      { href: '/parts/e36', label: 'Repuestos E36' },
+    ] 
+  },
   { href: '/vehicles', label: 'Vehículos' },
   { href: '/sell-vehicle', label: 'Vende tu Vehículo' },
   { href: '/taller', label: 'Taller' },
@@ -62,15 +73,33 @@ export function Header() {
             <Logo className="h-8 w-8 text-primary" />
             <span className="font-bold text-lg hidden sm:inline-block">Bimmer CR</span>
           </Link>
-          <nav className="hidden md:flex gap-6">
+          <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
+              link.subItems ? (
+                <DropdownMenu key={link.label}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="group text-sm font-medium text-muted-foreground transition-colors hover:text-foreground p-0 h-auto hover:bg-transparent flex items-center">
+                      {link.label}
+                      <ChevronDown className="relative top-[1px] ml-1 h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {link.subItems.map((subItem) => (
+                      <DropdownMenuItem key={subItem.href} asChild>
+                        <Link href={subItem.href}>{subItem.label}</Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href!}
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
              {user && (
                 <Link
@@ -147,14 +176,38 @@ export function Header() {
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 p-4">
                   {navLinks.map((link) => (
-                     <SheetClose asChild key={link.href}>
+                    link.subItems ? (
+                      <Accordion type="single" collapsible className="w-full -my-2" key={link.label}>
+                        <AccordionItem value="item-1" className="border-b-0">
+                          <AccordionTrigger className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground hover:no-underline py-2">
+                            {link.label}
+                          </AccordionTrigger>
+                          <AccordionContent className="pb-0">
+                            <nav className="flex flex-col gap-2 pl-6 pt-2 border-l ml-2">
+                              {link.subItems.map((subItem) => (
+                                <SheetClose asChild key={subItem.href}>
+                                  <Link
+                                    href={subItem.href}
+                                    className="text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                  >
+                                    {subItem.label}
+                                  </Link>
+                                </SheetClose>
+                              ))}
+                            </nav>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    ) : (
+                      <SheetClose asChild key={link.href}>
                         <Link
-                          href={link.href}
+                          href={link.href!}
                           className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
                         >
                           {link.label}
                         </Link>
-                     </SheetClose>
+                      </SheetClose>
+                    )
                   ))}
                   {user && (
                     <SheetClose asChild>
