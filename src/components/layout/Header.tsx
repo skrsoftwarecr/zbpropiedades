@@ -5,6 +5,8 @@ import { Menu, ShoppingCart, User as UserIcon, LogOut } from 'lucide-react';
 import { useUser } from '@/firebase/provider';
 import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -26,11 +28,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useRouter } from 'next/navigation';
 
 const navLinks = [
-  { href: '/', label: 'Inicio' },
-  { href: '/parts', label: 'Repuestos' },
   { href: '/vehicles', label: 'Vehículos' },
   { href: '/sell-vehicle', label: 'Vende tu Vehículo' },
   { href: '/taller', label: 'Taller' },
@@ -43,6 +42,12 @@ export function Header() {
   const { user } = useUser();
   const auth = useAuth();
   const router = useRouter();
+  
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSignOut = async () => {
     await signOutUser(auth);
@@ -62,51 +67,62 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-6">
-          <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Alternar menú</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="flex flex-col p-0">
-                <SheetHeader className="border-b p-4">
-                  <SheetTitle asChild>
-                    <Link
-                      href="/"
-                      className="flex items-center gap-2 font-bold text-lg"
-                    >
-                      <Logo className="h-8 w-8 text-primary" />
-                      <span>Bimmer CR</span>
-                    </Link>
-                  </SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col gap-4 p-4">
-                  {navLinks.map((link) => (
-                    <SheetClose asChild key={link.href}>
+          
+          {isClient && (
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Alternar menú</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="flex flex-col p-0">
+                  <SheetHeader className="border-b p-4">
+                    <SheetTitle asChild>
                       <Link
-                        href={link.href}
-                        className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        href="/"
+                        className="flex items-center gap-2 font-bold text-lg"
                       >
-                        {link.label}
+                        <Logo className="h-8 w-8 text-primary" />
+                        <span>Bimmer CR</span>
                       </Link>
-                    </SheetClose>
-                  ))}
-                  {user && (
+                    </SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col gap-4 p-4">
                     <SheetClose asChild>
-                      <Link
-                        href="/admin"
-                        className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
-                      >
-                        Admin
-                      </Link>
+                        <Link
+                            href="/parts"
+                            className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                            Repuestos
+                        </Link>
                     </SheetClose>
-                  )}
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
+                    {navLinks.map((link) => (
+                      <SheetClose asChild key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                          {link.label}
+                        </Link>
+                      </SheetClose>
+                    ))}
+                    {user && (
+                      <SheetClose asChild>
+                        <Link
+                          href="/admin"
+                          className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
+                        >
+                          Admin
+                        </Link>
+                      </SheetClose>
+                    )}
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
 
           <Link href="/" className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
@@ -115,6 +131,12 @@ export function Header() {
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
+            <Link
+                href="/parts"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Repuestos
+              </Link>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
