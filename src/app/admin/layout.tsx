@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Car, LayoutDashboard, Package, PanelLeft, CalendarClock } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/shared/Logo';
 
 const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
@@ -146,12 +146,14 @@ export default function AdminLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col p-0">
-              <div className="p-4">
-                  <Link href="/" className="flex items-center gap-2 font-semibold text-lg">
+              <SheetHeader className="border-b p-4">
+                <SheetTitle asChild>
+                  <Link href="/admin" className="flex items-center gap-2 font-semibold text-lg">
                     <Logo className="h-6 w-6 text-primary" />
-                    Bimmer CR Admin
+                    <span>Bimmer CR Admin</span>
                   </Link>
-              </div>
+                </SheetTitle>
+              </SheetHeader>
               <AdminSidebarNav isSheet />
             </SheetContent>
           </Sheet>

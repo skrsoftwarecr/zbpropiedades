@@ -7,7 +7,7 @@ import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/context/CartContext';
 import { Logo } from '@/components/shared/Logo';
 import {
@@ -135,30 +135,34 @@ export function Header() {
                   <span className="sr-only">Alternar menú</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
-                <div className="flex flex-col gap-6 pt-10">
-                  <Link href="/" className="flex items-center gap-2 mb-4">
-                     <Logo className="h-8 w-8 text-primary" />
-                    <span className="font-bold text-lg">Bimmer CR</span>
-                  </Link>
+              <SheetContent side="left" className="flex flex-col p-0">
+                <SheetHeader className="border-b p-4">
+                  <SheetTitle asChild>
+                    <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+                      <Logo className="h-8 w-8 text-primary" />
+                      <span>Bimmer CR</span>
+                    </Link>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-6 p-6">
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="text-lg font-medium"
+                      className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.label}
                     </Link>
                   ))}
-                   {user && (
-                        <Link
-                            href="/admin"
-                            className="text-lg font-medium text-primary"
-                        >
-                            Admin
-                        </Link>
-                    )}
-                </div>
+                  {user && (
+                    <Link
+                      href="/admin"
+                      className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
+                    >
+                      Admin
+                    </Link>
+                  )}
+                </nav>
               </SheetContent>
             </Sheet>
           </div>
