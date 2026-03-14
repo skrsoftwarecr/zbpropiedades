@@ -4,6 +4,7 @@ import type { CartItem, Product, Vehicle } from './types';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
+import { products as hardcodedProducts } from './data';
 
 // Server-side firebase initialization for actions
 function getFirebaseForServer() {
@@ -16,6 +17,14 @@ function getFirebaseForServer() {
 export async function getProductById(productId: string): Promise<Product | null> {
     const app = getFirebaseForServer();
     const db = getFirestore(app);
+
+    // First check hardcoded products
+    const hardcodedProduct = hardcodedProducts.find(p => p.id === productId);
+    if (hardcodedProduct) {
+        return hardcodedProduct;
+    }
+
+    // Then check firestore
     const productRef = doc(db, 'products', productId);
     const productSnap = await getDoc(productRef);
 
@@ -75,7 +84,7 @@ export async function getProducts(): Promise<Product[]> {
     const db = getFirestore(app);
     const productsCol = collection(db, 'products');
     const productSnapshot = await getDocs(productsCol);
-    const productList = productSnapshot.docs.map(doc => {
+    const firestoreProducts = productSnapshot.docs.map(doc => {
         const data = doc.data();
         return { 
             id: doc.id,
@@ -92,7 +101,18 @@ export async function getProducts(): Promise<Product[]> {
             updatedAt: data.updatedAt?.toDate(),
         } as Product
     });
-    return productList;
+    
+    // Combine Firestore products with hardcoded products
+    // Use a Map to ensure products from Firestore (which are more dynamic) overwrite hardcoded ones if SKUs conflict.
+    const productMap = new Map<string, Product>();
+
+    // Add hardcoded products first
+    hardcodedProducts.forEach(p => productMap.set(p.sku, p));
+
+    // Then add/overwrite with Firestore products
+    firestoreProducts.forEach(p => productMap.set(p.sku, p));
+
+    return Array.from(productMap.values());
 }
 
 export async function getVehicles(): Promise<Vehicle[]> {
