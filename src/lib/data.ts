@@ -181,6 +181,126 @@ export const products: Product[] = [
     compatibility: ['E36'],
     imageUrls: ['https://picsum.photos/seed/asientos/500/500'],
   },
+  {
+    id: 'e34-bomba-agua',
+    name: 'Bomba de Agua para BMW E34',
+    sku: 'E34-BA-001',
+    category: 'Original',
+    price: 100000,
+    description: 'Asegura la óptima circulación del refrigerante en tu BMW E34 para prevenir el sobrecalentamiento. Pieza de reemplazo directo de alta calidad.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-bomba-agua/500/500']
+  },
+  {
+    id: 'e34-termostato',
+    name: 'Termostato para BMW E34',
+    sku: 'E34-TRM-001',
+    category: 'Original',
+    price: 100000,
+    description: 'Regula la temperatura del motor de tu E34, garantizando un rendimiento eficiente y protegiendo contra el desgaste prematuro.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-termostato/500/500']
+  },
+  {
+    id: 'e34-radiador',
+    name: 'Radiador para BMW E34',
+    sku: 'E34-RAD-001',
+    category: 'Aftermarket',
+    price: 100000,
+    description: 'Disipa el calor del motor de manera efectiva. Fabricado con materiales de alta calidad para una máxima durabilidad en tu BMW E34.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-radiador/500/500']
+  },
+  {
+    id: 'e34-bujias',
+    name: 'Juego de Bujías para BMW E34',
+    sku: 'E34-BUJ-001',
+    category: 'Aftermarket',
+    price: 100000,
+    description: 'Mejora la ignición y la eficiencia del combustible. Juego de bujías de alto rendimiento para motores de BMW E34.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-bujias/500/500']
+  },
+  {
+    id: 'e34-amortiguadores',
+    name: 'Juego de Amortiguadores para BMW E34',
+    sku: 'E34-AMT-001',
+    category: 'Aftermarket',
+    price: 100000,
+    description: 'Restaura la comodidad y estabilidad de la conducción de tu E34. Amortiguadores de alta calidad para un manejo suave y seguro.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-amortiguadores/500/500']
+  },
+  {
+    id: 'e34-pastillas-freno',
+    name: 'Pastillas de Freno para BMW E34',
+    sku: 'E34-PF-001',
+    category: 'Aftermarket',
+    price: 100000,
+    description: 'Potencia de frenado confiable y bajo nivel de ruido. Compuesto de alta calidad para un rendimiento superior en tu BMW E34.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-pastillas-freno/500/500']
+  },
+  {
+    id: 'e34-discos-freno',
+    name: 'Discos de Freno Delanteros para BMW E34',
+    sku: 'E34-DF-001',
+    category: 'Aftermarket',
+    price: 100000,
+    description: 'Discos de freno ventilados para una disipación de calor superior y un rendimiento de frenado constante en tu BMW E34.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-discos-freno/500/500']
+  },
+  {
+    id: 'e34-brazo-suspension',
+    name: 'Brazo de Suspensión para BMW E34',
+    sku: 'E34-BS-001',
+    category: 'Original',
+    price: 100000,
+    description: 'Componente clave para la estabilidad y el manejo. Reemplazo directo para restaurar la geometría de la suspensión de tu E34.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-brazo-suspension/500/500']
+  },
+  {
+    id: 'e34-filtro-aceite',
+    name: 'Filtro de Aceite para BMW E34',
+    sku: 'E34-FA-001',
+    category: 'Original',
+    price: 100000,
+    description: 'Protege tu motor con un filtrado de aceite eficiente. Diseñado para cumplir con las especificaciones OEM para el BMW E34.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-filtro-aceite/500/500']
+  },
+  {
+    id: 'e34-alternador',
+    name: 'Alternador para BMW E34',
+    sku: 'E34-ALT-001',
+    category: 'Original',
+    price: 100000,
+    description: 'Garantiza un suministro de energía estable para el sistema eléctrico de tu E34. Reemplazo de alta calidad para una máxima fiabilidad.',
+    stock: 10,
+    condition: 'Nuevo',
+    compatibility: ['E34'],
+    imageUrls: ['https://picsum.photos/seed/e34-alternador/500/500']
+  }
 ];
 
 export const vehicles: Vehicle[] = [];
