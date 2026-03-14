@@ -155,7 +155,9 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
               <SelectContent>
                 <SelectItem value="all">Todos los Modelos</SelectItem>
                 {availableModels.map(m => (
-                  <SelectItem key={m} value={m}>BMW {m}</SelectItem>
+                  <SelectItem key={m} value={m}>
+                    {m === 'E36' ? `BMW ${m}` : m}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
