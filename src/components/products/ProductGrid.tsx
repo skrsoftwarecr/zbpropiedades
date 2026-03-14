@@ -86,7 +86,9 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
   const availableModels = useMemo(() => {
     if (!products) return [];
     const allModels = products.flatMap(p => p.compatibility || []);
-    return [...new Set(allModels)].sort();
+    // Normalize models to remove "BMW " prefix and get unique values
+    const normalizedModels = allModels.map(m => m.replace(/^BMW\s/i, ''));
+    return [...new Set(normalizedModels)].sort();
   }, [products]);
 
   const filteredAndSortedProducts = useMemo(() => {
@@ -101,7 +103,11 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
     }
     
     if (model !== 'all') {
-      filtered = filtered.filter(product => product.compatibility && product.compatibility.includes(model));
+      // Filter by checking if compatibility array contains either the model code (e.g., "E34") or the prefixed version ("BMW E34")
+      filtered = filtered.filter(product =>
+          product.compatibility &&
+          product.compatibility.some(c => c.replace(/^BMW\s/i, '') === model)
+      );
     }
 
     const [sortKey, sortDirection] = sortBy.split('-');
