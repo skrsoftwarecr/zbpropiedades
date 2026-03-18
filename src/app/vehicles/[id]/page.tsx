@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
   
-  const title = `BMW ${vehicle.model} ${vehicle.year} a la venta en Costa Rica`;
-  const description = `Venta de BMW ${vehicle.model} ${vehicle.year} en Bimmer CR. ${vehicle.description.substring(0, 120)}... Kilometraje: ${vehicle.mileage.toLocaleString('es-CR')} km. VIN: ${vehicle.vin}.`;
+  const title = `${vehicle.make} ${vehicle.model} a la venta en Costa Rica`;
+  const description = `Venta de ${vehicle.make} ${vehicle.model} en Bimmer CR. ${vehicle.description.substring(0, 120)}... Kilometraje: ${vehicle.mileage.toLocaleString('es-CR')} km. VIN: ${vehicle.vin}.`;
 
   return {
     title,
@@ -55,7 +55,7 @@ export default async function VehicleDetailPage({ params }: Props) {
   const vehicleJsonLd = {
     "@context": "https://schema.org",
     "@type": "Vehicle",
-    "name": `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+    "name": `${vehicle.make} ${vehicle.model}`,
     "brand": {
       "@type": "Brand",
       "name": vehicle.make

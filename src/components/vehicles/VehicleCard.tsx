@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Gauge, Calendar, Car } from 'lucide-react';
+import { Gauge, Car } from 'lucide-react';
 import React from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +36,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
         </CardHeader>
         <CardContent className="p-4">
           <CardTitle className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
-            {vehicle.year} {vehicle.make} {vehicle.model}
+            {vehicle.make} {vehicle.model}
           </CardTitle>
           <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">

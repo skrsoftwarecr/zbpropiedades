@@ -69,7 +69,7 @@ export function VehicleDetails({ vehicle }: VehicleDetailsProps) {
       </div>
 
       <div className="lg:col-span-2 flex flex-col">
-        <h1 className="text-3xl lg:text-4xl font-bold font-headline">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
+        <h1 className="text-3xl lg:text-4xl font-bold font-headline">{vehicle.make} {vehicle.model}</h1>
         <p className="text-3xl font-bold my-4 text-primary">{formatPrice(vehicle.price)}</p>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
