@@ -559,10 +559,10 @@ export const vehicles: Vehicle[] = [
     features: ['Pantalla Táctil', '4x4', 'Cámara de Reversa'],
     description: 'Potente y lujoso pickup Dodge RAM 1500. Ideal para trabajo y aventura.',
     imageUrls: [
-      'https://picsum.photos/seed/dodge-ram-cover/600/400',
-      'https://picsum.photos/seed/ram-2/600/400',
-      'https://picsum.photos/seed/ram-3/600/400',
-      'https://picsum.photos/seed/ram-4/600/400'
+      '/Vehiculos_Venta/Dodge_RAM_1500/Dodge Ram 1500_venta.jpeg',
+      '/Vehiculos_Venta/Dodge_RAM_1500/Dodge Ram 1500_venta2.jpeg',
+      '/Vehiculos_Venta/Dodge_RAM_1500/Dodge Ram 1500_venta_dentro.jpeg',
+      '/Vehiculos_Venta/Dodge_RAM_1500/Dodge Ram 1500_venta_dentro2.jpeg'
     ],
     availabilityStatus: 'Available',
   },
@@ -580,7 +580,7 @@ export const vehicles: Vehicle[] = [
     interiorColor: 'Negro',
     features: ['AWD', 'Turbo', 'Asientos Deportivos'],
     description: 'Icónico Subaru Impreza WRX. Rendimiento y tracción integral legendarios.',
-    imageUrls: ['https://picsum.photos/seed/wrx-1/600/400'],
+    imageUrls: ['/Vehiculos_Venta/Subaru_Impreza_WRX/Subaru Impreza WRX_venta.jpeg'],
     availabilityStatus: 'Available',
   },
   {
@@ -597,7 +597,7 @@ export const vehicles: Vehicle[] = [
     interiorColor: 'Gris',
     features: ['SUV Compacto', 'Techo Panorámico', 'Pantalla MyLink'],
     description: 'Moderno y eficiente SUV Chevrolet Tracker. Perfecto para la ciudad.',
-    imageUrls: ['https://picsum.photos/seed/tracker-1/600/400'],
+    imageUrls: ['/Vehiculos_Venta/Chevrolet_Tracker/Chevrolet Tracker_venta.jpeg'],
     availabilityStatus: 'Available',
   },
   {
@@ -614,7 +614,7 @@ export const vehicles: Vehicle[] = [
     interiorColor: 'Negro',
     features: ['Paquete M', 'Sunroof', 'Asientos de cuero'],
     description: 'Clásico y deportivo BMW E46. Una experiencia de manejo pura.',
-    imageUrls: ['https://picsum.photos/seed/e46-1/600/400'],
+    imageUrls: ['/Vehiculos_Venta/BMW_E46/BMW E46_venta.jpeg'],
     availabilityStatus: 'Available',
   },
 ];
