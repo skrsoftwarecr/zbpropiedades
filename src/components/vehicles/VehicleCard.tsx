@@ -29,6 +29,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
               width={600}
               height={400}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              data-ai-hint={`${vehicle.make.toLowerCase()} ${vehicle.model.toLowerCase().split(' ')[0]}`}
             />
           </div>
           <Badge variant="secondary" className="absolute top-3 right-3">{formatPrice(vehicle.price)}</Badge>

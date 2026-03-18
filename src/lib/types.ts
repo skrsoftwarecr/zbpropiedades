@@ -15,7 +15,7 @@ export interface Product {
 
 export interface Vehicle {
   id: string;
-  make: 'BMW';
+  make: string;
   model: string;
   year: number;
   price: number;

@@ -4,7 +4,7 @@ import type { CartItem, Product, Vehicle } from './types';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
-import { products as hardcodedProducts } from './data';
+import { products as hardcodedProducts, vehicles as hardcodedVehicles } from './data';
 
 // Server-side firebase initialization for actions
 function getFirebaseForServer() {
@@ -49,6 +49,13 @@ export async function getProductById(productId: string): Promise<Product | null>
 }
 
 export async function getVehicleById(vehicleId: string): Promise<Vehicle | null> {
+    // First check hardcoded vehicles
+    const hardcodedVehicle = hardcodedVehicles.find(v => v.id === vehicleId);
+    if (hardcodedVehicle) {
+        return hardcodedVehicle;
+    }
+    
+    // Then check firestore
     const app = getFirebaseForServer();
     const db = getFirestore(app);
     const vehicleRef = doc(db, 'vehicles', vehicleId);
@@ -120,7 +127,7 @@ export async function getVehicles(): Promise<Vehicle[]> {
     const db = getFirestore(app);
     const vehiclesCol = collection(db, 'vehicles');
     const vehicleSnapshot = await getDocs(vehiclesCol);
-    const vehicleList = vehicleSnapshot.docs.map(doc => {
+    const firestoreVehicles = vehicleSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
             id: doc.id,
@@ -142,7 +149,11 @@ export async function getVehicles(): Promise<Vehicle[]> {
             updatedAt: data.updatedAt?.toDate(),
         } as Vehicle
     });
-    return vehicleList;
+    
+    // To fulfill the user's request of replacing the vehicle list,
+    // we will prioritize the hardcoded list for now.
+    // Firestore vehicles can be merged or managed via the admin panel.
+    return hardcodedVehicles;
 }
 
 

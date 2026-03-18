@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/select';
 
 const formSchema = z.object({
+  make: z.string().min(2, 'La marca es requerida.'),
   model: z.string().min(1, 'El modelo es requerido.'),
   year: z.coerce.number().int().min(1980, 'El año no es válido.').max(new Date().getFullYear() + 1),
   price: z.coerce.number().min(0, 'El precio no puede ser negativo.'),
@@ -79,6 +80,7 @@ export function VehicleForm({ isOpen, onOpenChange, vehicle }: VehicleFormProps)
   React.useEffect(() => {
     if (isOpen) {
       form.reset({
+        make: vehicle?.make || 'BMW',
         model: vehicle?.model || '',
         year: vehicle?.year || new Date().getFullYear(),
         price: vehicle?.price || 0,
@@ -98,7 +100,6 @@ export function VehicleForm({ isOpen, onOpenChange, vehicle }: VehicleFormProps)
 
   const onSubmit = async (data: VehicleFormValues) => {
     const processedData = {
-      make: 'BMW' as const,
       ...data,
       features: data.features.split('\n').map(item => item.trim()).filter(Boolean),
       imageUrls: data.imageUrls.split('\n').map(item => item.trim()).filter(Boolean),
@@ -135,6 +136,9 @@ export function VehicleForm({ isOpen, onOpenChange, vehicle }: VehicleFormProps)
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField control={form.control} name="make" render={({ field }) => (
+                <FormItem><FormLabel>Marca</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
               <FormField control={form.control} name="model" render={({ field }) => (
                 <FormItem><FormLabel>Modelo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
