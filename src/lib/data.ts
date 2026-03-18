@@ -559,7 +559,7 @@ export const vehicles: Vehicle[] = [
     features: ['Pantalla Táctil', '4x4', 'Cámara de Reversa'],
     description: 'Potente y lujoso pickup Dodge RAM 1500. Ideal para trabajo y aventura.',
     imageUrls: [
-      'https://picsum.photos/seed/ram-1/600/400',
+      'https://picsum.photos/seed/dodge-ram-cover/600/400',
       'https://picsum.photos/seed/ram-2/600/400',
       'https://picsum.photos/seed/ram-3/600/400',
       'https://picsum.photos/seed/ram-4/600/400'
