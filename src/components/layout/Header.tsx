@@ -1,8 +1,7 @@
-
 'use client';
 
 import Link from 'next/link';
-import { Menu, User as UserIcon, LogOut, Home, Landmark } from 'lucide-react';
+import { Menu, User as UserIcon, LogOut, Home, Landmark, Phone } from 'lucide-react';
 import { useUser } from '@/firebase/provider';
 import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
@@ -31,8 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const navLinks = [
   { href: '/propiedades', label: 'Propiedades', icon: Home },
-  { href: '/lotes', label: 'Lotes y Terrenos', icon: Landmark },
-  { href: '/vender', label: 'Venda su Propiedad' },
+  { href: '/lotes', label: 'Lotes', icon: Landmark },
 ];
 
 export function Header() {
@@ -93,6 +91,11 @@ export function Header() {
                         </Link>
                       </SheetClose>
                     ))}
+                    <SheetClose asChild>
+                      <Link href="https://wa.me/50688888888" className="text-lg font-medium text-secondary">
+                        Contacto WhatsApp
+                      </Link>
+                    </SheetClose>
                   </nav>
                 </SheetContent>
               </Sheet>
@@ -119,6 +122,12 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
+          <Button variant="outline" className="hidden sm:flex" asChild>
+            <Link href="https://wa.me/50688888888">
+              <Phone className="mr-2 h-4 w-4" /> Contactar
+            </Link>
+          </Button>
+          
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

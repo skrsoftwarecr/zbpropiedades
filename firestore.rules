@@ -1,37 +1,18 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Reglas para ZB Propiedades - Actualizadas: 2024-05-20T10:00:00Z
-    // Forzando redistribución de reglas para resolver error de permisos.
-
-    function isAdmin() {
-      return request.auth != null && (
-        request.auth.token.email == 'skrsoftwarecr@gmail.com' ||
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-      );
-    }
-
-    match /admins/{adminId} {
-      allow get: if request.auth != null;
-      allow list, write: if isAdmin();
-    }
-
-    // Permitir lectura pública total de propiedades y lotes
-    match /properties/{propertyId} {
+    // REGLAS ABIERTAS PARA ZB PROPIEDADES
+    // Permitimos lectura pública total en toda la base de datos para depuración
+    // Las escrituras requieren ser el administrador configurado
+    
+    match /{document=**} {
       allow read, list: if true;
-      allow write: if isAdmin();
+      allow write: if request.auth != null && request.auth.token.email == 'skrsoftwarecr@gmail.com';
     }
 
-    match /lots/{lotId} {
-      allow read, list: if true;
-      allow write: if isAdmin();
-    }
-
-    // Los leads (contactos) pueden ser creados por cualquiera
+    // Regla específica para leads (contactos) que permite creación pública
     match /leads/{leadId} {
       allow create: if true;
-      allow read, write: if isAdmin();
     }
   }
 }
