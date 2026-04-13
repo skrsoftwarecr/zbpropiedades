@@ -1,4 +1,3 @@
-
 export type Province = "San José" | "Alajuela" | "Cartago" | "Heredia" | "Guanacaste" | "Puntarenas" | "Limón";
 
 export interface Property {

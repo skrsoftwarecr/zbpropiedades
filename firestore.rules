@@ -2,17 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // REGLAS DE ACCESO ZB PROPIEDADES
-    // Actualizado: 2024-05-20 15:30 (Force redeploy)
+    // Actualizado: 2024-05-20 22:00 (Redeploy forzado para corregir permisos)
     
     match /{document=**} {
-      // Permitimos lectura y listado público para que el catálogo sea visible
+      // Permitimos lectura y listado público para todo el catálogo (Propiedades y Lotes)
       allow read, list: if true;
       
       // Escritura restringida al administrador del sitio
       allow write: if request.auth != null && request.auth.token.email == 'skrsoftwarecr@gmail.com';
     }
 
-    // Regla para leads (contactos) que permite creación pública desde formularios de contacto
+    // Permitir a cualquier usuario enviar formularios de contacto (leads)
     match /leads/{leadId} {
       allow create: if true;
     }
