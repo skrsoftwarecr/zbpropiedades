@@ -1,7 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
-import { Menu, ShoppingCart, User as UserIcon, LogOut } from 'lucide-react';
+import { Menu, User as UserIcon, LogOut, Home, Landmark } from 'lucide-react';
 import { useUser } from '@/firebase/provider';
 import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
@@ -17,7 +18,6 @@ import {
   SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet';
-import { useCart } from '@/context/CartContext';
 import { Logo } from '@/components/shared/Logo';
 import {
   DropdownMenu,
@@ -30,16 +30,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const navLinks = [
-  { href: '/parts', label: 'Repuestos' },
-  { href: '/vehicles', label: 'Vehículos' },
-  { href: '/sell-vehicle', label: 'Vende tu Vehículo' },
-  { href: '/taller', label: 'Taller' },
+  { href: '/propiedades', label: 'Propiedades', icon: Home },
+  { href: '/lotes', label: 'Lotes y Terrenos', icon: Landmark },
+  { href: '/vender', label: 'Venda su Propiedad' },
 ];
 
 export function Header() {
-  const { cart } = useCart();
-  const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
-
   const { user } = useUser();
   const auth = useAuth();
   const router = useRouter();
@@ -56,7 +52,7 @@ export function Header() {
   };
 
   const getInitials = (name: string | null | undefined) => {
-    if (!name) return 'A';
+    if (!name) return 'ZB';
     const names = name.split(' ');
     if (names.length > 1) {
       return `${names[0][0]}${names[names.length - 1][0]}`;
@@ -80,12 +76,9 @@ export function Header() {
                 <SheetContent side="left" className="flex flex-col p-0">
                   <SheetHeader className="border-b p-4">
                     <SheetTitle>
-                       <Link
-                        href="/"
-                        className="flex items-center gap-2 font-bold text-lg"
-                      >
+                       <Link href="/" className="flex items-center gap-2 font-bold text-lg">
                         <Logo className="h-8 w-8 text-primary" />
-                        <span>Bimmer CR</span>
+                        <span>ZB Propiedades</span>
                       </Link>
                     </SheetTitle>
                   </SheetHeader>
@@ -100,16 +93,6 @@ export function Header() {
                         </Link>
                       </SheetClose>
                     ))}
-                    {user && (
-                      <SheetClose asChild>
-                        <Link
-                          href="/admin"
-                          className="text-lg font-medium text-primary transition-colors hover:text-primary/80"
-                        >
-                          Admin
-                        </Link>
-                      </SheetClose>
-                    )}
                   </nav>
                 </SheetContent>
               </Sheet>
@@ -118,44 +101,24 @@ export function Header() {
 
           <Link href="/" className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
-            <span className="font-bold text-lg hidden sm:inline-block">
-              Bimmer CR
+            <span className="font-bold text-lg hidden sm:inline-block tracking-tight">
+              ZB PROPIEDADES
             </span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="text-sm font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
               >
                 {link.label}
               </Link>
             ))}
-            {user && (
-              <Link
-                href="/admin"
-                className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
-              >
-                Admin
-              </Link>
-            )}
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild className="relative">
-            <Link href="/cart">
-              <ShoppingCart className="h-5 w-5" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {cartItemCount}
-                </span>
-              )}
-              <span className="sr-only">Carrito de Compras</span>
-            </Link>
-          </Button>
-
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

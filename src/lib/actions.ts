@@ -1,12 +1,12 @@
+
 'use server';
 
-import type { CartItem, Product, Vehicle } from './types';
+import type { Property, Lot } from './types';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
-import { products as hardcodedProducts, vehicles as hardcodedVehicles } from './data';
 
-// Server-side firebase initialization for actions
+// Server-side firebase initialization
 function getFirebaseForServer() {
     if (!getApps().length) {
         return initializeApp(firebaseConfig);
@@ -14,261 +14,34 @@ function getFirebaseForServer() {
     return getApp();
 }
 
-export async function getProductById(productId: string): Promise<Product | null> {
+export async function getProperties(): Promise<Property[]> {
     const app = getFirebaseForServer();
     const db = getFirestore(app);
-
-    // First check hardcoded products
-    const hardcodedProduct = hardcodedProducts.find(p => p.id === productId);
-    if (hardcodedProduct) {
-        return hardcodedProduct;
-    }
-
-    // Then check firestore
-    const productRef = doc(db, 'products', productId);
-    const productSnap = await getDoc(productRef);
-
-    if (!productSnap.exists()) {
-        return null;
-    }
-    const data = productSnap.data();
-    return { 
-        id: productSnap.id,
-        name: data.name,
-        sku: data.sku,
-        category: data.category,
-        price: data.price,
-        description: data.description,
-        stock: data.stock,
-        condition: data.condition,
-        compatibility: data.compatibility,
-        imageUrls: data.imageUrls,
-        createdAt: data.createdAt?.toDate(),
-        updatedAt: data.updatedAt?.toDate(),
-    } as Product;
+    const col = collection(db, 'properties');
+    const snap = await getDocs(col);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as Property));
 }
 
-export async function getVehicleById(vehicleId: string): Promise<Vehicle | null> {
-    // First check hardcoded vehicles
-    const hardcodedVehicle = hardcodedVehicles.find(v => v.id === vehicleId);
-    if (hardcodedVehicle) {
-        return hardcodedVehicle;
-    }
-    
-    // Then check firestore
+export async function getPropertyById(id: string): Promise<Property | null> {
     const app = getFirebaseForServer();
     const db = getFirestore(app);
-    const vehicleRef = doc(db, 'vehicles', vehicleId);
-    const vehicleSnap = await getDoc(vehicleRef);
-
-    if (!vehicleSnap.exists()) {
-        return null;
-    }
-    const data = vehicleSnap.data();
-    return {
-        id: vehicleSnap.id,
-        make: data.make,
-        model: data.model,
-        year: data.year,
-        price: data.price,
-        mileage: data.mileage,
-        vin: data.vin,
-        engine: data.engine,
-        transmission: data.transmission,
-        exteriorColor: data.exteriorColor,
-        interiorColor: data.interiorColor,
-        features: data.features,
-        description: data.description,
-        imageUrls: data.imageUrls,
-        availabilityStatus: data.availabilityStatus,
-        createdAt: data.createdAt?.toDate(),
-        updatedAt: data.updatedAt?.toDate(),
-    } as Vehicle;
+    const ref = doc(db, 'properties', id);
+    const snap = await getDoc(ref);
+    return snap.exists() ? ({ id: snap.id, ...snap.data() } as Property) : null;
 }
 
-export async function getProducts(): Promise<Product[]> {
+export async function getLots(): Promise<Lot[]> {
     const app = getFirebaseForServer();
     const db = getFirestore(app);
-    const productsCol = collection(db, 'products');
-    const productSnapshot = await getDocs(productsCol);
-    const firestoreProducts = productSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return { 
-            id: doc.id,
-            name: data.name,
-            sku: data.sku,
-            category: data.category,
-            price: data.price,
-            description: data.description,
-            stock: data.stock,
-            condition: data.condition,
-            compatibility: data.compatibility,
-            imageUrls: data.imageUrls,
-            createdAt: data.createdAt?.toDate(),
-            updatedAt: data.updatedAt?.toDate(),
-        } as Product
-    });
-    
-    // Combine Firestore products with hardcoded products
-    // Use a Map to ensure products from Firestore (which are more dynamic) overwrite hardcoded ones if SKUs conflict.
-    const productMap = new Map<string, Product>();
-
-    // Add hardcoded products first
-    hardcodedProducts.forEach(p => productMap.set(p.sku, p));
-
-    // Then add/overwrite with Firestore products
-    firestoreProducts.forEach(p => productMap.set(p.sku, p));
-
-    return Array.from(productMap.values());
+    const col = collection(db, 'lots');
+    const snap = await getDocs(col);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as Lot));
 }
 
-export async function getVehicles(): Promise<Vehicle[]> {
+export async function getLotById(id: string): Promise<Lot | null> {
     const app = getFirebaseForServer();
     const db = getFirestore(app);
-    const vehiclesCol = collection(db, 'vehicles');
-    const vehicleSnapshot = await getDocs(vehiclesCol);
-    const firestoreVehicles = vehicleSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            make: data.make,
-            model: data.model,
-            year: data.year,
-            price: data.price,
-            mileage: data.mileage,
-            vin: data.vin,
-            engine: data.engine,
-            transmission: data.transmission,
-            exteriorColor: data.exteriorColor,
-            interiorColor: data.interiorColor,
-            features: data.features,
-            description: data.description,
-            imageUrls: data.imageUrls,
-            availabilityStatus: data.availabilityStatus,
-            createdAt: data.createdAt?.toDate(),
-            updatedAt: data.updatedAt?.toDate(),
-        } as Vehicle
-    });
-    
-    // To fulfill the user's request of replacing the vehicle list,
-    // we will prioritize the hardcoded list for now.
-    // Firestore vehicles can be merged or managed via the admin panel.
-    return hardcodedVehicles;
-}
-
-
-interface AppointmentEmailData {
-    vehicleId: string;
-    name: string;
-    email: string;
-    phone: string;
-    preferredDate: Date;
-    message?: string;
-}
-
-export async function sendAppointmentEmail(appointmentData: AppointmentEmailData) {
-    const url = process.env.APPS_SCRIPT_URL;
-
-    if (!url) {
-        console.error('APPS_SCRIPT_URL is not set.');
-        return { success: false, message: 'El servidor de correo no está configurado.' };
-    }
-    
-    try {
-        const payload = {
-            ...appointmentData,
-            type: 'appointment',
-            preferredDate: appointmentData.preferredDate.toISOString(),
-        };
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error from Apps Script server: ${response.status} ${response.statusText}. Body: ${errorText}`);
-        }
-        
-        const responseText = await response.text();
-        try {
-            const result = JSON.parse(responseText);
-            return result.success ? { success: true } : { success: false, message: 'Error from email service.' };
-        } catch (jsonError) {
-            // The service might return a non-JSON success response. If status is ok, we assume success.
-            console.warn('Response from email service was not valid JSON, but status was OK. Assuming success.', responseText);
-            return { success: true };
-        }
-
-    } catch (error) {
-        console.error('Error in sendAppointmentEmail:', error);
-        return { success: false, message: 'No se pudo conectar con el servicio de correo.' };
-    }
-}
-
-
-interface PlaceOrderArgs {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-    zip: string;
-    paymentMethod: string;
-    cart: CartItem[];
-    receipt?: {
-        base64: string;
-        mimeType: string;
-        fileName: string;
-    };
-}
-
-export async function placeOrder(orderData: PlaceOrderArgs) {
-    const url = process.env.APPS_SCRIPT_URL;
-
-    if (!url) {
-        console.error('APPS_SCRIPT_URL is not set.');
-        return { success: false, message: 'El servidor de pedidos no está configurado.' };
-    }
-
-    try {
-        const payload = {
-            ...orderData,
-            type: 'order',
-            cart: orderData.cart.map(item => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
-        };
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        
-        if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`Error from Apps Script server: ${response.statusText}. Body: ${errorBody}`);
-        }
-        
-        const responseText = await response.text();
-        try {
-            const result = JSON.parse(responseText);
-            if (result.success) {
-                return { success: true, message: '¡Orden realizada con éxito!', orderId: result.orderId };
-            } else {
-                console.error("Error from Apps Script:", result.error);
-                return { success: false, message: result.error || 'Hubo un error al contactar el servicio de pedidos.' };
-            }
-        } catch (jsonError) {
-            // The service might return a non-JSON success response. If status is ok, we assume success.
-            console.warn('Response from order service was not valid JSON, but status was OK. Assuming success.', responseText);
-            // We can't return a real orderId here, so we'll return a placeholder.
-            return { success: true, message: '¡Orden realizada con éxito!', orderId: 'procesando' };
-        }
-
-    } catch (error) {
-        console.error('Error in placeOrder action:', error);
-        return { success: false, message: 'No se pudo conectar con el servicio de pedidos.' };
-    }
+    const ref = doc(db, 'lots', id);
+    const snap = await getDoc(ref);
+    return snap.exists() ? ({ id: snap.id, ...snap.data() } as Lot) : null;
 }

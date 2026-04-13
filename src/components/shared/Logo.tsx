@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 
 export function Logo({ className }: { className?: string }) {
@@ -7,16 +8,29 @@ export function Logo({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       className={cn("fill-current", className)}
     >
-      <circle cx="50" cy="50" r="50" fill="black" />
+      {/* Elegante símbolo de casa/techo con estilo minimalista */}
       <path
-        d="M50,0 a50,50 0 0,1 0,100 a50,50 0 0,1 0,-100"
-        fill="white"
+        d="M10 50 L50 15 L90 50 L90 85 L10 85 Z"
+        fill="currentColor"
+        fillOpacity="0.1"
       />
-      <circle cx="50" cy="50" r="35" fill="black" />
       <path
-        d="M50 20 L 50 20 L 30 70 L 42 70 L 46 58 L 54 58 L 58 70 L 70 70 L 50 20 Z M 47 50 L 53 50 L 50 40 Z"
-        fill="white"
+        d="M10 50 L50 15 L90 50"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
+      <path
+        d="M30 85 V55 H70 V85"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="50" cy="40" r="5" fill="currentColor" />
     </svg>
   );
 }

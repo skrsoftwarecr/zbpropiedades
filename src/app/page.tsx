@@ -1,188 +1,119 @@
+
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, limit } from 'firebase/firestore';
-import type { Product, Vehicle } from '@/lib/types';
+import type { Property, Lot } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
-import { ProductCard } from '@/components/products/ProductCard';
-import { VehicleCard } from '@/components/vehicles/VehicleCard';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Ticker } from '@/components/shared/Ticker';
-import { ArrowRight, Wrench, Car, Handshake } from 'lucide-react';
+import { Home, Landmark, Key, Phone } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const CommercialBlock = ({
-  title,
-  href,
-  imageId,
-  icon: Icon
-}: {
-  title: string;
-  href: string;
-  imageId: string;
-  icon?: React.ElementType;
-}) => {
-  const image = PlaceHolderImages.find((p) => p.id === imageId);
-  return (
-    <Link
-      href={href}
-      className="group relative block aspect-[4/3] w-full overflow-hidden rounded-lg border transition-all duration-300 hover:shadow-xl hover:shadow-primary/20"
-    >
-      {image && (
-        <Image
-          src={image.imageUrl}
-          alt={image.description}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          data-ai-hint={image.imageHint}
-        />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
-      <div className="relative flex h-full flex-col justify-end p-6 text-primary-foreground">
-        <h2 className="text-3xl font-bold font-headline drop-shadow-md flex items-center gap-3">
-          {Icon && <Icon className="h-8 w-8" />}
-          {title}
-        </h2>
-        <div className="mt-2 flex items-center font-semibold text-primary-foreground/90 transition-colors group-hover:text-primary">
-          <span>Ver más</span>
-          <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-        </div>
+const ServiceCard = ({ title, description, href, image, icon: Icon }: any) => (
+  <Link href={href} className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:shadow-2xl">
+    <div className="aspect-[16/10] relative overflow-hidden">
+      <Image 
+        src={image} 
+        alt={title} 
+        fill 
+        className="object-cover transition-transform duration-500 group-hover:scale-110"
+      />
+      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+      <div className="absolute top-4 left-4 bg-primary text-primary-foreground p-2 rounded-lg">
+        <Icon className="h-6 w-6" />
       </div>
-    </Link>
-  );
-};
-
-const SectionSkeleton = ({ count, gridCols = 4 }: { count: number, gridCols?: number }) => (
-    <div className={`grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-${gridCols}`}>
-        {[...Array(count)].map((_, i) => (
-            <div key={i} className="flex flex-col space-y-3">
-                <Skeleton className="aspect-square w-full rounded-xl" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-4/5" />
-                    <Skeleton className="h-4 w-2/5" />
-                </div>
-                 <div className="flex justify-between items-center pt-2">
-                    <Skeleton className="h-6 w-1/3" />
-                    <Skeleton className="h-10 w-10 rounded-md" />
-                </div>
-            </div>
-        ))}
     </div>
+    <div className="p-6">
+      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{title}</h3>
+      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+    </div>
+  </Link>
 );
 
-
-export default function Home() {
-  const firestore = useFirestore();
-
-  const featuredProductsQuery = useMemoFirebase(() => query(collection(firestore, 'products'), orderBy('createdAt', 'desc'), limit(4)), [firestore]);
-  const { data: featuredProducts, isLoading: isLoadingProducts } = useCollection<Product>(featuredProductsQuery);
-  
-  const featuredVehiclesQuery = useMemoFirebase(() => query(collection(firestore, 'vehicles'), orderBy('createdAt', 'desc'), limit(3)), [firestore]);
-  const { data: featuredVehicles, isLoading: isLoadingVehicles } = useCollection<Vehicle>(featuredVehiclesQuery);
-
-
+export default function LandingPage() {
   return (
     <div className="flex flex-col">
-      <Ticker />
-
-      <section className="relative h-[350px] md:h-[450px] w-full flex items-center justify-center text-primary-foreground">
+      {/* Hero Section */}
+      <section className="relative h-[80vh] min-h-[600px] w-full flex items-center justify-center">
         <Image 
-            src={'https://picsum.photos/seed/bimmer-hero/1600/450'}
-            alt={'Taller de Bimmer CR con un BMW en el elevador'}
-            fill
-            className="object-cover"
-            priority
-            data-ai-hint={'bmw service'}
+          src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1600"
+          alt="Lujosa propiedad en Costa Rica"
+          fill
+          className="object-cover"
+          priority
         />
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative text-center p-4">
-            <h1 className="text-4xl md:text-6xl font-bold font-headline drop-shadow-md">Su Especialista BMW en Costa Rica</h1>
-            <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-primary-foreground/90 drop-shadow">
-            Repuestos, vehículos y servicio de alta calidad para su auto.
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+        <div className="container relative z-10 px-4">
+          <div className="max-w-2xl text-white">
+            <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6 animate-in fade-in slide-in-from-left-8 duration-1000">
+              Encuentre el hogar <br/> 
+              <span className="text-secondary">de sus sueños</span>
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 opacity-90 font-light">
+              Propiedades exclusivas y lotes premium en las mejores zonas de Costa Rica.
             </p>
-        </div>
-      </section>
-
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            <CommercialBlock
-              title="Repuestos"
-              href="/parts"
-              imageId="cta-repuestos"
-              icon={Wrench}
-            />
-            <CommercialBlock
-              title="Vehículos"
-              href="/vehicles"
-              imageId="cta-vehiculos"
-              icon={Car}
-            />
-             <CommercialBlock
-              title="Vende tu Vehículo"
-              href="/sell-vehicle"
-              imageId="cta-vender-vehiculo"
-              icon={Handshake}
-            />
-            <CommercialBlock
-              title="Taller"
-              href="/taller"
-              imageId="cta-taller"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-card py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-4 mb-12">
-            <Wrench className="h-8 w-8 text-primary" />
-            <h2 className="text-3xl font-bold font-headline md:text-4xl">
-              Repuestos Destacados
-            </h2>
-          </div>
-          {isLoadingProducts ? (
-            <SectionSkeleton count={4} />
-          ) : (
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {featuredProducts?.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button size="lg" className="text-lg px-8 h-14 bg-secondary hover:bg-secondary/90 text-white border-none" asChild>
+                <Link href="/propiedades">Ver Propiedades</Link>
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 h-14 bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20" asChild>
+                <Link href="/lotes">Explorar Lotes</Link>
+              </Button>
             </div>
-          )}
-          <div className="mt-12 text-center">
-            <Button asChild>
-              <Link href="/parts">Explorar Todos los Repuestos</Link>
-            </Button>
           </div>
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-4 mb-12">
-            <Car className="h-8 w-8 text-primary" />
-            <h2 className="text-3xl font-bold font-headline md:text-4xl">
-              Vehículos Destacados
-            </h2>
+      {/* Categorías Principales */}
+      <section className="py-24 bg-background">
+        <div className="container px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">¿Qué está buscando hoy?</h2>
+            <p className="text-muted-foreground text-lg">
+              Ofrecemos soluciones inmobiliarias integrales adaptadas a sus necesidades y presupuesto.
+            </p>
           </div>
-          {isLoadingVehicles ? (
-            <SectionSkeleton count={3} gridCols={3} />
-          ) : (
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {featuredVehicles?.map((vehicle) => (
-                <VehicleCard key={vehicle.id} vehicle={vehicle} />
-              ))}
-            </div>
-          )}
-          <div className="mt-12 text-center">
-            <Button asChild>
-              <Link href="/vehicles">Explorar Todos los Vehículos</Link>
-            </Button>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ServiceCard 
+              title="Residencias"
+              description="Casas y apartamentos en preventa o listos para estrenar en las zonas de mayor plusvalía."
+              href="/propiedades"
+              image="https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=800"
+              icon={Home}
+            />
+            <ServiceCard 
+              title="Lotes y Quintas"
+              description="Terrenos ideales para construir su proyecto de vida o inversión agrícola/comercial."
+              href="/lotes"
+              image="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800"
+              icon={Landmark}
+            />
+            <ServiceCard 
+              title="Venda con Nosotros"
+              description="Le ayudamos a encontrar al comprador ideal con estrategias de marketing premium."
+              href="/vender"
+              image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800"
+              icon={Key}
+            />
           </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-primary text-primary-foreground">
+        <div className="container px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Atención personalizada y experta</h2>
+          <p className="text-xl mb-10 opacity-80 max-w-2xl mx-auto">
+            Nuestro equipo de asesores está listo para guiarle en cada paso del proceso de compra o venta.
+          </p>
+          <Button size="lg" variant="secondary" className="font-bold h-14 px-10" asChild>
+            <a href="https://wa.me/50688888888" target="_blank" rel="noopener noreferrer">
+              <Phone className="mr-2 h-5 w-5" /> Contactar Asesor
+            </a>
+          </Button>
         </div>
       </section>
     </div>
