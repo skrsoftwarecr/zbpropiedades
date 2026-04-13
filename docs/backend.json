@@ -2,10 +2,9 @@
 {
   "entities": {
     "Property": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Property",
-      "type": "object",
       "description": "Represents a real estate property (house, apartment, etc.) for sale or rent.",
+      "type": "object",
       "properties": {
         "id": { "type": "string" },
         "title": { "type": "string", "description": "Nombre o título de la propiedad." },
@@ -21,13 +20,12 @@
         "features": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "title", "price", "type", "province", "imageUrls"]
+      "required": ["title", "price", "type", "province", "imageUrls"]
     },
     "Lot": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Lot",
-      "type": "object",
       "description": "Represents a plot of land or lot for sale.",
+      "type": "object",
       "properties": {
         "id": { "type": "string" },
         "title": { "type": "string" },
@@ -41,12 +39,12 @@
         "features": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "title", "price", "province", "area_m2", "imageUrls"]
+      "required": ["title", "price", "province", "area_m2", "imageUrls"]
     },
     "Lead": {
       "title": "Lead",
-      "type": "object",
       "description": "Contact requests from interested clients.",
+      "type": "object",
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
@@ -62,28 +60,17 @@
     "providers": ["google.com", "password"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/properties/{propertyId}",
-        "definition": {
-          "entityName": "Property",
-          "description": "Public collection of properties."
-        }
-      },
-      {
-        "path": "/lots/{lotId}",
-        "definition": {
-          "entityName": "Lot",
-          "description": "Public collection of lots."
-        }
-      },
-      {
-        "path": "/leads/{leadId}",
-        "definition": {
-          "entityName": "Lead",
-          "description": "Private contact requests."
-        }
-      }
-    ]
+    "/properties/{propertyId}": {
+      "schema": { "$ref": "#/backend/entities/Property" },
+      "description": "Public collection of properties."
+    },
+    "/lots/{lotId}": {
+      "schema": { "$ref": "#/backend/entities/Lot" },
+      "description": "Public collection of lots."
+    },
+    "/leads/{leadId}": {
+      "schema": { "$ref": "#/backend/entities/Lead" },
+      "description": "Private contact requests."
+    }
   }
 }

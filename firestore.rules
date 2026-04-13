@@ -2,6 +2,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check for admin status
     function isAdmin() {
       return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
@@ -11,14 +12,15 @@ service cloud.firestore {
       allow list, write: if isAdmin();
     }
 
+    // Explicitly allowing public read (get and list) for properties and lots
     match /properties/{propertyId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     match /lots/{lotId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     match /leads/{leadId} {
