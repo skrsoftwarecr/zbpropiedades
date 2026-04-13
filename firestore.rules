@@ -2,8 +2,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Reglas actualizadas para ZB Propiedades
-    // Este comentario fuerza la redistribución de las reglas.
+    // Reglas para ZB Propiedades - Actualizadas: 2024-05-20T10:00:00Z
+    // Forzando redistribución de reglas para resolver error de permisos.
 
     function isAdmin() {
       return request.auth != null && (
@@ -17,15 +17,15 @@ service cloud.firestore {
       allow list, write: if isAdmin();
     }
 
-    // Permitir lectura pública de propiedades y lotes
+    // Permitir lectura pública total de propiedades y lotes
     match /properties/{propertyId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow read, list: if true;
+      allow write: if isAdmin();
     }
 
     match /lots/{lotId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow read, list: if true;
+      allow write: if isAdmin();
     }
 
     // Los leads (contactos) pueden ser creados por cualquiera
