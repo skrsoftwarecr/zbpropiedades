@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -9,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Search, MapPin } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const provinces: Province[] = ["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"];
 
@@ -35,7 +35,7 @@ export default function PropertiesPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4 font-headline">Catálogo de Propiedades</h1>
-        <p className="text-muted-foreground">Explore las mejores opciones de vivienda y locales comerciales.</p>
+        <p className="text-muted-foreground">Explore las mejores opciones de vivienda y locales comerciales en Costa Rica.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12 bg-card p-6 rounded-xl border shadow-sm">
@@ -80,7 +80,14 @@ export default function PropertiesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.map(p => <PropertyCard key={p.id} property={p} />)}
+          {filtered.length > 0 ? (
+            filtered.map(p => <PropertyCard key={p.id} property={p} />)
+          ) : (
+            <div className="col-span-full text-center py-20 bg-muted/30 rounded-xl border border-dashed">
+              <p className="text-xl font-medium">No se encontraron propiedades</p>
+              <p className="text-muted-foreground">Intente ajustar sus filtros de búsqueda.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
