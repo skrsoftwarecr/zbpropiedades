@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -35,7 +36,7 @@ export default function PropertiesPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4 font-headline">Catálogo de Propiedades</h1>
-        <p className="text-muted-foreground">Explore las mejores opciones de vivienda y locales comerciales en Costa Rica.</p>
+        <p className="text-muted-foreground text-lg">Explore las mejores opciones de vivienda y locales comerciales en Costa Rica.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12 bg-card p-6 rounded-xl border shadow-sm">
@@ -76,7 +77,7 @@ export default function PropertiesPage() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[1,2,3].map(i => <Skeleton key={i} className="h-[400px] w-full rounded-xl" />)}
+          {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-[400px] w-full rounded-xl" />)}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

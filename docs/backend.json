@@ -61,15 +61,15 @@
   },
   "firestore": {
     "/properties/{propertyId}": {
-      "schema": { "$ref": "#/backend/entities/Property" },
+      "schema": "Property",
       "description": "Public collection of properties."
     },
     "/lots/{lotId}": {
-      "schema": { "$ref": "#/backend/entities/Lot" },
+      "schema": "Lot",
       "description": "Public collection of lots."
     },
     "/leads/{leadId}": {
-      "schema": { "$ref": "#/backend/entities/Lead" },
+      "schema": "Lead",
       "description": "Private contact requests."
     }
   }

@@ -2,7 +2,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check for admin status
+    // Función auxiliar para verificar si el usuario es administrador
     function isAdmin() {
       return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
@@ -12,7 +12,7 @@ service cloud.firestore {
       allow list, write: if isAdmin();
     }
 
-    // Explicitly allowing public read (get and list) for properties and lots
+    // Permitir lectura pública de propiedades y lotes
     match /properties/{propertyId} {
       allow get, list: if true;
       allow create, update, delete: if isAdmin();
@@ -23,6 +23,7 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // Los leads (contactos) solo pueden ser creados por el público y leídos por el admin
     match /leads/{leadId} {
       allow create: if true;
       allow read, write: if isAdmin();
