@@ -2,9 +2,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Función auxiliar para verificar si el usuario es administrador
+    // Reglas actualizadas para ZB Propiedades
+    // Este comentario fuerza la redistribución de las reglas.
+
     function isAdmin() {
-      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return request.auth != null && (
+        request.auth.token.email == 'skrsoftwarecr@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
     }
 
     match /admins/{adminId} {
@@ -23,7 +28,7 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // Los leads (contactos) solo pueden ser creados por el público y leídos por el admin
+    // Los leads (contactos) pueden ser creados por cualquiera
     match /leads/{leadId} {
       allow create: if true;
       allow read, write: if isAdmin();

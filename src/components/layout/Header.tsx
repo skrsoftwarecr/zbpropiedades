@@ -101,7 +101,7 @@ export function Header() {
 
           <Link href="/" className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
-            <span className="font-bold text-lg hidden sm:inline-block tracking-tight">
+            <span className="font-bold text-lg hidden sm:inline-block tracking-tight text-primary">
               ZB PROPIEDADES
             </span>
           </Link>

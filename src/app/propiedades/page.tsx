@@ -25,7 +25,8 @@ export default function PropertiesPage() {
   const filtered = useMemo(() => {
     if (!properties) return [];
     return properties.filter(p => {
-      const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.city.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || 
+                           (p.city && p.city.toLowerCase().includes(search.toLowerCase()));
       const matchesProvince = province === 'all' || p.province === province;
       const matchesType = type === 'all' || p.type === type;
       return matchesSearch && matchesProvince && matchesType;
@@ -35,7 +36,7 @@ export default function PropertiesPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4 font-headline">Catálogo de Propiedades</h1>
+        <h1 className="text-4xl font-bold mb-4 font-headline text-primary">Catálogo de Propiedades</h1>
         <p className="text-muted-foreground text-lg">Explore las mejores opciones de vivienda y locales comerciales en Costa Rica.</p>
       </div>
 
