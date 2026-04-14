@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -135,7 +136,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="w-full border-white/40 text-white hover:bg-white hover:text-primary h-14 transition-colors font-medium"
+                  className="w-full bg-transparent border-white text-white hover:bg-white hover:text-primary h-14 transition-all font-medium"
                   onClick={handleShare}
                 >
                   <Share2 className="mr-2 h-5 w-5" />
@@ -170,7 +171,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
           </div>
         </div>
 
-        {/* Info extra o Mapa placeholder */}
+        {/* Mapa */}
         <div className="space-y-6">
           <Card className="border-none shadow-md bg-white">
             <CardContent className="p-6">
@@ -178,12 +179,26 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación
               </h3>
-              <div className="aspect-square bg-muted rounded-xl flex items-center justify-center text-muted-foreground text-center p-8 border border-dashed border-muted-foreground/30">
-                <div>
-                  <MapPin className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p className="text-sm">Mapa interactivo disponible pronto.<br/><strong>Zona: {property.city}</strong></p>
+              {property.mapUrl ? (
+                <div className="aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted">
+                  <iframe
+                    src={property.mapUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
                 </div>
-              </div>
+              ) : (
+                <div className="aspect-square bg-muted rounded-xl flex items-center justify-center text-muted-foreground text-center p-8 border border-dashed border-muted-foreground/30">
+                  <div>
+                    <MapPin className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                    <p className="text-sm">Mapa interactivo disponible pronto.<br/><strong>Zona: {property.city}</strong></p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

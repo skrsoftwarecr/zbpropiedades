@@ -27,6 +27,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,6 +49,7 @@ const formSchema = z.object({
   topography: z.string().min(2),
   features: z.string().min(1),
   imageUrls: z.string().min(1),
+  mapUrl: z.string().optional(),
 });
 
 type LotFormValues = z.infer<typeof formSchema>;
@@ -71,6 +73,7 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
         topography: lot?.topography || 'Plana',
         features: lot?.features.join('\n') || '',
         imageUrls: lot?.imageUrls.join('\n') || '',
+        mapUrl: lot?.mapUrl || '',
       });
     }
   }, [lot, isOpen, form]);
@@ -141,6 +144,14 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
             )} />
             <FormField control={form.control} name="imageUrls" render={({ field }) => (
                 <FormItem><FormLabel>Imágenes</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="mapUrl" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL de Google Maps (Insertar Mapa)</FormLabel>
+                  <FormControl><Input {...field} placeholder="https://www.google.com/maps/embed?pb=..." /></FormControl>
+                  <FormDescription>En Google Maps: Compartir -> Insertar un mapa -> Copiar solo el contenido de 'src'.</FormDescription>
+                  <FormMessage />
+                </FormItem>
             )} />
             <SheetFooter>
               <Button type="submit">Guardar</Button>

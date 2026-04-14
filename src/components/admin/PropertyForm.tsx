@@ -27,6 +27,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -51,6 +52,7 @@ const formSchema = z.object({
   area_m2: z.coerce.number().min(1),
   features: z.string().min(1, 'Agregue al menos una característica.'),
   imageUrls: z.string().min(1, 'Agregue al menos una URL de imagen.'),
+  mapUrl: z.string().optional(),
 });
 
 type PropertyFormValues = z.infer<typeof formSchema>;
@@ -85,6 +87,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
         area_m2: property?.area_m2 || 0,
         features: property?.features.join('\n') || '',
         imageUrls: property?.imageUrls.join('\n') || '',
+        mapUrl: property?.mapUrl || '',
       });
     }
   }, [property, isOpen, form]);
@@ -174,6 +177,14 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
             )} />
             <FormField control={form.control} name="imageUrls" render={({ field }) => (
                 <FormItem><FormLabel>URLs de Imágenes (una por línea)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="mapUrl" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL de Google Maps (Insertar Mapa)</FormLabel>
+                  <FormControl><Input {...field} placeholder="https://www.google.com/maps/embed?pb=..." /></FormControl>
+                  <FormDescription>En Google Maps: Compartir -> Insertar un mapa -> Copiar solo el contenido de 'src' entre comillas.</FormDescription>
+                  <FormMessage />
+                </FormItem>
             )} />
             <SheetFooter className="pt-4">
               <SheetClose asChild><Button type="button" variant="outline">Cancelar</Button></SheetClose>

@@ -19,6 +19,7 @@
         "area_m2": { "type": "number" },
         "imageUrls": { "type": "array", "items": { "type": "string" } },
         "features": { "type": "array", "items": { "type": "string" } },
+        "mapUrl": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "price", "type", "province", "city", "imageUrls"]
@@ -38,6 +39,7 @@
         "topography": { "type": "string" },
         "imageUrls": { "type": "array", "items": { "type": "string" } },
         "features": { "type": "array", "items": { "type": "string" } },
+        "mapUrl": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "price", "province", "city", "area_m2", "imageUrls"]

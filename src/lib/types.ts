@@ -15,6 +15,7 @@ export interface Property {
   area_m2: number;
   imageUrls: string[];
   features: string[];
+  mapUrl?: string;
   createdAt?: any;
 }
 
@@ -29,5 +30,6 @@ export interface Lot {
   topography: string;
   imageUrls: string[];
   features: string[];
+  mapUrl?: string;
   createdAt?: any;
 }
