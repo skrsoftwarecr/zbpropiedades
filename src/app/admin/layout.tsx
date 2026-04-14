@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
@@ -6,17 +7,18 @@ import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Car, LayoutDashboard, Package, PanelLeft, CalendarClock } from 'lucide-react';
+import { Home, LayoutDashboard, Landmark, PanelLeft, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/shared/Logo';
+import { useAuth } from '@/firebase/provider';
+import { signOutUser } from '@/firebase/auth-service';
 
 const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
   const pathname = usePathname();
   const navLinks = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/products', label: 'Repuestos', icon: Package },
-    { href: '/admin/vehicles', label: 'Vehículos', icon: Car },
-    { href: '/admin/appointments', label: 'Citas', icon: CalendarClock },
+    { href: '/admin/properties', label: 'Propiedades', icon: Home },
+    { href: '/admin/lots', label: 'Lotes y Quintas', icon: Landmark },
   ];
 
   return (
@@ -60,63 +62,29 @@ export default function AdminLayout({
   children: ReactNode;
 }) {
   const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Wait until the user's authentication status is resolved.
-    if (isUserLoading) {
-      return;
-    }
+    if (isUserLoading) return;
 
-    // User is not logged in, redirect to login page.
     if (!user) {
       router.replace('/login');
-      return;
-    }
-
-    // User is logged in, check if they are the authorized admin.
-    if (user.email === 'skrsoftwarecr@gmail.com') {
-      setIsAuthorized(true);
     } else {
-      // If not the authorized admin, redirect to the homepage.
-      router.replace('/');
+      setIsChecking(false);
     }
-
-    setIsChecking(false);
-
   }, [user, isUserLoading, router]);
 
-  if (isChecking || !isAuthorized) {
+  const handleLogout = async () => {
+    await signOutUser(auth);
+    router.replace('/');
+  };
+
+  if (isChecking || isUserLoading) {
     return (
-      <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-        <div className="hidden border-r bg-muted/40 md:block">
-          <div className="flex h-full max-h-screen flex-col gap-2 p-4">
-            <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-              <Skeleton className="h-8 w-32" />
-            </div>
-            <div className="flex-1 space-y-2 pt-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-            <Skeleton className="h-8 w-8 md:hidden" />
-            <div className="w-full flex-1">
-              {/* Maybe a search skeleton here */}
-            </div>
-          </header>
-          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-            <Skeleton className="h-8 w-64" />
-            <div className="flex-1 rounded-lg border p-6 shadow-sm">
-              <Skeleton className="h-96 w-full" />
-            </div>
-          </main>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Skeleton className="h-12 w-12 rounded-full" />
       </div>
     );
   }
@@ -128,11 +96,16 @@ export default function AdminLayout({
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/admin" className="flex items-center gap-2 font-semibold">
               <Logo className="h-6 w-6 text-primary" />
-              <span className="">Bimmer CR Admin</span>
+              <span className="">ZB Admin</span>
             </Link>
           </div>
           <div className="flex-1">
             <AdminSidebarNav />
+          </div>
+          <div className="p-4 mt-auto border-t">
+            <Button variant="ghost" className="w-full justify-start text-muted-foreground" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" /> Cerrar Sesión
+            </Button>
           </div>
         </div>
       </div>
@@ -150,15 +123,20 @@ export default function AdminLayout({
                 <SheetTitle asChild>
                   <Link href="/admin" className="flex items-center gap-2 font-semibold text-lg">
                     <Logo className="h-6 w-6 text-primary" />
-                    <span>Bimmer CR Admin</span>
+                    <span>ZB Admin</span>
                   </Link>
                 </SheetTitle>
               </SheetHeader>
               <AdminSidebarNav isSheet />
+              <div className="p-4 mt-auto border-t">
+                <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" /> Cerrar Sesión
+                </Button>
+              </div>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
-            {/* Can add a header search or user menu here later */}
+            <p className="text-sm font-medium text-muted-foreground">Sesión: {user?.email}</p>
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">

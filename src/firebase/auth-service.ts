@@ -1,10 +1,9 @@
+
 'use client';
-import { Auth, GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
+import { Auth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
-const googleProvider = new GoogleAuthProvider();
-
-export const signInWithGoogle = async (auth: Auth): Promise<void> => {
-    await signInWithRedirect(auth, googleProvider);
+export const signInWithEmail = async (auth: Auth, email: string, pass: string): Promise<void> => {
+    await signInWithEmailAndPassword(auth, email, pass);
 };
 
 export const signOutUser = async (auth: Auth): Promise<void> => {

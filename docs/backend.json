@@ -44,7 +44,7 @@
     }
   },
   "auth": {
-    "providers": ["google"]
+    "providers": ["password"]
   },
   "firestore": {
     "/properties/{propertyId}": {

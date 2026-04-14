@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -11,143 +12,102 @@ import {
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import type { Product, Vehicle, Appointment } from '@/lib/types';
+import type { Property, Lot } from '@/lib/types';
 
-// --- Product Actions ---
+// --- Property Actions ---
 
-type ProductData = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>;
+type PropertyData = Omit<Property, 'id' | 'createdAt'>;
 
-export function addProduct(firestore: Firestore, productData: ProductData) {
-  const productsCollection = collection(firestore, 'products');
-  addDoc(productsCollection, {
-    ...productData,
+export function addProperty(firestore: Firestore, data: PropertyData) {
+  const col = collection(firestore, 'properties');
+  addDoc(col, {
+    ...data,
     createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
   }).catch((error) => {
     const contextualError = new FirestorePermissionError({
       operation: 'create',
-      path: productsCollection.path,
-      requestResourceData: productData,
+      path: col.path,
+      requestResourceData: data,
     });
     errorEmitter.emit('permission-error', contextualError);
   });
 }
 
-export function updateProduct(
+export function updateProperty(
   firestore: Firestore,
-  productId: string,
-  productData: Partial<ProductData>
+  id: string,
+  data: Partial<PropertyData>
 ) {
-  const productDoc = doc(firestore, 'products', productId);
-  updateDoc(productDoc, {
-    ...productData,
+  const ref = doc(firestore, 'properties', id);
+  updateDoc(ref, {
+    ...data,
     updatedAt: serverTimestamp(),
   }).catch((error) => {
     const contextualError = new FirestorePermissionError({
       operation: 'update',
-      path: productDoc.path,
-      requestResourceData: productData,
+      path: ref.path,
+      requestResourceData: data,
     });
     errorEmitter.emit('permission-error', contextualError);
   });
 }
 
-export function deleteProduct(firestore: Firestore, productId: string) {
-  const productDoc = doc(firestore, 'products', productId);
-  deleteDoc(productDoc).catch((error) => {
+export function deleteProperty(firestore: Firestore, id: string) {
+  const ref = doc(firestore, 'properties', id);
+  deleteDoc(ref).catch((error) => {
     const contextualError = new FirestorePermissionError({
       operation: 'delete',
-      path: productDoc.path,
+      path: ref.path,
     });
     errorEmitter.emit('permission-error', contextualError);
   });
 }
 
-// --- Vehicle Actions ---
+// --- Lot Actions ---
 
-type VehicleData = Omit<Vehicle, 'id' | 'createdAt' | 'updatedAt'>;
+type LotData = Omit<Lot, 'id' | 'createdAt'>;
 
-export function addVehicle(firestore: Firestore, vehicleData: VehicleData) {
-  const vehiclesCollection = collection(firestore, 'vehicles');
-  addDoc(vehiclesCollection, {
-    ...vehicleData,
+export function addLot(firestore: Firestore, data: LotData) {
+  const col = collection(firestore, 'lots');
+  addDoc(col, {
+    ...data,
     createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
   }).catch((error) => {
     const contextualError = new FirestorePermissionError({
       operation: 'create',
-      path: vehiclesCollection.path,
-      requestResourceData: vehicleData,
+      path: col.path,
+      requestResourceData: data,
     });
     errorEmitter.emit('permission-error', contextualError);
   });
 }
 
-export function updateVehicle(
+export function updateLot(
   firestore: Firestore,
-  vehicleId: string,
-  vehicleData: Partial<VehicleData>
+  id: string,
+  data: Partial<LotData>
 ) {
-  const vehicleDoc = doc(firestore, 'vehicles', vehicleId);
-  updateDoc(vehicleDoc, {
-    ...vehicleData,
+  const ref = doc(firestore, 'lots', id);
+  updateDoc(ref, {
+    ...data,
     updatedAt: serverTimestamp(),
   }).catch((error) => {
     const contextualError = new FirestorePermissionError({
       operation: 'update',
-      path: vehicleDoc.path,
-      requestResourceData: vehicleData,
+      path: ref.path,
+      requestResourceData: data,
     });
     errorEmitter.emit('permission-error', contextualError);
   });
 }
 
-export function deleteVehicle(firestore: Firestore, vehicleId: string) {
-  const vehicleDoc = doc(firestore, 'vehicles', vehicleId);
-  deleteDoc(vehicleDoc).catch((error) => {
+export function deleteLot(firestore: Firestore, id: string) {
+  const ref = doc(firestore, 'lots', id);
+  deleteDoc(ref).catch((error) => {
     const contextualError = new FirestorePermissionError({
       operation: 'delete',
-      path: vehicleDoc.path,
+      path: ref.path,
     });
     errorEmitter.emit('permission-error', contextualError);
   });
-}
-
-// --- Appointment Actions ---
-
-type AppointmentData = Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>;
-
-export function addAppointment(firestore: Firestore, appointmentData: AppointmentData) {
-    const appointmentsCollection = collection(firestore, 'appointments');
-    addDoc(appointmentsCollection, {
-        ...appointmentData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-    }).catch((error) => {
-        const contextualError = new FirestorePermissionError({
-            operation: 'create',
-            path: appointmentsCollection.path,
-            requestResourceData: appointmentData,
-        });
-        errorEmitter.emit('permission-error', contextualError);
-    });
-}
-
-export function updateAppointmentStatus(
-    firestore: Firestore,
-    appointmentId: string,
-    status: 'Completed' | 'Cancelled' | 'Pending'
-) {
-    const appointmentDoc = doc(firestore, 'appointments', appointmentId);
-    updateDoc(appointmentDoc, {
-        status,
-        updatedAt: serverTimestamp(),
-    }).catch((error) => {
-        const contextualError = new FirestorePermissionError({
-            operation: 'update',
-            path: appointmentDoc.path,
-            requestResourceData: { status },
-        });
-        errorEmitter.emit('permission-error', contextualError);
-    });
 }
