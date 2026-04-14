@@ -8,13 +8,6 @@ import type { Property } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
 
 interface PropertyDetailsProps {
   property: Property;
@@ -24,7 +17,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   const [mainImage, setMainImage] = useState(property.imageUrls[0]);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
 
   const handleWhatsAppContact = () => {
@@ -122,7 +115,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 >
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Contactar por WhatsApp
-                </a>
+                </Button>
                 <Button variant="outline" size="lg" className="w-full border-white/20 hover:bg-white/10 text-white h-14">
                   <Share2 className="mr-2 h-5 w-5" />
                   Compartir Propiedad

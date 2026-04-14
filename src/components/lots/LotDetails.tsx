@@ -17,7 +17,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
   const [mainImage, setMainImage] = useState(lot.imageUrls[0]);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
 
   const handleWhatsAppContact = () => {

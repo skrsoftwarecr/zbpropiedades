@@ -19,7 +19,7 @@ export function PropertyCard({ property }: { property: Property }) {
 
   const formatPrice = (price: number) => {
     if (!mounted) return '...';
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
 
   return (

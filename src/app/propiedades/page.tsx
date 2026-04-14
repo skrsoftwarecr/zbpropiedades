@@ -20,17 +20,19 @@ export default function PropertiesPage() {
   const [province, setProvince] = useState('all');
   const [type, setType] = useState('all');
   const [minBedrooms, setMinBedrooms] = useState('all');
-  const [maxPrice, setMaxPrice] = useState([500000]);
+  const [maxPrice, setMaxPrice] = useState([800000000]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Nota: Si no hay documentos con createdAt, el query podría devolver vacío.
-  // Pero lo mantenemos para consistencia con el catálogo.
   const q = useMemoFirebase(() => query(collection(firestore, 'properties')), [firestore]);
   const { data: properties, isLoading, error } = useCollection<Property>(q);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  };
 
   const filtered = useMemo(() => {
     if (!properties) return [];
@@ -119,17 +121,17 @@ export default function PropertiesPage() {
             </div>
 
             <div className="space-y-4 pt-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">Precio Máximo</label>
                 <span className="text-sm font-bold text-secondary">
-                  {mounted ? `$${maxPrice[0].toLocaleString()}` : '...'}
+                  {mounted ? formatPrice(maxPrice[0]) : '...'}
                 </span>
               </div>
               <Slider 
                 value={maxPrice} 
                 onValueChange={setMaxPrice} 
-                max={2000000} 
-                step={10000} 
+                max={800000000} 
+                step={1000000} 
                 className="py-4"
               />
             </div>

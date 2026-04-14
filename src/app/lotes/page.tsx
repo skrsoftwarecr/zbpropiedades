@@ -19,7 +19,7 @@ export default function LotsPage() {
   const [search, setSearch] = useState('');
   const [province, setProvince] = useState('all');
   const [minArea, setMinArea] = useState('all');
-  const [maxPrice, setMaxPrice] = useState([1000000]);
+  const [maxPrice, setMaxPrice] = useState([800000000]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -28,6 +28,10 @@ export default function LotsPage() {
 
   const q = useMemoFirebase(() => query(collection(firestore, 'lots'), orderBy('createdAt', 'desc')), [firestore]);
   const { data: lots, isLoading } = useCollection<Lot>(q);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  };
 
   const filtered = useMemo(() => {
     if (!lots) return [];
@@ -98,17 +102,17 @@ export default function LotsPage() {
             </div>
 
             <div className="space-y-4 pt-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">Precio Máximo</label>
                 <span className="text-sm font-bold text-secondary">
-                  {mounted ? `$${maxPrice[0].toLocaleString()}` : '...'}
+                  {mounted ? formatPrice(maxPrice[0]) : '...'}
                 </span>
               </div>
               <Slider 
                 value={maxPrice} 
                 onValueChange={setMaxPrice} 
-                max={2000000} 
-                step={25000} 
+                max={800000000} 
+                step={1000000} 
                 className="py-4"
               />
             </div>

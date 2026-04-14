@@ -34,6 +34,10 @@ export default function AdminPropertiesPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Property | null>(null);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  };
+
   const handleEdit = (p: Property) => { setSelected(p); setIsFormOpen(true); };
   const handleDelete = (id: string) => { 
     if(confirm('¿Seguro?')) {
@@ -57,7 +61,7 @@ export default function AdminPropertiesPage() {
     { 
         accessorKey: 'price', 
         header: 'Precio',
-        cell: ({ row }) => `$${row.original.price.toLocaleString()}`
+        cell: ({ row }) => formatPrice(row.original.price)
     },
     { accessorKey: 'city', header: 'Ciudad' },
     {

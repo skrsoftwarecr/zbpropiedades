@@ -31,6 +31,10 @@ export default function AdminLotsPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Lot | null>(null);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  };
+
   const columns: ColumnDef<Lot>[] = [
     {
         accessorKey: 'imageUrls',
@@ -46,7 +50,7 @@ export default function AdminLotsPage() {
     { 
         accessorKey: 'price', 
         header: 'Precio',
-        cell: ({ row }) => `$${row.original.price.toLocaleString()}`
+        cell: ({ row }) => formatPrice(row.original.price)
     },
     {
         id: 'actions',
