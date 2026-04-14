@@ -2,7 +2,6 @@
 'use client';
 
 import * as React from 'react';
-import { useSafeLayoutEffect } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -79,11 +78,20 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
     }
   }, [lot, isOpen, form]);
 
-  const onSubmit = async (data: LotFormValues) => {
+  const extractMapUrl = (input: string) => {
+    if (input.includes('<iframe')) {
+      const match = input.match(/src="([^"]+)"/);
+      return match ? match[1] : input;
+    }
+    return input;
+  };
+
+  const onSubmit = async (values: LotFormValues) => {
     const processed = {
-      ...data,
-      features: data.features.split('\n').map(i => i.trim()).filter(Boolean),
-      imageUrls: data.imageUrls.split('\n').map(i => i.trim()).filter(Boolean),
+      ...values,
+      mapUrl: extractMapUrl(values.mapUrl || ''),
+      features: values.features.split('\n').map(i => i.trim()).filter(Boolean),
+      imageUrls: values.imageUrls.split('\n').map(i => i.trim()).filter(Boolean),
     };
 
     try {
@@ -148,9 +156,9 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
             )} />
             <FormField control={form.control} name="mapUrl" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL de Google Maps (Insertar Mapa)</FormLabel>
-                  <FormControl><Input {...field} placeholder="https://www.google.com/maps/embed?pb=..." /></FormControl>
-                  <FormDescription>En Google Maps: Compartir → Insertar un mapa → Copiar solo el contenido de &apos;src&apos;.</FormDescription>
+                  <FormLabel>Google Maps (Insertar mapa)</FormLabel>
+                  <FormControl><Input {...field} placeholder="Pegue aquí el enlace src o el código iframe completo" /></FormControl>
+                  <FormDescription>Puede pegar el código completo de &apos;Insertar un mapa&apos; de Google Maps.</FormDescription>
                   <FormMessage />
                 </FormItem>
             )} />

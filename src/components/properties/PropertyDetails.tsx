@@ -42,6 +42,8 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
     }
   };
 
+  const hasMap = property.mapUrl && property.mapUrl.startsWith('https://');
+
   return (
     <div className="space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
@@ -127,16 +129,16 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
               <div className="space-y-3">
                 <Button 
                   size="lg" 
-                  className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold h-14"
+                  className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold h-14 border-none"
                   onClick={handleWhatsAppContact}
                 >
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Contactar por WhatsApp
                 </Button>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="lg" 
-                  className="w-full bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary h-14 transition-all font-bold"
+                  className="w-full bg-transparent border-white/40 text-white hover:bg-white hover:text-primary h-14 transition-all font-bold"
                   onClick={handleShare}
                 >
                   <Share2 className="mr-2 h-5 w-5" />
@@ -179,7 +181,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación
               </h3>
-              {property.mapUrl ? (
+              {hasMap ? (
                 <div className="aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted">
                   <iframe
                     src={property.mapUrl}
@@ -195,7 +197,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 <div className="aspect-square bg-muted rounded-xl flex items-center justify-center text-muted-foreground text-center p-8 border border-dashed border-muted-foreground/30">
                   <div>
                     <MapPin className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">Mapa interactivo disponible pronto.<br/><strong>Zona: {property.city}</strong></p>
+                    <p className="text-sm">Ubicación exacta disponible bajo consulta.<br/><strong>Zona: {property.city}</strong></p>
                   </div>
                 </div>
               )}

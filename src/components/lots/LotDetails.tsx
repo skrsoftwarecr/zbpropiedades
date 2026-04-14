@@ -42,6 +42,8 @@ export function LotDetails({ lot }: LotDetailsProps) {
     }
   };
 
+  const hasMap = lot.mapUrl && lot.mapUrl.startsWith('https://');
+
   return (
     <div className="space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
@@ -122,16 +124,16 @@ export function LotDetails({ lot }: LotDetailsProps) {
               <div className="space-y-3">
                 <Button 
                   size="lg" 
-                  className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold h-14"
+                  className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold h-14 border-none"
                   onClick={handleWhatsAppContact}
                 >
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Contactar por WhatsApp
                 </Button>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="lg" 
-                  className="w-full bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary h-14 transition-all font-bold"
+                  className="w-full bg-transparent border-white/40 text-white hover:bg-white hover:text-primary h-14 transition-all font-bold"
                   onClick={handleShare}
                 >
                   <Share2 className="mr-2 h-5 w-5" />
@@ -174,7 +176,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación del Lote
               </h3>
-              {lot.mapUrl ? (
+              {hasMap ? (
                 <div className="aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted">
                   <iframe
                     src={lot.mapUrl}

@@ -92,11 +92,20 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
     }
   }, [property, isOpen, form]);
 
-  const onSubmit = async (data: PropertyFormValues) => {
+  const extractMapUrl = (input: string) => {
+    if (input.includes('<iframe')) {
+      const match = input.match(/src="([^"]+)"/);
+      return match ? match[1] : input;
+    }
+    return input;
+  };
+
+  const onSubmit = async (values: PropertyFormValues) => {
     const processedData = {
-      ...data,
-      features: data.features.split('\n').map(item => item.trim()).filter(Boolean),
-      imageUrls: data.imageUrls.split('\n').map(item => item.trim()).filter(Boolean),
+      ...values,
+      mapUrl: extractMapUrl(values.mapUrl || ''),
+      features: values.features.split('\n').map(item => item.trim()).filter(Boolean),
+      imageUrls: values.imageUrls.split('\n').map(item => item.trim()).filter(Boolean),
     };
 
     try {
@@ -180,9 +189,9 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
             )} />
             <FormField control={form.control} name="mapUrl" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL de Google Maps (Insertar Mapa)</FormLabel>
-                  <FormControl><Input {...field} placeholder="https://www.google.com/maps/embed?pb=..." /></FormControl>
-                  <FormDescription>En Google Maps: Compartir → Insertar un mapa → Copiar solo el contenido de &apos;src&apos; entre comillas.</FormDescription>
+                  <FormLabel>Google Maps (Insertar mapa)</FormLabel>
+                  <FormControl><Input {...field} placeholder="Pegue aquí el enlace src o el código iframe completo" /></FormControl>
+                  <FormDescription>Puede pegar el código completo de &apos;Insertar un mapa&apos; de Google Maps.</FormDescription>
                   <FormMessage />
                 </FormItem>
             )} />
