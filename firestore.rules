@@ -2,17 +2,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Reglas simplificadas para ZB Propiedades
-    // Permitir lectura pública de propiedades y lotes
-    match /properties/{propertyId} {
-      allow read, list: if true;
-    }
-    match /lots/{lotId} {
-      allow read, list: if true;
-    }
-    // Permitir acceso administrativo básico (puedes restringir esto más tarde)
+    // PERMISOS GLOBALES PARA ZB PROPIEDADES
+    // Permitir que cualquier visitante vea las propiedades y lotes
     match /{document=**} {
       allow read, list: if true;
+      // Solo el administrador (tú) podrá escribir/editar después de loguearse
       allow write: if request.auth != null;
     }
   }
