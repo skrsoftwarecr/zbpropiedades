@@ -6,11 +6,12 @@ export interface Property {
   title: string;
   description: string;
   price: number;
-  type: "Casa" | "Apartamento" | "Local Comercial" | "Oficina";
+  type: "Casa" | "Apartamento" | "Local Comercial" | "Oficina" | "Quinta";
   province: Province;
   city: string;
   bedrooms: number;
   bathrooms: number;
+  parking?: number;
   area_m2: number;
   imageUrls: string[];
   features: string[];
@@ -29,14 +30,4 @@ export interface Lot {
   imageUrls: string[];
   features: string[];
   createdAt?: any;
-}
-
-export interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  propertyId: string;
-  message: string;
-  status: "New" | "Contacted" | "Closed";
 }
