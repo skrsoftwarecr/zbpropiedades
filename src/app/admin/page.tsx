@@ -1,123 +1,153 @@
 'use client';
 
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Home, Landmark, Plus, Database, Sparkles } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { useFirestore } from '@/firebase';
-import { seedDatabase } from '@/lib/firestore-service';
-import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { Home, Landmark, Users, TrendingUp, ArrowUpRight, ListChecks } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
 
 export default function AdminDashboardPage() {
   const firestore = useFirestore();
-  const { toast } = useToast();
-  const [isSeeding, setIsSeeding] = useState(false);
 
-  const handleSeed = () => {
-    setIsSeeding(true);
-    try {
-      seedDatabase(firestore);
-      toast({
-        title: "¡Datos Generados!",
-        description: "Se han creado propiedades y lotes de prueba. Refresca el catálogo para verlos.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudieron generar los datos iniciales.",
-      });
-    } finally {
-      setIsSeeding(false);
+  // Consultas reales a la base de datos
+  const propertiesQuery = useMemoFirebase(() => query(collection(firestore, 'properties')), [firestore]);
+  const lotsQuery = useMemoFirebase(() => query(collection(firestore, 'lots')), [firestore]);
+
+  const { data: properties, isLoading: loadingProps } = useCollection(propertiesQuery);
+  const { data: lots, isLoading: loadingLots } = useCollection(lotsQuery);
+
+  const stats = [
+    {
+      title: "Propiedades Totales",
+      value: properties?.length || 0,
+      icon: Home,
+      description: "Casas y apartamentos",
+      color: "text-blue-600",
+      loading: loadingProps
+    },
+    {
+      title: "Lotes Totales",
+      value: lots?.length || 0,
+      icon: Landmark,
+      description: "Terrenos y quintas",
+      color: "text-emerald-600",
+      loading: loadingLots
+    },
+    {
+      title: "Listados Activos",
+      value: (properties?.length || 0) + (lots?.length || 0),
+      icon: ListChecks,
+      description: "Total en producción",
+      color: "text-amber-600",
+      loading: loadingProps || loadingLots
     }
-  };
+  ];
+
+  const chartData = [
+    { name: 'Propiedades', count: properties?.length || 0, color: 'hsl(var(--primary))' },
+    { name: 'Lotes', count: lots?.length || 0, color: 'hsl(var(--secondary))' },
+  ];
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard Administrativo</h1>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleSeed} 
-          disabled={isSeeding}
-          className="bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/20"
-        >
-          {isSeeding ? "Generando..." : (
-            <>
-              <Database className="mr-2 h-4 w-4" />
-              Cargar Datos Iniciales
-            </>
-          )}
-        </Button>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold tracking-tight text-primary">Panel de Control</h1>
+        <p className="text-muted-foreground">Monitoreo en tiempo real de su inventario inmobiliario.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="hover:border-primary transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inventario Global</CardTitle>
-            <Home className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Gestione su catálogo</div>
-            <p className="text-xs text-muted-foreground">Actualice precios, imágenes y estados.</p>
-            <div className="mt-4 flex gap-2">
-                <Button size="sm" asChild variant="outline">
-                    <Link href="/admin/properties">Ver Propiedades</Link>
-                </Button>
-                <Button size="sm" asChild variant="outline">
-                    <Link href="/admin/lots">Ver Lotes</Link>
-                </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-primary text-primary-foreground">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Acceso Rápido</CardTitle>
-            <Plus className="h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Publicar Nuevo</div>
-            <p className="text-xs opacity-80">Capture nuevas oportunidades de negocio.</p>
-            <div className="mt-4 flex gap-2">
-                <Button size="sm" variant="secondary" asChild>
-                    <Link href="/admin/properties">Nueva Propiedad</Link>
-                </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-dashed border-2">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Asistente AI</CardTitle>
-            <Sparkles className="h-4 w-4 text-secondary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Optimizar Textos</div>
-            <p className="text-xs text-muted-foreground">Mejore sus descripciones automáticamente.</p>
-            <div className="mt-4">
-                <Button size="sm" variant="ghost" disabled className="text-muted-foreground">
-                    Próximamente
-                </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        {stats.map((stat, index) => (
+          <Card key={index} className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </CardHeader>
+            <CardContent>
+              {stat.loading ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <div className="text-2xl font-bold">{stat.value}</div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="rounded-lg border bg-card p-12 text-center shadow-sm">
-        <div className="max-w-xl mx-auto space-y-4">
-          <h3 className="text-2xl font-bold">¡Bienvenido al Panel de ZB Propiedades!</h3>
-          <p className="text-muted-foreground">
-            Desde aquí puede controlar todo el contenido visible en la web. Los cambios que realice se reflejan en tiempo real para sus clientes.
-          </p>
-          <div className="pt-4">
-            <p className="text-sm font-medium text-secondary bg-secondary/5 py-2 px-4 rounded-full inline-block">
-              Si la base de datos está vacía, usa el botón "Cargar Datos Iniciales" de arriba.
-            </p>
-          </div>
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4 shadow-sm">
+          <CardHeader>
+            <CardTitle>Distribución de Inventario</CardTitle>
+            <CardDescription>Comparativa visual entre tipos de listados disponibles.</CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={60}>
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3 shadow-sm bg-primary text-primary-foreground">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Métricas de Rendimiento
+            </CardTitle>
+            <CardDescription className="text-primary-foreground/70">Resumen de visibilidad.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-primary-foreground/10 pb-4">
+                <div>
+                  <p className="text-sm opacity-80 uppercase tracking-wider font-semibold">Vistas Totales</p>
+                  <div className="text-3xl font-bold">--</div>
+                </div>
+                <div className="bg-white/10 p-2 rounded-full">
+                  <ArrowUpRight className="h-6 w-6" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Página más visitada</span>
+                  <span className="font-medium">Catálogo</span>
+                </div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                  <div className="bg-secondary h-full w-[70%]" />
+                </div>
+              </div>
+              <div className="pt-4">
+                <p className="text-xs opacity-60 leading-relaxed italic">
+                  * Las métricas detalladas de tráfico web están en proceso de sincronización con la base de datos de producción.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

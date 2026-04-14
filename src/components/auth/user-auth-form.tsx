@@ -39,13 +39,10 @@ export function UserAuthForm() {
     } catch (error: any) {
       let message = 'Error al iniciar sesión.';
       
-      if (error.code === 'auth/invalid-credential') {
-        message = 'Credenciales inválidas.';
-        setErrorHint('Asegúrese de haber habilitado el proveedor "Correo electrónico/contraseña" en Firebase Console -> Authentication -> Sign-in method.');
-      } else if (error.code === 'auth/user-not-found') {
-        message = 'Usuario no encontrado.';
-      } else if (error.code === 'auth/wrong-password') {
-        message = 'Contraseña incorrecta.';
+      // Firebase v10+ devuelve auth/invalid-credential para múltiples casos
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/operation-not-allowed') {
+        message = 'Credenciales inválidas o acceso no permitido.';
+        setErrorHint('IMPORTANTE: Asegúrese de que en su Firebase Console -> Authentication -> Sign-in method, el proveedor "Correo electrónico/contraseña" esté habilitado.');
       }
 
       toast({
@@ -61,10 +58,10 @@ export function UserAuthForm() {
   return (
     <div className="grid gap-6">
       {errorHint && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Posible configuración pendiente</AlertTitle>
-          <AlertDescription className="text-xs">
+          <AlertTitle className="font-bold">Acción Requerida en Firebase Console</AlertTitle>
+          <AlertDescription className="text-xs mt-1 leading-relaxed">
             {errorHint}
           </AlertDescription>
         </Alert>
@@ -76,7 +73,7 @@ export function UserAuthForm() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@tuempresa.com"
+              placeholder="admin@zbpropiedades.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -97,7 +94,7 @@ export function UserAuthForm() {
               autoComplete="current-password"
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full h-11" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Entrar al Panel
           </Button>
