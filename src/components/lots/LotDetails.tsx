@@ -129,9 +129,9 @@ export function LotDetails({ lot }: LotDetailsProps) {
                   Contactar por WhatsApp
                 </Button>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="lg" 
-                  className="w-full bg-transparent border-white text-white hover:bg-white hover:text-primary h-14 transition-all font-medium"
+                  className="w-full bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary h-14 transition-all font-bold"
                   onClick={handleShare}
                 >
                   <Share2 className="mr-2 h-5 w-5" />

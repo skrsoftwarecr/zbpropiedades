@@ -182,7 +182,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                 <FormItem>
                   <FormLabel>URL de Google Maps (Insertar Mapa)</FormLabel>
                   <FormControl><Input {...field} placeholder="https://www.google.com/maps/embed?pb=..." /></FormControl>
-                  <FormDescription>En Google Maps: Compartir -> Insertar un mapa -> Copiar solo el contenido de 'src' entre comillas.</FormDescription>
+                  <FormDescription>En Google Maps: Compartir → Insertar un mapa → Copiar solo el contenido de &apos;src&apos; entre comillas.</FormDescription>
                   <FormMessage />
                 </FormItem>
             )} />

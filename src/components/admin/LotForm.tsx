@@ -2,6 +2,7 @@
 'use client';
 
 import * as React from 'react';
+import { useSafeLayoutEffect } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -149,7 +150,7 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
                 <FormItem>
                   <FormLabel>URL de Google Maps (Insertar Mapa)</FormLabel>
                   <FormControl><Input {...field} placeholder="https://www.google.com/maps/embed?pb=..." /></FormControl>
-                  <FormDescription>En Google Maps: Compartir -> Insertar un mapa -> Copiar solo el contenido de 'src'.</FormDescription>
+                  <FormDescription>En Google Maps: Compartir → Insertar un mapa → Copiar solo el contenido de &apos;src&apos;.</FormDescription>
                   <FormMessage />
                 </FormItem>
             )} />
