@@ -1,21 +1,210 @@
+/**
+ * Bimmer CR - Firestore Security Rules
+ * 
+ * CORE PHILOSOPHY:
+ * This ruleset implements a robust, path-based ownership model complemented by a 
+ * dedicated administrative role system. Security is enforced primarily through the 
+ * Firestore hierarchy, where user-specific data is nested under the user's unique 
+ * identifier, ensuring clear authorization boundaries.
+ * 
+ * DATA STRUCTURE:
+ * 1. User Data Tree: All personal information, including profiles, addresses, 
+ *    shopping carts, orders, and appointments, is stored under `/users/{userId}/...`.
+ * 2. Public Catalogs: Product, Category, and Vehicle data are located in top-level 
+ *    collections accessible for public reading.
+ * 3. Administrative Roles: A specialized collection `/roles_admin/` identifies 
+ *    accounts with database-wide management privileges.
+ * 
+ * KEY SECURITY DECISIONS:
+ * - Authorization Independence: By including `userId` in the document path, the system 
+ *   validates ownership without requiring expensive cross-collection lookups (`get()`).
+ * - Prototyping Flexibility: Rules enforce strict ownership and relational integrity 
+ *   for identity fields but remain agnostic toward the specific shape of content 
+ *   data to allow for rapid frontend iteration.
+ * - Admin Override: Users identified in the `/roles_admin` collection bypass standard 
+ *   ownership restrictions for maintenance and support purposes.
+ * - Public Safety: Public collections are read-only for non-admin users, preventing 
+ *   unauthorized catalog modifications.
+ * 
+ * DENORMALIZATION FOR AUTHORIZATION:
+ * - Relational fields like `userId` within documents are validated against the 
+ *   path variables during creation to ensure that data cannot be "orphaned" or 
+ *   injected into another user's data tree.
+ */
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // REGLAS DE ACCESO ZB PROPIEDADES
-    // Actualizado: 2024-05-20 22:00 (Redeploy forzado para corregir permisos)
-    
-    match /{document=**} {
-      // Permitimos lectura y listado público para todo el catálogo (Propiedades y Lotes)
-      allow read, list: if true;
-      
-      // Escritura restringida al administrador del sitio
-      allow write: if request.auth != null && request.auth.token.email == 'skrsoftwarecr@gmail.com';
+
+    // --- HELPER FUNCTIONS ---
+
+    /** @description Checks if the request is from an authenticated user. */
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Permitir a cualquier usuario enviar formularios de contacto (leads)
-    match /leads/{leadId} {
-      allow create: if true;
+    /** @description Checks if the authenticated user matches the provided ID. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Checks if the authenticated user has an entry in the admin roles collection. */
+    function isAdmin() {
+      // Helper functions cannot directly access 'resource'.
+      // The 'resource != null' check is implicitly handled or explicitly added
+      // within the 'allow' statement for update/delete operations.
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /** @description Combines ownership and admin check for standard access. */
+    function isOwnerOrAdmin(userId) {
+      return isOwner(userId) || isAdmin();
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Access control for the administrative roles list.
+     * @path /roles_admin/{adminId}
+     * @allow (get) Any signed-in user checking their own status.
+     * @deny (write) Any direct client write operation.
+     * @principle Privileged access managed outside client-side rules.
+     */
+    match /roles_admin/{adminId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Security for individual user profiles.
+     * @path /users/{userId}
+     * @allow (create) User creating their own profile matching their UID.
+     * @deny (list) Attempting to browse all users.
+     * @principle Self-creation and ownership-based profile management.
+     */
+    match /users/{userId} {
+      allow get: if isOwnerOrAdmin(userId);
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      // Removed 'resource != null' as it's redundant for update operations
+      allow update: if isOwnerOrAdmin(userId) && request.resource.data.id == resource.data.id;
+      // Replaced isExistingAdmin() with isAdmin(), removed 'resource != null'
+      allow delete: if isAdmin();
+
+      /**
+       * @description Physical addresses belonging to a specific user.
+       * @path /users/{userId}/addresses/{addressId}
+       * @allow (create) Owner adding an address with their userId.
+       * @deny (update) Changing the userId of an existing address.
+       * @principle Nested ownership and relational integrity.
+       */
+      match /addresses/{addressId} {
+        allow get, list: if isOwnerOrAdmin(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        // Removed 'resource != null' as it's redundant for update operations
+        allow update: if isOwnerOrAdmin(userId) && request.resource.data.userId == resource.data.userId;
+        // Removed 'resource != null' as it's redundant for delete operations
+        allow delete: if isOwnerOrAdmin(userId);
+      }
+
+      /**
+       * @description User's shopping cart. Enforces 1:1 relationship via cartId == userId.
+       * @path /users/{userId}/shoppingCarts/{cartId}
+       * @allow (create) Owner initializing their specific cart.
+       * @principle Singleton-style resource scoped to a user.
+       */
+      match /shoppingCarts/{cartId} {
+        allow get, list: if isOwnerOrAdmin(userId);
+        allow create: if isOwner(userId) && cartId == userId && request.resource.data.userId == userId;
+        // Removed 'resource != null' as it's redundant for update operations
+        allow update: if isOwnerOrAdmin(userId) && request.resource.data.userId == resource.data.userId;
+        // Removed 'resource != null' as it's redundant for delete operations
+        allow delete: if isOwnerOrAdmin(userId);
+
+        match /cartItems/{cartItemId} {
+          allow get, list: if isOwnerOrAdmin(userId);
+          allow create: if isOwner(userId);
+          // Removed 'resource != null' as it's redundant for update operations
+          allow update: if isOwnerOrAdmin(userId);
+          // Removed 'resource != null' as it's redundant for delete operations
+          allow delete: if isOwnerOrAdmin(userId);
+        }
+      }
+
+      /**
+       * @description Orders placed by the user.
+       * @path /users/{userId}/orders/{orderId}
+       * @allow (create) User submitting a new order linked to their profile.
+       * @principle Secure transaction records with immutable ownership.
+       */
+      match /orders/{orderId} {
+        allow get, list: if isOwnerOrAdmin(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        // Removed 'resource != null' as it's redundant for update operations
+        allow update: if isOwnerOrAdmin(userId) && request.resource.data.userId == resource.data.userId;
+        // Replaced isExistingAdmin() with isAdmin(), removed 'resource != null'
+        allow delete: if isAdmin();
+
+        match /orderItems/{orderItemId} {
+          allow get, list: if isOwnerOrAdmin(userId);
+          allow create: if isOwner(userId);
+          // Removed 'resource != null' as it's redundant for update operations
+          allow update: if isOwnerOrAdmin(userId);
+          // Replaced isExistingAdmin() with isAdmin(), removed 'resource != null'
+          allow delete: if isAdmin();
+        }
+      }
+
+      /**
+       * @description Vehicle inspection appointments.
+       * @path /users/{userId}/appointments/{appointmentId}
+       * @allow (get) Owner viewing their scheduled inspection.
+       * @principle User-owned scheduling with admin oversight.
+       */
+      match /appointments/{appointmentId} {
+        allow get, list: if isOwnerOrAdmin(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        // Removed 'resource != null' as it's redundant for update operations
+        allow update: if isOwnerOrAdmin(userId) && request.resource.data.userId == resource.data.userId;
+        // Removed 'resource != null' as it's redundant for delete operations
+        allow delete: if isOwnerOrAdmin(userId);
+      }
+    }
+
+    /**
+     * @description Public catalog for BMW parts.
+     * @path /products/{productId}
+     * @allow (list) Public read for all users.
+     * @deny (create) Non-admin users attempting to add products.
+     * @principle Public consumption with administrative control.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Product categories for catalog filtering.
+     * @path /categories/{categoryId}
+     * @allow (get) Any user browsing the catalog.
+     * @principle Open navigation metadata.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Listings for used BMW vehicles.
+     * @path /vehicles/{vehicleId}
+     * @allow (list) Prospective buyers viewing inventory.
+     * @deny (delete) Unauthorized removal of listings.
+     * @principle Public visibility of business assets.
+     */
+    match /vehicles/{vehicleId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
     }
   }
 }

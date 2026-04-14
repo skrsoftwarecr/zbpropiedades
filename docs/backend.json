@@ -1,76 +1,848 @@
-
 {
   "entities": {
-    "Property": {
-      "title": "Property",
-      "description": "Represents a real estate property (house, apartment, etc.) for sale or rent.",
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
       "type": "object",
+      "description": "Represents a user's profile information within the Bimmer CR application. This entity stores application-specific user details, separate from authentication credentials.",
       "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string", "description": "Nombre o título de la propiedad." },
-        "description": { "type": "string", "description": "Descripción detallada." },
-        "price": { "type": "number", "description": "Precio en colones o dólares." },
-        "type": { "type": "string", "enum": ["Casa", "Apartamento", "Local Comercial", "Oficina"] },
-        "province": { "type": "string", "enum": ["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"] },
-        "city": { "type": "string" },
-        "bedrooms": { "type": "number" },
-        "bathrooms": { "type": "number" },
-        "area_m2": { "type": "number" },
-        "imageUrls": { "type": "array", "items": { "type": "string" } },
-        "features": { "type": "array", "items": { "type": "string" } },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity. This typically correlates with the user's ID from an external authentication system."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the user profile was updated.",
+          "format": "date-time"
+        }
       },
-      "required": ["title", "price", "type", "province", "imageUrls"]
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "createdAt",
+        "updatedAt"
+      ]
     },
-    "Lot": {
-      "title": "Lot",
-      "description": "Represents a plot of land or lot for sale.",
+    "Address": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Address",
       "type": "object",
+      "description": "Represents a physical address for a user, which can be used for shipping or billing.",
       "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "price": { "type": "number" },
-        "province": { "type": "string", "enum": ["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"] },
-        "city": { "type": "string" },
-        "area_m2": { "type": "number" },
-        "topography": { "type": "string" },
-        "imageUrls": { "type": "array", "items": { "type": "string" } },
-        "features": { "type": "array", "items": { "type": "string" } },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Address entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile this address belongs to. (Relationship: UserProfile 1:N Address)"
+        },
+        "addressLine1": {
+          "type": "string",
+          "description": "The first line of the street address (e.g., street name, house number)."
+        },
+        "addressLine2": {
+          "type": "string",
+          "description": "The second line of the street address (e.g., apartment, suite, building)."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city of the address."
+        },
+        "stateProvince": {
+          "type": "string",
+          "description": "The state or province of the address."
+        },
+        "postalCode": {
+          "type": "string",
+          "description": "The postal code of the address."
+        },
+        "country": {
+          "type": "string",
+          "description": "The country of the address."
+        },
+        "addressType": {
+          "type": "string",
+          "description": "The type of address (e.g., 'Shipping', 'Billing', 'Home', 'Work')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the address was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the address was updated.",
+          "format": "date-time"
+        }
       },
-      "required": ["title", "price", "province", "area_m2", "imageUrls"]
+      "required": [
+        "id",
+        "userId",
+        "addressLine1",
+        "city",
+        "stateProvince",
+        "postalCode",
+        "country",
+        "addressType",
+        "createdAt",
+        "updatedAt"
+      ]
     },
-    "Lead": {
-      "title": "Lead",
-      "description": "Contact requests from interested clients.",
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
       "type": "object",
+      "description": "Represents a BMW original or aftermarket part available in the Bimmer CR product catalog (Firestore 'repuestos' collection).",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "email": { "type": "string" },
-        "phone": { "type": "string" },
-        "propertyId": { "type": "string" },
-        "message": { "type": "string" },
-        "status": { "type": "string", "enum": ["New", "Contacted", "Closed"] }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product (e.g., 'BMW M3 Brake Pad Set')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the product, including features and specifications."
+        },
+        "price": {
+          "type": "number",
+          "description": "The selling price of the product."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency in which the price is denominated (e.g., 'USD', 'CRC')."
+        },
+        "categoryIds": {
+          "type": "array",
+          "description": "References to Category entities this product belongs to. (Relationship: Category N:N Product)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modelCompatibility": {
+          "type": "array",
+          "description": "A list of BMW models (e.g., 'E90', 'F30', 'G20') that this product is compatible with.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "condition": {
+          "type": "string",
+          "description": "The condition of the product (e.g., 'New', 'Used', 'Refurbished')."
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "An array of URLs pointing to images of the product.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stockQuantity": {
+          "type": "number",
+          "description": "The number of units of this product currently in stock."
+        },
+        "sku": {
+          "type": "string",
+          "description": "Stock Keeping Unit, a unique identifier for the product for inventory management."
+        },
+        "partNumber": {
+          "type": "string",
+          "description": "The manufacturer's official part number."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the product was added to the catalog.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the product details were updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "price",
+        "currency",
+        "categoryIds",
+        "modelCompatibility",
+        "condition",
+        "imageUrls",
+        "stockQuantity",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a classification for products, enabling advanced filtering and organization within the product catalog.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Category entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the category (e.g., 'Engine Parts', 'Brakes', 'Interior')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of what the category encompasses."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "An optional URL to an image representing the category.",
+          "format": "uri"
+        },
+        "parentCategoryId": {
+          "type": "string",
+          "description": "Reference to a parent Category, allowing for hierarchical categories. (Relationship: Category 1:N Category)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the category was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the category details were updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Vehicle": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Vehicle",
+      "type": "object",
+      "description": "Represents a used BMW vehicle listed for sale in the Bimmer CR application (Firestore 'vehiculos' collection).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Vehicle entity."
+        },
+        "make": {
+          "type": "string",
+          "description": "The make of the vehicle (e.g., 'BMW')."
+        },
+        "model": {
+          "type": "string",
+          "description": "The model of the vehicle (e.g., 'M3', 'X5')."
+        },
+        "year": {
+          "type": "number",
+          "description": "The manufacturing year of the vehicle."
+        },
+        "price": {
+          "type": "number",
+          "description": "The selling price of the vehicle."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency in which the price is denominated."
+        },
+        "mileage": {
+          "type": "number",
+          "description": "The current mileage of the vehicle."
+        },
+        "exteriorColor": {
+          "type": "string",
+          "description": "The exterior color of the vehicle."
+        },
+        "interiorColor": {
+          "type": "string",
+          "description": "The interior color of the vehicle."
+        },
+        "transmissionType": {
+          "type": "string",
+          "description": "The type of transmission (e.g., 'Automatic', 'Manual')."
+        },
+        "engineType": {
+          "type": "string",
+          "description": "The type of engine (e.g., 'Petrol', 'Diesel', 'Electric')."
+        },
+        "features": {
+          "type": "array",
+          "description": "A list of notable features included with the vehicle (e.g., 'Sunroof', 'Heated Seats').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "vin": {
+          "type": "string",
+          "description": "The Vehicle Identification Number (VIN), which is a unique identifier for the vehicle."
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "An array of URLs pointing to images of the vehicle.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the vehicle, its history, and condition."
+        },
+        "location": {
+          "type": "string",
+          "description": "The geographical location where the vehicle is available (e.g., 'San Jose, Costa Rica')."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the vehicle listing (e.g., 'Available', 'Sold', 'Pending')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the vehicle was listed.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the vehicle details were updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "make",
+        "model",
+        "year",
+        "price",
+        "currency",
+        "mileage",
+        "exteriorColor",
+        "interiorColor",
+        "transmissionType",
+        "engineType",
+        "vin",
+        "imageUrls",
+        "description",
+        "location",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Appointment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Appointment",
+      "type": "object",
+      "description": "Represents a scheduled inspection appointment for a vehicle (Firestore 'citas' collection).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Appointment entity."
+        },
+        "vehicleId": {
+          "type": "string",
+          "description": "Reference to the Vehicle for which the appointment is scheduled. (Relationship: Vehicle 1:N Appointment)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who scheduled the appointment. (Relationship: UserProfile 1:N Appointment)"
+        },
+        "appointmentDateTime": {
+          "type": "string",
+          "description": "The selected date and time for the inspection appointment.",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any special notes or requests provided by the user for the appointment."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the appointment (e.g., 'Scheduled', 'Confirmed', 'Completed', 'Cancelled')."
+        },
+        "serviceType": {
+          "type": "string",
+          "description": "The type of service requested for the appointment (e.g., 'Vehicle Inspection')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the appointment was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the appointment details were updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "vehicleId",
+        "userId",
+        "appointmentDateTime",
+        "status",
+        "serviceType",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ShoppingCart": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ShoppingCart",
+      "type": "object",
+      "description": "Represents a persistent shopping cart for a user, holding items selected for purchase.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ShoppingCart entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who owns this shopping cart. (Relationship: UserProfile 1:1 ShoppingCart)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the shopping cart was first created for the user.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the shopping cart was modified (e.g., item added/removed).",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CartItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CartItem",
+      "type": "object",
+      "description": "Represents a single product item added to a user's shopping cart.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CartItem entity."
+        },
+        "cartId": {
+          "type": "string",
+          "description": "Reference to the ShoppingCart this item belongs to. (Relationship: ShoppingCart 1:N CartItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product entity added to the cart. (Relationship: Product 1:N CartItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the product added to the cart."
+        },
+        "addedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the item was added to the cart.",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the cart item was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the cart item was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "cartId",
+        "productId",
+        "quantity",
+        "addedAt",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer order placed through the checkout process (Firestore 'pedidos' collection).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who placed the order. (Relationship: UserProfile 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "The date and time when the order was placed.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the order (e.g., 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled')."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total monetary amount of the order, including all items, shipping, and taxes."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the total order amount."
+        },
+        "shippingAddressId": {
+          "type": "string",
+          "description": "Reference to the Address entity used for shipping the order. (Relationship: Address 1:N Order)"
+        },
+        "billingAddressId": {
+          "type": "string",
+          "description": "Reference to the Address entity used for billing the order. (Relationship: Address 1:N Order)"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "The method used for payment (e.g., 'Credit Card', 'PayPal', 'Cash on Delivery')."
+        },
+        "trackingNumber": {
+          "type": "string",
+          "description": "The tracking number for shipped orders, if applicable."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any special instructions or notes for the order."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the order was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the order details were updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "orderDate",
+        "status",
+        "totalAmount",
+        "currency",
+        "shippingAddressId",
+        "billingAddressId",
+        "paymentMethod",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents a single line item within an Order, detailing the product and quantity purchased.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OrderItem entity."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to the Order this item belongs to. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product entity that was ordered. (Relationship: Product 1:N OrderItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the product purchased in this order item."
+        },
+        "unitPrice": {
+          "type": "number",
+          "description": "The price of a single unit of the product at the time the order was placed."
+        },
+        "itemTotal": {
+          "type": "number",
+          "description": "The total price for this order item (quantity * unitPrice)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the order item was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the order item was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "quantity",
+        "unitPrice",
+        "itemTotal",
+        "createdAt",
+        "updatedAt"
+      ]
     }
   },
   "auth": {
-    "providers": ["google.com", "password"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/properties/{propertyId}": {
-      "schema": "Property",
-      "description": "Public collection of properties."
-    },
-    "/lots/{lotId}": {
-      "schema": "Lot",
-      "description": "Public collection of lots."
-    },
-    "/leads/{leadId}": {
-      "schema": "Lead",
-      "description": "Private contact requests."
-    }
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profiles. Access restricted to the authenticated owner (`userId`) and administrators. The `userId` is part of the path for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, correlating with `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/addresses/{addressId}",
+        "definition": {
+          "entityName": "Address",
+          "schema": {
+            "$ref": "#/backend/entities/Address"
+          },
+          "description": "Stores physical addresses for each user. Access restricted to the authenticated owner (`userId`) and administrators. The `userId` is inherited from the parent path for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user to whom this address belongs."
+            },
+            {
+              "name": "addressId",
+              "description": "The unique ID of the specific address."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Public catalog of BMW original and aftermarket parts. Read access is public for all users. Write access is restricted to administrators.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique ID of the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Public catalog categories for products, enabling filtering and organization. Read access is public for all users. Write access is restricted to administrators.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique ID of the product category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/vehicles/{vehicleId}",
+        "definition": {
+          "entityName": "Vehicle",
+          "schema": {
+            "$ref": "#/backend/entities/Vehicle"
+          },
+          "description": "Public listings of used BMW vehicles. Read access is public for all users. Write access is restricted to administrators. Includes an explicit `status` field for state modeling.",
+          "params": [
+            {
+              "name": "vehicleId",
+              "description": "The unique ID of the vehicle listing."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/shoppingCarts/{cartId}",
+        "definition": {
+          "entityName": "ShoppingCart",
+          "schema": {
+            "$ref": "#/backend/entities/ShoppingCart"
+          },
+          "description": "Stores a user's persistent shopping cart. Access restricted to the authenticated owner (`userId`) and administrators. `cartId` is expected to be identical to `userId` to enforce a 1:1 relationship.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns this shopping cart."
+            },
+            {
+              "name": "cartId",
+              "description": "The unique ID of the shopping cart, typically matching `userId`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/shoppingCarts/{cartId}/cartItems/{cartItemId}",
+        "definition": {
+          "entityName": "CartItem",
+          "schema": {
+            "$ref": "#/backend/entities/CartItem"
+          },
+          "description": "Individual product items within a user's shopping cart. Access restricted to the authenticated owner (`userId`) and administrators. `userId` and `cartId` are inherited from parent paths for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns the shopping cart."
+            },
+            {
+              "name": "cartId",
+              "description": "The unique ID of the shopping cart."
+            },
+            {
+              "name": "cartItemId",
+              "description": "The unique ID of the item in the cart."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores orders placed by a user. Access restricted to the authenticated owner (`userId`) and administrators. `userId` is part of the path for authorization independence. References to `shippingAddressId` and `billingAddressId` are expected to point to addresses within the user's `/users/{userId}/addresses` subcollection. Includes an explicit `status` field for state modeling.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who placed the order."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique ID of the order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}/orderItems/{orderItemId}",
+        "definition": {
+          "entityName": "OrderItem",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItem"
+          },
+          "description": "Individual line items within a user's order. Access restricted to the authenticated owner (`userId`) and administrators. `userId` and `orderId` are inherited from parent paths for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who placed the order."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique ID of the order this item belongs to."
+            },
+            {
+              "name": "orderItemId",
+              "description": "The unique ID of the order item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/appointments/{appointmentId}",
+        "definition": {
+          "entityName": "Appointment",
+          "schema": {
+            "$ref": "#/backend/entities/Appointment"
+          },
+          "description": "Stores vehicle inspection appointments scheduled by a user. Access restricted to the authenticated owner (`userId`) and administrators. `userId` is part of the path for authorization independence. Includes an explicit `status` field for state modeling.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who scheduled the appointment."
+            },
+            {
+              "name": "appointmentId",
+              "description": "The unique ID of the appointment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{adminId}",
+        "definition": {
+          "entityName": "AdminRole",
+          "schema": {
+            "$ref": "#/backend/entities/AdminRole"
+          },
+          "description": "Dedicated collection for Database Access Control (DBAC). The existence of a document at `/roles_admin/{adminId}` signifies that `adminId` has administrative privileges across the application. Authorization is based on existence over content.",
+          "params": [
+            {
+              "name": "adminId",
+              "description": "The unique ID of the user granted administrative privileges."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure for Bimmer CR is designed to be secure, scalable, and debuggable, strictly adhering to the core design principles and strategy mandates. \n\n**Authorization Independence:**\nThis is achieved primarily through path-based ownership and a dedicated admin roles collection. For all user-specific data (e.g., UserProfile, Address, ShoppingCart, CartItem, Order, OrderItem, Appointment), the `userId` is explicitly embedded in the Firestore path (e.g., `/users/{userId}/addresses/{addressId}`). This allows security rules to directly evaluate `request.auth.uid == userId` without needing to perform `get()` operations on parent documents or other collections to ascertain ownership. This strategy ensures atomic operations (transactions/batches) remain secure and simplifies rule debugging significantly as authorization logic is localized to the document being accessed. Similarly, administrative privileges are managed through a top-level `/roles_admin/{adminId}` collection. Rules check for the *existence* of a document at `get(/databases/$(database)/documents/roles_admin/$(request.auth.uid))`, an independent check that doesn't rely on complex hierarchical data fetching.\n\n**QAPs (Queries as Authorization Policies):**\nThe structure inherently supports secure `list` operations.\n*   **User-Specific Data:** By structuring private data under `/users/{userId}/...`, a user's query (`db.collection('users').doc(auth.uid).collection('orders').get()`) will naturally be restricted by security rules to only return documents where the `userId` wildcard matches `request.auth.uid`. This prevents unauthorized data leakage through broad queries.\n*   **Public Catalog Data:** Collections like `/products`, `/categories`, and `/vehicles` are explicitly designed for public read access. Any query on these collections will return all visible data, which is the intended security posture. There is no hidden data that a rule might block after a query, ensuring that what a query returns is what the user is authorized to see.\n*   **Admin Access:** For administrators, rules will permit broader access (e.g., to list all orders across users). This is handled by adding an `|| exists(/roles_admin/$(request.auth.uid))` condition to rules. This allows an admin to perform a collection group query (if applicable) or iterate through users to retrieve all orders, while regular users remain restricted to their own data. This avoids duplicating data for different access patterns.\n\n**Structural Segregation:** Each collection maintains a homogeneous security posture. For example, public products are in `/products`, while private user data is under `/users/{userId}/...`. There are no mixed-access documents within a single collection (e.g., public and private posts in the same collection), which simplifies security rules and makes their intent clearer.\n\n**Access Modeling & Consistency:** Path-based ownership (`/users/{userId}/data`) is consistently applied for user-owned entities. Descriptive wildcards like `{userId}`, `{productId}`, and `{vehicleId}` are used for clarity. Denormalized `userId` in paths ensures authorization independence. Explicit `status` fields are used for state modeling across entities like `Vehicle` and `Appointment`."
   }
 }
