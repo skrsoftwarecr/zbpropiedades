@@ -2,9 +2,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ADVERTENCIA: REGLAS TOTALMENTE ABIERTAS PARA PRUEBAS DE DESARROLLO
-    // Estas reglas permiten que CUALQUIERA lea o escriba en tu base de datos.
-    // Última actualización para forzar despliegue: 2024-05-21 12:50:00
+    // REGLAS 100% ABIERTAS PARA DEPUBACIÓN
+    // Forzando despliegue para refrescar caché: 2024-05-21 13:15:00 (UTC)
     
     match /{document=**} {
       allow read, write: if true;
