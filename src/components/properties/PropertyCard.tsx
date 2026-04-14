@@ -3,6 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { MapPin, Bed, Bath, Square, ChevronRight } from 'lucide-react';
 import type { Property } from '@/lib/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -10,7 +11,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 export function PropertyCard({ property }: { property: Property }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const formatPrice = (price: number) => {
+    if (!mounted) return '...';
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
   };
 

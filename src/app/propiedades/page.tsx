@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { Property, Province } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PropertyCard } from '@/components/properties/PropertyCard';
-import { Search, MapPin, Bed, Bath, DollarSign } from 'lucide-react';
+import { Search, MapPin, Bed, Bath } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
 
@@ -20,7 +20,12 @@ export default function PropertiesPage() {
   const [province, setProvince] = useState('all');
   const [type, setType] = useState('all');
   const [minBedrooms, setMinBedrooms] = useState('all');
-  const [maxPrice, setMaxPrice] = useState([500000]); // Max price filter in USD for example
+  const [maxPrice, setMaxPrice] = useState([500000]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const q = useMemoFirebase(() => query(collection(firestore, 'properties'), orderBy('createdAt', 'desc')), [firestore]);
   const { data: properties, isLoading } = useCollection<Property>(q);
@@ -46,7 +51,6 @@ export default function PropertiesPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar de Filtros */}
         <aside className="lg:col-span-1 space-y-6 bg-card p-6 rounded-xl border shadow-sm h-fit sticky top-24">
           <h2 className="font-bold text-lg border-b pb-2">Filtros de Búsqueda</h2>
           
@@ -115,7 +119,9 @@ export default function PropertiesPage() {
             <div className="space-y-4 pt-4">
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium">Precio Máximo</label>
-                <span className="text-sm font-bold text-secondary">${maxPrice[0].toLocaleString()}</span>
+                <span className="text-sm font-bold text-secondary">
+                  {mounted ? `$${maxPrice[0].toLocaleString()}` : '...'}
+                </span>
               </div>
               <Slider 
                 value={maxPrice} 
@@ -128,7 +134,6 @@ export default function PropertiesPage() {
           </div>
         </aside>
 
-        {/* Listado de Propiedades */}
         <div className="lg:col-span-3">
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
