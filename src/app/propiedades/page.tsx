@@ -27,8 +27,10 @@ export default function PropertiesPage() {
     setMounted(true);
   }, []);
 
-  const q = useMemoFirebase(() => query(collection(firestore, 'properties'), orderBy('createdAt', 'desc')), [firestore]);
-  const { data: properties, isLoading } = useCollection<Property>(q);
+  // Nota: Si no hay documentos con createdAt, el query podría devolver vacío.
+  // Pero lo mantenemos para consistencia con el catálogo.
+  const q = useMemoFirebase(() => query(collection(firestore, 'properties')), [firestore]);
+  const { data: properties, isLoading, error } = useCollection<Property>(q);
 
   const filtered = useMemo(() => {
     if (!properties) return [];
@@ -37,7 +39,7 @@ export default function PropertiesPage() {
                            (p.city && p.city.toLowerCase().includes(search.toLowerCase()));
       const matchesProvince = province === 'all' || p.province === province;
       const matchesType = type === 'all' || p.type === type;
-      const matchesBeds = minBedrooms === 'all' || p.bedrooms >= parseInt(minBedrooms);
+      const matchesBeds = minBedrooms === 'all' || (p.bedrooms || 0) >= parseInt(minBedrooms);
       const matchesPrice = p.price <= maxPrice[0];
       return matchesSearch && matchesProvince && matchesType && matchesBeds && matchesPrice;
     });

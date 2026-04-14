@@ -2,8 +2,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // REGLAS GLOBALES PARA ZB PROPIEDADES (Actualizadas: 2024-05-20)
-    // Permitir lectura pública para que el catálogo sea visible para todos
+    // REGLAS DE SEGURIDAD ZB PROPIEDADES
+    // Última actualización: 2024-05-21 11:30:00 (Forzando despliegue)
+
+    // Permitir que cualquier usuario (incluso sin loguearse) vea las propiedades y lotes
     match /properties/{propertyId} {
       allow read, list: if true;
       allow write: if request.auth != null;
@@ -14,9 +16,9 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
 
-    // Regla de respaldo para cualquier otra colección
+    // Regla global de lectura para asegurar que el catálogo siempre sea visible
     match /{document=**} {
-      allow read: if true;
+      allow read, list: if true;
       allow write: if request.auth != null;
     }
   }
