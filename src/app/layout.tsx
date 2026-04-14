@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -6,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { KonamiListener } from '@/components/admin/konami-listener';
 
 const siteConfig = {
   name: 'ZB Propiedades',
@@ -40,6 +40,7 @@ export default function RootLayout({
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col selection:bg-secondary/30')}>
         <FirebaseClientProvider>
+          <KonamiListener />
           <Header />
           <main className="flex-grow">{children}</main>
           <Footer />
