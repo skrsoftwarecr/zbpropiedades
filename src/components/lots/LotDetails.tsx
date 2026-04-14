@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -23,6 +22,23 @@ export function LotDetails({ lot }: LotDetailsProps) {
   const handleWhatsAppContact = () => {
     const message = `¡Hola! Me interesa el lote: ${lot.title} (${lot.id}). Quisiera solicitar más información.`;
     window.open(`https://wa.me/50688888888?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: lot.title,
+          text: `Mira este lote en ZB Propiedades: ${lot.title}`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Enlace copiado al portapapeles');
+    }
   };
 
   return (
@@ -111,7 +127,12 @@ export function LotDetails({ lot }: LotDetailsProps) {
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Contactar por WhatsApp
                 </Button>
-                <Button variant="outline" size="lg" className="w-full border-white/20 hover:bg-white/10 text-white h-14">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full border-white/40 text-white hover:bg-white hover:text-primary h-14 transition-colors font-medium"
+                  onClick={handleShare}
+                >
                   <Share2 className="mr-2 h-5 w-5" />
                   Compartir Lote
                 </Button>

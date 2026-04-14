@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -23,6 +22,23 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   const handleWhatsAppContact = () => {
     const message = `¡Hola! Me interesa la propiedad: ${property.title} (${property.id}). Quisiera solicitar más información.`;
     window.open(`https://wa.me/50688888888?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: property.title,
+          text: `Mira esta propiedad en ZB Propiedades: ${property.title}`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Enlace copiado al portapapeles');
+    }
   };
 
   return (
@@ -116,7 +132,12 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Contactar por WhatsApp
                 </Button>
-                <Button variant="outline" size="lg" className="w-full border-white/20 hover:bg-white/10 text-white h-14">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full border-white/40 text-white hover:bg-white hover:text-primary h-14 transition-colors font-medium"
+                  onClick={handleShare}
+                >
                   <Share2 className="mr-2 h-5 w-5" />
                   Compartir Propiedad
                 </Button>
