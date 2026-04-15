@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
@@ -46,6 +47,10 @@ export default function RootLayout({
           <Footer />
           <Toaster />
         </FirebaseClientProvider>
+        <Script 
+          src="https://upload-widget.cloudinary.com/global/all.js" 
+          strategy="afterInteractive" 
+        />
       </body>
     </html>
   );
