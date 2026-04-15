@@ -8,7 +8,7 @@ export interface Property {
   price: number;
   type: "Casa" | "Apartamento" | "Local Comercial" | "Oficina" | "Quinta";
   operationType: "Venta" | "Alquiler";
-  status: "Disponible" | "Vendido" | "Alquilado";
+  status?: "Disponible" | "Vendido" | "Alquilado";
   province: Province;
   city: string;
   bedrooms: number;
@@ -18,7 +18,6 @@ export interface Property {
   imageUrls: string[];
   features: string[];
   mapUrl?: string;
-  soldAt?: any;
   createdAt?: any;
 }
 
@@ -31,10 +30,9 @@ export interface Lot {
   city: string;
   area_m2: number;
   topography: string;
-  status: "Disponible" | "Vendido";
+  status?: "Disponible" | "Vendido";
   imageUrls: string[];
   features: string[];
   mapUrl?: string;
-  soldAt?: any;
   createdAt?: any;
 }
