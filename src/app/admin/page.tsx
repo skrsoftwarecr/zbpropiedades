@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Home, Landmark, Users, TrendingUp, ArrowUpRight, ListChecks } from 'lucide-react';
+import { Home, Landmark, Key, TrendingUp, ArrowUpRight, ListChecks } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   BarChart,
@@ -15,6 +16,7 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
+import type { Property, Lot } from '@/lib/types';
 
 export default function AdminDashboardPage() {
   const firestore = useFirestore();
@@ -23,13 +25,18 @@ export default function AdminDashboardPage() {
   const propertiesQuery = useMemoFirebase(() => query(collection(firestore, 'properties')), [firestore]);
   const lotsQuery = useMemoFirebase(() => query(collection(firestore, 'lots')), [firestore]);
 
-  const { data: properties, isLoading: loadingProps } = useCollection(propertiesQuery);
-  const { data: lots, isLoading: loadingLots } = useCollection(lotsQuery);
+  const { data: properties, isLoading: loadingProps } = useCollection<Property>(propertiesQuery);
+  const { data: lots, isLoading: loadingLots } = useCollection<Lot>(lotsQuery);
+
+  // Cálculos de métricas reales basados en el tipo de operación
+  const salesCount = properties?.filter(p => !p.operationType || p.operationType === 'Venta').length || 0;
+  const rentalsCount = properties?.filter(p => p.operationType === 'Alquiler').length || 0;
+  const lotsCount = lots?.length || 0;
 
   const stats = [
     {
-      title: "Propiedades Totales",
-      value: properties?.length || 0,
+      title: "Propiedades (Venta)",
+      value: salesCount,
       icon: Home,
       description: "Casas y apartamentos",
       color: "text-blue-600",
@@ -37,25 +44,26 @@ export default function AdminDashboardPage() {
     },
     {
       title: "Lotes Totales",
-      value: lots?.length || 0,
+      value: lotsCount,
       icon: Landmark,
       description: "Terrenos y quintas",
       color: "text-emerald-600",
       loading: loadingLots
     },
     {
-      title: "Listados Activos",
-      value: (properties?.length || 0) + (lots?.length || 0),
-      icon: ListChecks,
-      description: "Total en producción",
+      title: "Alquileres Totales",
+      value: rentalsCount,
+      icon: Key,
+      description: "Propiedades en renta",
       color: "text-amber-600",
-      loading: loadingProps || loadingLots
+      loading: loadingProps
     }
   ];
 
   const chartData = [
-    { name: 'Propiedades', count: properties?.length || 0, color: 'hsl(var(--primary))' },
-    { name: 'Lotes', count: lots?.length || 0, color: 'hsl(var(--secondary))' },
+    { name: 'Ventas', count: salesCount, color: 'hsl(var(--primary))' },
+    { name: 'Lotes', count: lotsCount, color: 'hsl(var(--secondary))' },
+    { name: 'Alquileres', count: rentalsCount, color: 'hsl(222.2 47.4% 30%)' },
   ];
 
   return (
@@ -124,25 +132,30 @@ export default function AdminDashboardPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-primary-foreground/10 pb-4">
                 <div>
-                  <p className="text-sm opacity-80 uppercase tracking-wider font-semibold">Vistas Totales</p>
-                  <div className="text-3xl font-bold">--</div>
+                  <p className="text-sm opacity-80 uppercase tracking-wider font-semibold">Total de Listados</p>
+                  <div className="text-3xl font-bold">{(salesCount + lotsCount + rentalsCount)}</div>
                 </div>
                 <div className="bg-white/10 p-2 rounded-full">
-                  <ArrowUpRight className="h-6 w-6" />
+                  <ListChecks className="h-6 w-6" />
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Página más visitada</span>
-                  <span className="font-medium">Catálogo</span>
+                  <span>Proporción de Ventas</span>
+                  <span className="font-medium">
+                    {Math.round((salesCount / (salesCount + lotsCount + rentalsCount || 1)) * 100)}%
+                  </span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                  <div className="bg-secondary h-full w-[70%]" />
+                  <div 
+                    className="bg-secondary h-full transition-all duration-1000" 
+                    style={{ width: `${(salesCount / (salesCount + lotsCount + rentalsCount || 1)) * 100}%` }}
+                  />
                 </div>
               </div>
               <div className="pt-4">
                 <p className="text-xs opacity-60 leading-relaxed italic">
-                  * Las métricas detalladas de tráfico web están en proceso de sincronización con la base de datos de producción.
+                  * El dashboard se actualiza en tiempo real al detectar cambios en el inventario de la base de datos.
                 </p>
               </div>
             </div>
