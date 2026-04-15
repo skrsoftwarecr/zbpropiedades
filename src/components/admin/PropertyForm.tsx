@@ -20,6 +20,7 @@ import {
   SheetFooter,
   SheetClose,
 } from '@/components/ui/sheet';
+import { Sheet as SheetRoot } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -28,7 +29,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -73,6 +73,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
 
   const [uploadedImages, setUploadedImages] = React.useState<string[]>([]);
   const [isWidgetOpen, setIsWidgetOpen] = React.useState(false);
+  const widgetRef = React.useRef<any>(null);
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(formSchema),
@@ -100,30 +101,38 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
   }, [property, isOpen, form]);
 
   const openWidget = () => {
-    // Marcamos que el widget está abierto para prevenir el cierre del Sheet
-    setIsWidgetOpen(true);
-    
     // @ts-ignore
-    const widget = window.cloudinary.createUploadWidget(
-      {
-        cloudName: 'daylj7uv8',
-        uploadPreset: 'zb_propieties',
-        sources: ['local', 'url', 'camera'],
-        multiple: true,
-        language: 'es',
-      },
-      (error: any, result: any) => {
-        if (!error && result && result.event === "success") {
-          setUploadedImages(prev => [...prev, result.info.secure_url]);
+    if (!window.cloudinary) return;
+
+    if (!widgetRef.current) {
+      // @ts-ignore
+      widgetRef.current = window.cloudinary.createUploadWidget(
+        {
+          cloudName: 'daylj7uv8',
+          uploadPreset: 'zb_propieties',
+          sources: ['local', 'url', 'camera'],
+          multiple: true,
+          language: 'es',
+          styles: {
+            zIndex: 100000
+          }
+        },
+        (error: any, result: any) => {
+          if (!error && result && result.event === "success") {
+            setUploadedImages(prev => [...prev, result.info.secure_url]);
+          }
+          
+          if (result && result.event === "close") {
+            setIsWidgetOpen(false);
+            document.body.style.pointerEvents = 'auto';
+          }
         }
-        
-        // Cuando el widget se cierra, permitimos que el Sheet vuelva a su comportamiento normal
-        if (result && result.event === "close") {
-          setIsWidgetOpen(false);
-        }
-      }
-    );
-    widget.open();
+      );
+    }
+    
+    setIsWidgetOpen(true);
+    document.body.style.pointerEvents = 'auto';
+    widgetRef.current.open();
   };
 
   const removeImage = (index: number) => {
@@ -171,15 +180,13 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
+    <SheetRoot open={isOpen} onOpenChange={onOpenChange} modal={false}>
       <SheetContent 
         className="sm:max-w-2xl w-[90vw] overflow-y-auto"
         onInteractOutside={(e) => {
-          // Si el widget de Cloudinary está abierto, prevenimos que el Sheet se cierre
           if (isWidgetOpen) e.preventDefault();
         }}
         onPointerDownOutside={(e) => {
-          // También prevenimos el cierre por clic directo afuera mientras el widget esté abierto
           if (isWidgetOpen) e.preventDefault();
         }}
       >
@@ -270,7 +277,6 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                   </div>
                 ))}
               </div>
-              {/* Botón con type="button" explícito para no enviar el formulario */}
               <Button type="button" onClick={openWidget} variant="secondary" className="w-full">
                 <ImagePlus className="mr-2 h-4 w-4" /> Subir Fotos
               </Button>
@@ -301,6 +307,6 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
           </form>
         </Form>
       </SheetContent>
-    </Sheet>
+    </SheetRoot>
   );
 }
