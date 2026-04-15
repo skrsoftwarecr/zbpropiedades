@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
@@ -29,7 +28,6 @@ export default function AdminDashboardPage() {
   const { data: lots, isLoading: loadingLots } = useCollection<Lot>(lotsQuery);
 
   // Lógica de conteo separada y sincronizada con los filtros del cliente
-  // Las propiedades sin operationType definido se consideran 'Venta' por defecto (retrocompatibilidad)
   const salesCount = properties?.filter(p => !p.operationType || p.operationType === 'Venta').length || 0;
   const rentalsCount = properties?.filter(p => p.operationType === 'Alquiler').length || 0;
   const lotsCount = lots?.length || 0;
@@ -38,7 +36,7 @@ export default function AdminDashboardPage() {
 
   const stats = [
     {
-      title: "Propiedades (Venta)",
+      title: "Propiedades",
       value: salesCount,
       icon: Home,
       description: "Disponibles en catálogo de ventas",
@@ -54,7 +52,7 @@ export default function AdminDashboardPage() {
       loading: loadingProps
     },
     {
-      title: "Lotes y Terrenos",
+      title: "Lotes",
       value: lotsCount,
       icon: Landmark,
       description: "Disponibles en catálogo de lotes",
@@ -64,7 +62,7 @@ export default function AdminDashboardPage() {
   ];
 
   const chartData = [
-    { name: 'Ventas', count: salesCount, color: 'hsl(var(--primary))' },
+    { name: 'Propiedades', count: salesCount, color: 'hsl(var(--primary))' },
     { name: 'Alquileres', count: rentalsCount, color: 'hsl(222.2 47.4% 30%)' },
     { name: 'Lotes', count: lotsCount, color: 'hsl(var(--secondary))' },
   ];
@@ -149,7 +147,7 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Propiedades (Venta)</span>
+                    <span>Propiedades</span>
                     <span className="font-medium">{Math.round((salesCount / (totalListings || 1)) * 100)}%</span>
                   </div>
                   <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
