@@ -4,11 +4,9 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useFirestore, useStorage } from '@/firebase/provider';
+import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
-import { addProperty, updateProperty } from '@/lib/firestore-service';
 import type { Property } from '@/lib/types';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -41,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Upload, X } from 'lucide-react';
+import { ImagePlus, X, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
 const formSchema = z.object({
@@ -70,13 +68,10 @@ interface PropertyFormProps {
 
 export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormProps) {
   const firestore = useFirestore();
-  const storage = useStorage();
   const { toast } = useToast();
   const isEditing = !!property;
 
-  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [existingImages, setExistingImages] = React.useState<string[]>([]);
+  const [imageUrls, setImageUrls] = React.useState<string[]>([]);
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(formSchema),
@@ -99,8 +94,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
         features: property?.features.join('\n') || '',
         mapUrl: property?.mapUrl || '',
       });
-      setExistingImages(property?.imageUrls || []);
-      setSelectedFiles([]);
+      setImageUrls(property?.imageUrls || []);
     }
   }, [property, isOpen, form]);
 
@@ -112,62 +106,71 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
     return input;
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setSelectedFiles(Array.from(e.target.files));
-    }
+  const handleUploadClick = () => {
+    // @ts-ignore
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: 'daylj7uv8',
+        uploadPreset: 'unsigned_preset',
+        sources: ['local', 'url', 'camera'],
+        multiple: true,
+        maxFiles: 15,
+        language: 'es',
+        text: {
+          es: {
+            menu: {
+              files: "Mis Archivos",
+              web: "URL Web",
+              camera: "Cámara"
+            },
+            local: {
+              browse: "Buscar",
+              dd_title_single: "Arrastra tu imagen aquí",
+              dd_title_multi: "Arrastra tus imágenes aquí",
+              drop_title_single: "Suelta la imagen",
+              drop_title_multi: "Suelta las imágenes"
+            }
+          }
+        }
+      },
+      (error: any, result: any) => {
+        if (!error && result && result.event === "success") {
+          setImageUrls(prev => [...prev, result.info.secure_url]);
+        }
+      }
+    );
+    widget.open();
   };
 
-  const removeExistingImage = (index: number) => {
-    setExistingImages(prev => prev.filter((_, i) => i !== index));
+  const removeImage = (index: number) => {
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const onSubmit = async (values: PropertyFormValues) => {
-    if (selectedFiles.length === 0 && existingImages.length === 0) {
+    if (imageUrls.length === 0) {
       toast({ variant: 'destructive', title: 'Error', description: 'Debe subir al menos una imagen.' });
       return;
     }
 
-    setIsUploading(true);
     try {
-      let docId = property?.id;
-      let finalUrls = [...existingImages];
-
-      // Si es nueva propiedad, obtenemos un ID primero
-      if (!docId) {
-        const newRef = doc(collection(firestore, 'properties'));
-        docId = newRef.id;
-      }
-
-      // 1. Subida de archivos a Storage
-      if (selectedFiles.length > 0) {
-        const uploadPromises = selectedFiles.map(async (file) => {
-          const storageRef = ref(storage, `properties/${docId}/${Date.now()}-${file.name}`);
-          const snapshot = await uploadBytes(storageRef, file);
-          return getDownloadURL(snapshot.ref);
-        });
-        const newUrls = await Promise.all(uploadPromises);
-        finalUrls = [...finalUrls, ...newUrls];
-      }
-
-      // 2. Preparar datos para Firestore
       const processedData = {
         ...values,
-        imageUrls: finalUrls,
+        imageUrls: imageUrls,
         mapUrl: extractMapUrl(values.mapUrl || ''),
         features: values.features.split('\n').map(item => item.trim()).filter(Boolean),
         updatedAt: serverTimestamp(),
       };
 
-      // 3. Guardar en Firestore
-      const docRef = doc(firestore, 'properties', docId);
-      if (isEditing) {
+      if (isEditing && property) {
+        const docRef = doc(firestore, 'properties', property.id);
         await updateDoc(docRef, processedData);
         toast({ title: 'Actualizado', description: 'Propiedad actualizada correctamente.' });
       } else {
-        await setDoc(docRef, {
+        const colRef = collection(firestore, 'properties');
+        const newDocRef = doc(colRef);
+        await setDoc(newDocRef, {
           ...processedData,
-          id: docId,
+          id: newDocRef.id,
           createdAt: serverTimestamp(),
         });
         toast({ title: 'Creado', description: 'Propiedad agregada correctamente.' });
@@ -181,9 +184,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
         requestResourceData: values,
       });
       errorEmitter.emit('permission-error', contextualError);
-      toast({ variant: 'destructive', title: 'Error', description: 'No se pudieron subir los datos.' });
-    } finally {
-      setIsUploading(false);
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudieron guardar los datos.' });
     }
   };
 
@@ -192,7 +193,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
       <SheetContent className="sm:max-w-2xl w-[90vw] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>{isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}</SheetTitle>
-          <SheetDescription>Complete los datos y suba las fotografías de la propiedad.</SheetDescription>
+          <SheetDescription>Complete los datos y gestione las fotografías de la propiedad.</SheetDescription>
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
@@ -217,40 +218,31 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                 )} />
             </div>
 
-            <div className="space-y-2">
-              <FormLabel>Fotografías</FormLabel>
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {existingImages.map((url, idx) => (
-                  <div key={idx} className="relative aspect-square rounded-md overflow-hidden border">
-                    <Image src={url} alt="prop" fill className="object-cover" />
+            <div className="space-y-3">
+              <FormLabel>Galería de Imágenes</FormLabel>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">
+                {imageUrls.map((url, idx) => (
+                  <div key={idx} className="relative aspect-square rounded-md overflow-hidden border bg-muted">
+                    <Image src={url} alt={`prop-${idx}`} fill className="object-cover" />
                     <button 
                       type="button" 
-                      onClick={() => removeExistingImage(idx)}
-                      className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 shadow-sm"
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-1 right-1 bg-destructive/90 text-white rounded-full p-1 hover:bg-destructive transition-colors shadow-sm"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </div>
                 ))}
+                <button
+                  type="button"
+                  onClick={handleUploadClick}
+                  className="aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-md hover:bg-muted/50 transition-colors text-muted-foreground gap-1"
+                >
+                  <ImagePlus className="h-6 w-6" />
+                  <span className="text-[10px] font-medium">Añadir</span>
+                </button>
               </div>
-              <FormControl>
-                <div className="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg p-6 hover:bg-muted/50 transition-colors cursor-pointer relative">
-                  <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">Haga clic para seleccionar fotos</p>
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*" 
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                </div>
-              </FormControl>
-              {selectedFiles.length > 0 && (
-                <p className="text-xs font-medium text-primary mt-2">
-                  {selectedFiles.length} archivos nuevos seleccionados
-                </p>
-              )}
+              <p className="text-[10px] text-muted-foreground italic">Las imágenes se suben a Cloudinary automáticamente al seleccionarlas.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -313,16 +305,9 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
             )} />
 
             <SheetFooter className="pt-4">
-              <SheetClose asChild><Button type="button" variant="outline" disabled={isUploading}>Cancelar</Button></SheetClose>
-              <Button type="submit" disabled={form.formState.isSubmitting || isUploading}>
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Subiendo imágenes...
-                  </>
-                ) : (
-                  'Guardar Cambios'
-                )}
+              <SheetClose asChild><Button type="button" variant="outline">Cancelar</Button></SheetClose>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
               </Button>
             </SheetFooter>
           </form>
