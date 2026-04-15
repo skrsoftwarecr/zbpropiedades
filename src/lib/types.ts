@@ -7,6 +7,7 @@ export interface Property {
   description: string;
   price: number;
   type: "Casa" | "Apartamento" | "Local Comercial" | "Oficina" | "Quinta";
+  operationType: "Venta" | "Alquiler";
   province: Province;
   city: string;
   bedrooms: number;

@@ -1,7 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
-import { Menu, User as UserIcon, LogOut, Home, Landmark, Phone } from 'lucide-react';
+import { Menu, User as UserIcon, LogOut, Home, Landmark, Phone, Key } from 'lucide-react';
 import { useUser } from '@/firebase/provider';
 import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
@@ -31,6 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 const navLinks = [
   { href: '/propiedades', label: 'Propiedades', icon: Home },
   { href: '/lotes', label: 'Lotes', icon: Landmark },
+  { href: '/alquileres', label: 'Alquileres', icon: Key },
 ];
 
 export function Header() {

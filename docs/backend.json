@@ -11,6 +11,7 @@
         "description": { "type": "string" },
         "price": { "type": "number" },
         "type": { "enum": ["Casa", "Apartamento", "Local Comercial", "Oficina", "Quinta"] },
+        "operationType": { "enum": ["Venta", "Alquiler"], "description": "Define si la propiedad está para vender o alquilar." },
         "province": { "enum": ["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"] },
         "city": { "type": "string" },
         "bedrooms": { "type": "number" },
@@ -22,7 +23,7 @@
         "mapUrl": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "title", "price", "type", "province", "city", "imageUrls"]
+      "required": ["id", "title", "price", "type", "province", "city", "imageUrls", "operationType"]
     },
     "Lot": {
       "title": "Lot",

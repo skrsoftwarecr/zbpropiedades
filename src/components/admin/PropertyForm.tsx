@@ -44,6 +44,7 @@ const formSchema = z.object({
   description: z.string().min(10, 'La descripción es muy corta.'),
   price: z.coerce.number().min(0, 'El precio no puede ser negativo.'),
   type: z.enum(['Casa', 'Apartamento', 'Local Comercial', 'Oficina', 'Quinta']),
+  operationType: z.enum(['Venta', 'Alquiler']),
   province: z.enum(["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"]),
   city: z.string().min(2, 'La ciudad es requerida.'),
   bedrooms: z.coerce.number().int().min(0),
@@ -79,6 +80,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
         description: property?.description || '',
         price: property?.price || 0,
         type: property?.type || 'Casa',
+        operationType: property?.operationType || 'Venta',
         province: property?.province || 'San José',
         city: property?.city || '',
         bedrooms: property?.bedrooms || 0,
@@ -138,8 +140,21 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                 <FormField control={form.control} name="price" render={({ field }) => (
                     <FormItem><FormLabel>Precio (₡)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
+                <FormField control={form.control} name="operationType" render={({ field }) => (
+                    <FormItem><FormLabel>Tipo de Operación</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                <SelectItem value="Venta">Venta</SelectItem>
+                                <SelectItem value="Alquiler">Alquiler</SelectItem>
+                            </SelectContent>
+                        </Select><FormMessage />
+                    </FormItem>
+                )} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="type" render={({ field }) => (
-                    <FormItem><FormLabel>Tipo</FormLabel>
+                    <FormItem><FormLabel>Tipo de Propiedad</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent>
@@ -148,8 +163,6 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                         </Select><FormMessage />
                     </FormItem>
                 )} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="province" render={({ field }) => (
                     <FormItem><FormLabel>Provincia</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -160,11 +173,16 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                         </Select><FormMessage />
                     </FormItem>
                 )} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="city" render={({ field }) => (
                     <FormItem><FormLabel>Ciudad / Cantón</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
+                <FormField control={form.control} name="area_m2" render={({ field }) => (
+                    <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
                 <FormField control={form.control} name="bedrooms" render={({ field }) => (
                     <FormItem><FormLabel>Hab.</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
@@ -173,9 +191,6 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                 )} />
                 <FormField control={form.control} name="parking" render={({ field }) => (
                     <FormItem><FormLabel>Parqueo</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="area_m2" render={({ field }) => (
-                    <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
             </div>
             <FormField control={form.control} name="description" render={({ field }) => (

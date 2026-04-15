@@ -14,7 +14,7 @@ import { Slider } from '@/components/ui/slider';
 
 const provinces: Province[] = ["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"];
 
-export default function PropertiesPage() {
+export default function RentalsPage() {
   const firestore = useFirestore();
   const [search, setSearch] = useState('');
   const [province, setProvince] = useState('all');
@@ -27,24 +27,19 @@ export default function PropertiesPage() {
     setMounted(true);
   }, []);
 
-  // Filtramos por defecto las de "Venta" o las que no tienen tipo definido (legacy)
   const q = useMemoFirebase(() => 
-    query(collection(firestore, 'properties')), 
+    query(collection(firestore, 'properties'), where('operationType', '==', 'Alquiler')), 
     [firestore]
   );
-  const { data: properties, isLoading } = useCollection<Property>(q);
+  const { data: rentals, isLoading } = useCollection<Property>(q);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
 
   const filtered = useMemo(() => {
-    if (!properties) return [];
-    return properties.filter(p => {
-      // Filtrar para que en esta página solo salgan las de Venta
-      const isSale = !p.operationType || p.operationType === 'Venta';
-      if (!isSale) return false;
-
+    if (!rentals) return [];
+    return rentals.filter(p => {
       const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || 
                            (p.city && p.city.toLowerCase().includes(search.toLowerCase()));
       const matchesProvince = province === 'all' || p.province === province;
@@ -53,18 +48,18 @@ export default function PropertiesPage() {
       const matchesPrice = p.price <= maxPrice[0];
       return matchesSearch && matchesProvince && matchesType && matchesBeds && matchesPrice;
     });
-  }, [properties, search, province, type, minBedrooms, maxPrice]);
+  }, [rentals, search, province, type, minBedrooms, maxPrice]);
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 font-headline text-primary">Catálogo de Propiedades en Venta</h1>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Encuentre el espacio ideal para su familia o negocio entre nuestra selección exclusiva.</p>
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 font-headline text-primary">Propiedades en Alquiler</h1>
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Explore nuestras opciones exclusivas de alquiler residencial y comercial.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <aside className="lg:col-span-1 space-y-6 bg-card p-6 rounded-xl border shadow-sm h-fit sticky top-24">
-          <h2 className="font-bold text-lg border-b pb-2">Filtros de Venta</h2>
+          <h2 className="font-bold text-lg border-b pb-2">Filtros de Alquiler</h2>
           
           <div className="space-y-4">
             <div className="space-y-2">
@@ -130,7 +125,7 @@ export default function PropertiesPage() {
 
             <div className="space-y-4 pt-4">
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium">Precio Máximo</label>
+                <label className="text-sm font-medium">Precio Máximo Mensual</label>
                 <span className="text-sm font-bold text-secondary">
                   {mounted ? formatPrice(maxPrice[0]) : '...'}
                 </span>
@@ -162,7 +157,7 @@ export default function PropertiesPage() {
                   <div className="bg-muted p-4 rounded-full mb-4">
                     <Search className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <p className="text-xl font-medium">No se encontraron propiedades</p>
+                  <p className="text-xl font-medium">No se encontraron alquileres</p>
                   <p className="text-muted-foreground">Intente ajustar sus filtros de búsqueda.</p>
                 </div>
               )}
