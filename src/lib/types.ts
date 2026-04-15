@@ -26,6 +26,7 @@ export interface Lot {
   title: string;
   description: string;
   price: number;
+  lotType: "Lote" | "Quinta";
   province: Province;
   city: string;
   area_m2: number;

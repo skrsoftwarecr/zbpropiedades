@@ -5,7 +5,7 @@ import React from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Home, Landmark, Key, ListChecks } from 'lucide-react';
+import { Home, Landmark, Key, ListChecks, Trees } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   BarChart,
@@ -26,23 +26,28 @@ export default function AdminDashboardPage() {
   const lotsQuery = useMemoFirebase(() => query(collection(firestore, 'lots')), [firestore]);
 
   const { data: properties, isLoading: loadingProps } = useCollection<Property>(propertiesQuery);
-  const { data: lots, isLoading: loadingLots } = useCollection<Lot>(lotsQuery);
+  const { data: allLots, isLoading: loadingLots } = useCollection<Lot>(lotsQuery);
 
   const salesInventory = properties?.filter(p => (!p.operationType || p.operationType === 'Venta')).length || 0;
   const rentalsInventory = properties?.filter(p => p.operationType === 'Alquiler').length || 0;
-  const lotsInventory = lots?.length || 0;
-  const totalInventory = salesInventory + rentalsInventory + lotsInventory;
+  
+  const lotsInventory = allLots?.filter(l => !l.lotType || l.lotType === 'Lote').length || 0;
+  const quintasInventory = allLots?.filter(l => l.lotType === 'Quinta').length || 0;
+  
+  const totalInventory = salesInventory + rentalsInventory + lotsInventory + quintasInventory;
 
   const inventoryStats = [
-    { title: "Propiedades", value: salesInventory, icon: Home, color: "text-blue-600" },
-    { title: "Alquileres", value: rentalsInventory, icon: Key, color: "text-amber-600" },
-    { title: "Lotes", value: lotsInventory, icon: Landmark, color: "text-emerald-600" }
+    { title: "Propiedades", value: salesInventory, icon: Home, color: "text-blue-600", border: "#2563eb" },
+    { title: "Alquileres", value: rentalsInventory, icon: Key, color: "text-amber-600", border: "#d97706" },
+    { title: "Lotes", value: lotsInventory, icon: Landmark, color: "text-emerald-600", border: "#059669" },
+    { title: "Quintas", value: quintasInventory, icon: Trees, color: "text-indigo-600", border: "#4f46e5" }
   ];
 
   const chartData = [
     { name: 'Propiedades', count: salesInventory, color: 'hsl(var(--primary))' },
     { name: 'Alquileres', count: rentalsInventory, color: '#d97706' },
     { name: 'Lotes', count: lotsInventory, color: '#059669' },
+    { name: 'Quintas', count: quintasInventory, color: '#4f46e5' },
   ];
 
   return (
@@ -58,9 +63,9 @@ export default function AdminDashboardPage() {
           <h2>Estado del Inventario</h2>
         </div>
         
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {inventoryStats.map((stat, index) => (
-            <Card key={index} className="shadow-sm border-l-4" style={{ borderLeftColor: stat.color.includes('blue') ? '#2563eb' : stat.color.includes('amber') ? '#d97706' : '#059669' }}>
+            <Card key={index} className="shadow-sm border-l-4" style={{ borderLeftColor: stat.border }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
@@ -147,6 +152,16 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
                     <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${(lotsInventory / (totalInventory || 1)) * 100}%` }} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Quintas</span>
+                    <span className="font-medium">{Math.round((quintasInventory / (totalInventory || 1)) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                    <div className="bg-indigo-500 h-full transition-all duration-1000" style={{ width: `${(quintasInventory / (totalInventory || 1)) * 100}%` }} />
                   </div>
                 </div>
               </div>

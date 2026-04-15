@@ -43,6 +43,7 @@ import {
 const formSchema = z.object({
   title: z.string().min(5, 'Mínimo 5 caracteres.'),
   description: z.string().min(10, 'Mínimo 10 caracteres.'),
+  lotType: z.enum(['Lote', 'Quinta']),
   price: z.coerce.number().min(0),
   province: z.enum(["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"]),
   city: z.string().min(2),
@@ -55,18 +56,24 @@ const formSchema = z.object({
 
 type LotFormValues = z.infer<typeof formSchema>;
 
-export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpenChange: (o: boolean) => void, lot?: Lot | null }) {
+export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { isOpen: boolean, onOpenChange: (o: boolean) => void, lot?: Lot | null, defaultType?: 'Lote' | 'Quinta' }) {
   const firestore = useFirestore();
   const { toast } = useToast();
   const isEditing = !!lot;
 
-  const form = useForm<LotFormValues>({ resolver: zodResolver(formSchema) });
+  const form = useForm<LotFormValues>({ 
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      lotType: defaultType
+    }
+  });
   
   React.useEffect(() => {
     if (isOpen) {
       form.reset({
         title: lot?.title || '',
         description: lot?.description || '',
+        lotType: lot?.lotType || defaultType,
         price: lot?.price || 0,
         province: lot?.province || 'San José',
         city: lot?.city || '',
@@ -77,7 +84,7 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
         mapUrl: lot?.mapUrl || '',
       });
     }
-  }, [lot, isOpen, form]);
+  }, [lot, isOpen, form, defaultType]);
 
   const extractMapUrl = (input: string) => {
     if (input.includes('<iframe')) {
@@ -113,25 +120,46 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{isEditing ? 'Editar Lote' : 'Nuevo Lote'}</SheetTitle>
+          <SheetTitle>{isEditing ? 'Editar Registro' : `Nuevo ${values.lotType || defaultType}`}</SheetTitle>
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
-            <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel>Título</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
             <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="title" render={({ field }) => (
+                  <FormItem className="col-span-2"><FormLabel>Título</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="lotType" render={({ field }) => (
+                    <FormItem><FormLabel>Categoría</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                <SelectItem value="Lote">Lote</SelectItem>
+                                <SelectItem value="Quinta">Quinta</SelectItem>
+                            </SelectContent>
+                        </Select><FormMessage />
+                    </FormItem>
+                )} />
                 <FormField control={form.control} name="price" render={({ field }) => (
                     <FormItem><FormLabel>Precio (₡)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="area_m2" render={({ field }) => (
                     <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
+                <FormField control={form.control} name="topography" render={({ field }) => (
+                    <FormItem><FormLabel>Topografía</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
             </div>
+
             <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="province" render={({ field }) => (
                     <FormItem><FormLabel>Provincia</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent>
                                 {["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
@@ -143,9 +171,7 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
                     <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
             </div>
-            <FormField control={form.control} name="topography" render={({ field }) => (
-                <FormItem><FormLabel>Topografía</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
+
             <FormField control={form.control} name="description" render={({ field }) => (
                 <FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
             )} />

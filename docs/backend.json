@@ -29,13 +29,14 @@
     },
     "Lot": {
       "title": "Lot",
-      "description": "Representa un lote o terreno en venta.",
+      "description": "Representa un lote o quinta en venta.",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "title": { "type": "string" },
         "description": { "type": "string" },
         "price": { "type": "number" },
+        "lotType": { "enum": ["Lote", "Quinta"], "default": "Lote" },
         "province": { "enum": ["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"] },
         "city": { "type": "string" },
         "area_m2": { "type": "number" },
@@ -47,7 +48,7 @@
         "soldAt": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "title", "price", "province", "city", "area_m2", "imageUrls"]
+      "required": ["id", "title", "price", "lotType", "province", "city", "area_m2", "imageUrls"]
     }
   },
   "auth": {

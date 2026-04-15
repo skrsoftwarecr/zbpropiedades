@@ -21,16 +21,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export default function AdminLotsPage() {
+export default function AdminQuintasPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   
   const q = useMemoFirebase(() => query(collection(firestore, 'lots'), orderBy('createdAt', 'desc')), [firestore]);
   const { data: allLots, isLoading } = useCollection<Lot>(q);
 
-  // Filtrar solo lotes client-side para el prototipo
-  const lots = React.useMemo(() => 
-    allLots?.filter(l => !l.lotType || l.lotType === 'Lote') || [], 
+  // Filtrar solo quintas client-side
+  const quintas = React.useMemo(() => 
+    allLots?.filter(l => l.lotType === 'Quinta') || [], 
     [allLots]
   );
 
@@ -47,7 +47,7 @@ export default function AdminLotsPage() {
         header: 'Imagen',
         cell: ({ row }) => (
             <div className="w-12 h-12 relative rounded overflow-hidden">
-                <Image src={row.original.imageUrls[0]} alt="l" fill className="object-cover" />
+                <Image src={row.original.imageUrls[0]} alt="q" fill className="object-cover" />
             </div>
         )
     },
@@ -77,11 +77,11 @@ export default function AdminLotsPage() {
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Gestión de Lotes</h1>
-        <Button onClick={() => { setSelected(null); setIsFormOpen(true); }}>Agregar Lote</Button>
+        <h1 className="text-2xl font-bold">Gestión de Quintas</h1>
+        <Button onClick={() => { setSelected(null); setIsFormOpen(true); }}>Agregar Quinta</Button>
       </div>
-      <DataTable columns={columns} data={lots} />
-      <LotForm isOpen={isFormOpen} onOpenChange={setIsFormOpen} lot={selected} defaultType="Lote" />
+      <DataTable columns={columns} data={quintas} />
+      <LotForm isOpen={isFormOpen} onOpenChange={setIsFormOpen} lot={selected} defaultType="Quinta" />
     </>
   );
 }
