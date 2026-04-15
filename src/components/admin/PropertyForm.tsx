@@ -72,6 +72,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
   const isEditing = !!property;
 
   const [uploadedImages, setUploadedImages] = React.useState<string[]>([]);
+  const [isWidgetOpen, setIsWidgetOpen] = React.useState(false);
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(formSchema),
@@ -99,6 +100,9 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
   }, [property, isOpen, form]);
 
   const openWidget = () => {
+    // Marcamos que el widget está abierto para prevenir el cierre del Sheet
+    setIsWidgetOpen(true);
+    
     // @ts-ignore
     const widget = window.cloudinary.createUploadWidget(
       {
@@ -111,6 +115,11 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
       (error: any, result: any) => {
         if (!error && result && result.event === "success") {
           setUploadedImages(prev => [...prev, result.info.secure_url]);
+        }
+        
+        // Cuando el widget se cierra, permitimos que el Sheet vuelva a su comportamiento normal
+        if (result && result.event === "close") {
+          setIsWidgetOpen(false);
         }
       }
     );
@@ -163,7 +172,17 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-2xl w-[90vw] overflow-y-auto">
+      <SheetContent 
+        className="sm:max-w-2xl w-[90vw] overflow-y-auto"
+        onInteractOutside={(e) => {
+          // Si el widget de Cloudinary está abierto, prevenimos que el Sheet se cierre
+          if (isWidgetOpen) e.preventDefault();
+        }}
+        onPointerDownOutside={(e) => {
+          // También prevenimos el cierre por clic directo afuera mientras el widget esté abierto
+          if (isWidgetOpen) e.preventDefault();
+        }}
+      >
         <SheetHeader>
           <SheetTitle>{isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}</SheetTitle>
           <SheetDescription>Complete los datos de la propiedad.</SheetDescription>
@@ -251,6 +270,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                   </div>
                 ))}
               </div>
+              {/* Botón con type="button" explícito para no enviar el formulario */}
               <Button type="button" onClick={openWidget} variant="secondary" className="w-full">
                 <ImagePlus className="mr-2 h-4 w-4" /> Subir Fotos
               </Button>
