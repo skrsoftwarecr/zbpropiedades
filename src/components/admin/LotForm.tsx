@@ -9,6 +9,7 @@ import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { addLot, updateLot } from '@/lib/firestore-service';
 import type { Lot } from '@/lib/types';
+import { serverTimestamp } from 'firebase/firestore';
 
 import {
   Sheet,
@@ -47,6 +48,7 @@ const formSchema = z.object({
   city: z.string().min(2),
   area_m2: z.coerce.number().min(1),
   topography: z.string().min(2),
+  status: z.enum(['Disponible', 'Vendido']),
   features: z.string().min(1),
   imageUrls: z.string().min(1),
   mapUrl: z.string().optional(),
@@ -71,6 +73,7 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
         city: lot?.city || '',
         area_m2: lot?.area_m2 || 0,
         topography: lot?.topography || 'Plana',
+        status: lot?.status || 'Disponible',
         features: lot?.features.join('\n') || '',
         imageUrls: lot?.imageUrls.join('\n') || '',
         mapUrl: lot?.mapUrl || '',
@@ -87,11 +90,14 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
   };
 
   const onSubmit = async (values: LotFormValues) => {
+    const isMarkedAsSold = values.status === 'Vendido' && lot?.status === 'Disponible';
+
     const processed = {
       ...values,
       mapUrl: extractMapUrl(values.mapUrl || ''),
       features: values.features.split('\n').map(i => i.trim()).filter(Boolean),
       imageUrls: values.imageUrls.split('\n').map(i => i.trim()).filter(Boolean),
+      soldAt: isMarkedAsSold ? serverTimestamp() : (lot?.soldAt || null),
     };
 
     try {
@@ -99,7 +105,10 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
         updateLot(firestore, lot.id, processed);
         toast({ title: 'Actualizado' });
       } else {
-        addLot(firestore, processed);
+        addLot(firestore, {
+          ...processed,
+          soldAt: values.status === 'Vendido' ? serverTimestamp() : null,
+        });
         toast({ title: 'Creado' });
       }
       onOpenChange(false);
@@ -123,11 +132,22 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
                 <FormField control={form.control} name="price" render={({ field }) => (
                     <FormItem><FormLabel>Precio (₡)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
-                <FormField control={form.control} name="area_m2" render={({ field }) => (
-                    <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormField control={form.control} name="status" render={({ field }) => (
+                    <FormItem><FormLabel>Estado</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                <SelectItem value="Disponible">Disponible</SelectItem>
+                                <SelectItem value="Vendido">Vendido</SelectItem>
+                            </SelectContent>
+                        </Select><FormMessage />
+                    </FormItem>
                 )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="area_m2" render={({ field }) => (
+                    <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
                 <FormField control={form.control} name="province" render={({ field }) => (
                     <FormItem><FormLabel>Provincia</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -138,10 +158,10 @@ export function LotForm({ isOpen, onOpenChange, lot }: { isOpen: boolean, onOpen
                         </Select><FormMessage />
                     </FormItem>
                 )} />
-                <FormField control={form.control} name="city" render={({ field }) => (
-                    <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
             </div>
+            <FormField control={form.control} name="city" render={({ field }) => (
+                <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
             <FormField control={form.control} name="topography" render={({ field }) => (
                 <FormItem><FormLabel>Topografía</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
