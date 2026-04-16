@@ -62,12 +62,23 @@ export function LotDetails({ lot }: LotDetailsProps) {
 
   // Función para extraer URL limpia de un posible iframe o validar enlace directo
   const extractMapUrl = (input: string | undefined) => {
+    // LOG DE DIAGNÓSTICO
+    console.log('DEBUG - Datos originales del Mapa (input - Lote):', input);
+    
     if (!input) return null;
+    
+    let url = null;
     if (input.includes('<iframe')) {
-      const match = input.match(/src="([^"]+)"/);
-      return match ? match[1] : null;
+      // Soporta comillas dobles o simples
+      const match = input.match(/src=["']([^"']+)["']/);
+      url = match ? match[1] : null;
+    } else {
+      url = input.startsWith('http') ? input : null;
     }
-    return input.startsWith('http') ? input : null;
+
+    // LOG DE DIAGNÓSTICO
+    console.log('DEBUG - URL Final extraída (Lote):', url);
+    return url;
   };
 
   const mapSrc = extractMapUrl(lot.mapUrl);
@@ -205,12 +216,12 @@ export function LotDetails({ lot }: LotDetailsProps) {
                 Ubicación del Lote
               </h3>
               {mapSrc ? (
-                <div className="aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted">
+                <div className="w-full h-full min-h-[300px] rounded-xl overflow-hidden border shadow-inner bg-muted">
                   <iframe
                     src={mapSrc}
                     width="100%"
                     height="100%"
-                    className="w-full h-full min-h-[300px] border-0 rounded-lg"
+                    className="w-full h-full min-h-[300px] border-0 rounded-lg block"
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
