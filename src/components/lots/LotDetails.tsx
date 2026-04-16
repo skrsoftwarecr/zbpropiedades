@@ -60,7 +60,17 @@ export function LotDetails({ lot }: LotDetailsProps) {
     }
   };
 
-  const hasMap = lot.mapUrl && lot.mapUrl.startsWith('https://');
+  // Función para extraer URL limpia de un posible iframe o validar enlace directo
+  const extractMapUrl = (input: string | undefined) => {
+    if (!input) return null;
+    if (input.includes('<iframe')) {
+      const match = input.match(/src="([^"]+)"/);
+      return match ? match[1] : null;
+    }
+    return input.startsWith('http') ? input : null;
+  };
+
+  const mapSrc = extractMapUrl(lot.mapUrl);
 
   return (
     <div className="space-y-12">
@@ -194,13 +204,13 @@ export function LotDetails({ lot }: LotDetailsProps) {
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación del Lote
               </h3>
-              {hasMap ? (
+              {mapSrc ? (
                 <div className="aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted">
                   <iframe
-                    src={lot.mapUrl}
+                    src={mapSrc}
                     width="100%"
                     height="100%"
-                    style={{ border: 0 }}
+                    className="w-full h-full min-h-[300px] border-0 rounded-lg"
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
@@ -208,9 +218,9 @@ export function LotDetails({ lot }: LotDetailsProps) {
                 </div>
               ) : (
                 <div className="aspect-square bg-muted rounded-xl flex items-center justify-center text-muted-foreground text-center p-8 border border-dashed border-muted-foreground/30">
-                  <div>
+                  <div className="flex flex-col items-center">
                     <Landmark className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">Ubicación exacta disponible bajo consulta.<br/><strong>Zona: {lot.city}</strong></p>
+                    <p className="text-sm font-medium">Ubicación no disponible en el mapa.<br/><strong>Zona: {lot.city}</strong></p>
                   </div>
                 </div>
               )}
