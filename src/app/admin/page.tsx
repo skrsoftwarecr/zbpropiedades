@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -8,14 +7,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Home, Landmark, Key, ListChecks, Trees } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
   ResponsiveContainer,
-  Cell
+  Legend
 } from 'recharts';
 import type { Property, Lot } from '@/lib/types';
 
@@ -28,6 +25,7 @@ export default function AdminDashboardPage() {
   const { data: properties, isLoading: loadingProps } = useCollection<Property>(propertiesQuery);
   const { data: allLots, isLoading: loadingLots } = useCollection<Lot>(lotsQuery);
 
+  // Cálculos de inventario
   const salesInventory = properties?.filter(p => (!p.operationType || p.operationType === 'Venta')).length || 0;
   const rentalsInventory = properties?.filter(p => p.operationType === 'Alquiler').length || 0;
   
@@ -44,11 +42,11 @@ export default function AdminDashboardPage() {
   ];
 
   const chartData = [
-    { name: 'Propiedades', count: salesInventory, color: 'hsl(var(--primary))' },
-    { name: 'Alquileres', count: rentalsInventory, color: '#d97706' },
-    { name: 'Lotes', count: lotsInventory, color: '#059669' },
-    { name: 'Quintas', count: quintasInventory, color: '#4f46e5' },
-  ];
+    { name: 'Propiedades', value: salesInventory, color: '#2563eb' },
+    { name: 'Alquileres', value: rentalsInventory, color: '#d97706' },
+    { name: 'Lotes', value: lotsInventory, color: '#059669' },
+    { name: 'Quintas', value: quintasInventory, color: '#4f46e5' },
+  ].filter(item => item.value > 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -82,27 +80,44 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4 shadow-sm">
           <CardHeader>
-            <CardTitle>Distribución de Inventario</CardTitle>
-            <CardDescription>Comparativa visual del volumen de oferta.</CardDescription>
+            <CardTitle>Distribución de Categorías</CardTitle>
+            <CardDescription>Proporción visual de la oferta actual.</CardDescription>
           </CardHeader>
-          <CardContent className="pl-2">
+          <CardContent>
             <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.2} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} />
-                  <Tooltip 
-                    cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={60}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              {loadingProps || loadingLots ? (
+                <div className="flex items-center justify-center h-full">
+                   <Skeleton className="h-48 w-48 rounded-full" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      formatter={(value: number) => [`${value} unidades`, 'Cantidad']}
+                    />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      align="center"
+                      iconType="circle"
+                      wrapperStyle={{ paddingTop: '20px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -110,7 +125,7 @@ export default function AdminDashboardPage() {
         <Card className="col-span-3 shadow-sm bg-muted/30">
           <CardHeader>
             <CardTitle>Resumen Operativo</CardTitle>
-            <CardDescription>Métricas de visibilidad.</CardDescription>
+            <CardDescription>Métricas de visibilidad porcentual.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
@@ -128,40 +143,40 @@ export default function AdminDashboardPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Propiedades</span>
-                    <span className="font-medium">{Math.round((salesInventory / (totalInventory || 1)) * 100)}%</span>
+                    <span className="font-medium">{totalInventory > 0 ? Math.round((salesInventory / totalInventory) * 100) : 0}%</span>
                   </div>
                   <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-primary h-full transition-all duration-1000" style={{ width: `${(salesInventory / (totalInventory || 1)) * 100}%` }} />
+                    <div className="bg-blue-600 h-full transition-all duration-1000" style={{ width: `${totalInventory > 0 ? (salesInventory / totalInventory) * 100 : 0}%` }} />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Alquileres</span>
-                    <span className="font-medium">{Math.round((rentalsInventory / (totalInventory || 1)) * 100)}%</span>
+                    <span className="font-medium">{totalInventory > 0 ? Math.round((rentalsInventory / totalInventory) * 100) : 0}%</span>
                   </div>
                   <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full transition-all duration-1000" style={{ width: `${(rentalsInventory / (totalInventory || 1)) * 100}%` }} />
+                    <div className="bg-amber-500 h-full transition-all duration-1000" style={{ width: `${totalInventory > 0 ? (rentalsInventory / totalInventory) * 100 : 0}%` }} />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Lotes</span>
-                    <span className="font-medium">{Math.round((lotsInventory / (totalInventory || 1)) * 100)}%</span>
+                    <span className="font-medium">{totalInventory > 0 ? Math.round((lotsInventory / totalInventory) * 100) : 0}%</span>
                   </div>
                   <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${(lotsInventory / (totalInventory || 1)) * 100}%` }} />
+                    <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${totalInventory > 0 ? (lotsInventory / totalInventory) * 100 : 0}%` }} />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Quintas</span>
-                    <span className="font-medium">{Math.round((quintasInventory / (totalInventory || 1)) * 100)}%</span>
+                    <span className="font-medium">{totalInventory > 0 ? Math.round((quintasInventory / totalInventory) * 100) : 0}%</span>
                   </div>
                   <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-indigo-500 h-full transition-all duration-1000" style={{ width: `${(quintasInventory / (totalInventory || 1)) * 100}%` }} />
+                    <div className="bg-indigo-500 h-full transition-all duration-1000" style={{ width: `${totalInventory > 0 ? (quintasInventory / totalInventory) * 100 : 0}%` }} />
                   </div>
                 </div>
               </div>
