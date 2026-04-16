@@ -349,7 +349,12 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
             )} />
             
             <FormField control={form.control} name="mapUrl" render={({ field }) => (
-                <FormItem><FormLabel>Google Maps</FormLabel><FormControl><Input {...field} placeholder="Enlace o iframe" /></FormControl><FormMessage /></FormItem>
+                <FormItem>
+                  <FormLabel>Google Maps</FormLabel>
+                  <FormControl><Input {...field} placeholder="Enlace o iframe" /></FormControl>
+                  <FormDescription>Tip: Para mejores resultados, pega el código de "Insertar un mapa" de Google Maps.</FormDescription>
+                  <FormMessage />
+                </FormItem>
             )} />
 
             <SheetFooter className="pt-4">

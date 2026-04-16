@@ -60,21 +60,37 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
     }
   };
 
-  // Procesa la información del mapa para determinar si es embeddable o un link directo
-  const getMapData = (input: string | undefined) => {
-    if (!input) return { url: null, isEmbeddable: false };
+  /**
+   * Transforma cualquier entrada de mapa (iframe, link o dirección) 
+   * en una URL válida para un iframe de Google Maps.
+   */
+  const getEmbedUrl = (input: string | undefined) => {
+    if (!input) return null;
     
-    let url = input;
-    if (input.includes('<iframe')) {
-      const match = input.match(/src=["']([^"']+)["']/);
-      url = match ? match[1] : input;
+    let source = input.trim();
+
+    // 1. Si es un iframe completo, extraemos el src
+    if (source.includes('<iframe')) {
+      const match = source.match(/src=["']([^"']+)["']/);
+      if (match) source = match[1];
     }
 
-    const isEmbeddable = url.includes('/embed/') || url.includes('pb=');
-    return { url, isEmbeddable };
+    // 2. Si ya es una URL de embed directa, la usamos
+    if (source.includes('/embed/') || source.includes('pb=')) {
+      return source;
+    }
+
+    // 3. Si es un enlace normal de Google Maps, intentamos extraer el lugar/coordenadas
+    // o simplemente usamos el link con el truco output=embed
+    if (source.includes('google.com/maps') || source.includes('maps.app.goo.gl')) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
+    }
+
+    // 4. Si es texto plano (dirección), generamos el embed por búsqueda
+    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
   };
 
-  const mapData = getMapData(property.mapUrl);
+  const embedUrl = getEmbedUrl(property.mapUrl);
   const operationText = property.operationType ? property.operationType.toUpperCase() : 'PROPIEDAD';
   const typeText = property.type ? property.type.toUpperCase() : 'INMUEBLE';
 
@@ -215,41 +231,26 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación
               </h3>
-              {mapData.url ? (
-                mapData.isEmbeddable ? (
-                  <div className="w-full h-full min-h-[300px] rounded-xl overflow-hidden border shadow-inner bg-muted">
-                    <iframe
-                      src={mapData.url}
-                      width="100%"
-                      height="100%"
-                      className="w-full h-full min-h-[300px] border-0 rounded-lg block"
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                    ></iframe>
-                  </div>
+              <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative">
+                {embedUrl ? (
+                  <iframe
+                    src={embedUrl}
+                    width="100%"
+                    height="100%"
+                    className="absolute inset-0 border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
                 ) : (
-                  <div className="aspect-square bg-muted rounded-xl flex flex-col items-center justify-center text-center p-8 border border-dashed border-muted-foreground/30 gap-4">
-                    <MapPin className="h-12 w-12 text-secondary opacity-50" />
-                    <div className="space-y-2">
-                      <p className="font-bold text-primary">Mapa Interactivo</p>
-                      <p className="text-xs text-muted-foreground">La ubicación exacta está disponible mediante enlace directo.</p>
+                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">
+                    <div className="flex flex-col items-center">
+                      <MapPin className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                      <p className="text-sm font-medium">Ubicación no disponible en el mapa.<br/><strong>Zona: {property.city}</strong></p>
                     </div>
-                    <Button asChild variant="secondary" className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold h-12">
-                      <a href={mapData.url} target="_blank" rel="noopener noreferrer">
-                        Ver en Google Maps
-                      </a>
-                    </Button>
                   </div>
-                )
-              ) : (
-                <div className="aspect-square bg-muted rounded-xl flex items-center justify-center text-muted-foreground text-center p-8 border border-dashed border-muted-foreground/30">
-                  <div className="flex flex-col items-center">
-                    <MapPin className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm font-medium">Ubicación no disponible en el mapa.<br/><strong>Zona: {property.city}</strong></p>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

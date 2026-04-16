@@ -287,7 +287,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
                 <FormItem>
                   <FormLabel>Google Maps (Insertar mapa)</FormLabel>
                   <FormControl><Input {...field} placeholder="Pegue aquí el enlace src o el código iframe completo" /></FormControl>
-                  <FormDescription>Puede pegar el código completo de &apos;Insertar un mapa&apos; de Google Maps.</FormDescription>
+                  <FormDescription>Tip: Para mejores resultados, pega el código de "Insertar un mapa" de Google Maps.</FormDescription>
                   <FormMessage />
                 </FormItem>
             )} />
