@@ -61,29 +61,43 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Garantiza que la URL sea válida para un iframe de Google Maps.
-   * Transforma links normales o texto en una búsqueda embebida compatible.
+   * getSafeMapUrl: Traductor Universal de Google Maps.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // 1. Extraer src de iframe si viene el código completo
+    // 1. Extraer src si es un iframe completo
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
       if (match) source = match[1];
     }
 
-    // 2. Asegurar protocolo seguro HTTPS
+    // 2. Asegurar protocolo seguro
     source = source.replace(/^http:\/\//i, 'https://');
 
-    // 3. Si no es una URL de embed nativa, convertirla en una búsqueda embebida
+    // 3. Detección y Transformación de Enlaces Estándar
     if (!source.includes('google.com/maps/embed') && !source.includes('pb=')) {
-      return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+      let location = source;
+
+      // Intentar extraer la dirección si es un link largo de /place/
+      const placeMatch = source.match(/place\/([^/?]+)/);
+      if (placeMatch) {
+        location = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+      } else {
+        // Intentar extraer coordenadas (@lat,lng)
+        const coordMatch = source.match(/@([-0-9.]+),([-0-9.]+)/);
+        if (coordMatch) {
+          location = `${coordMatch[1]},${coordMatch[2]}`;
+        }
+      }
+
+      // Retornar formato de búsqueda embebida compatible con enlaces acortados
+      return `https://maps.google.com/maps?q=${encodeURIComponent(location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     }
 
-    // 4. Forzar parámetro de salida embebida para evitar bloqueos X-Frame
+    // 4. Forzar parámetro de salida para evitar bloqueos X-Frame
     if (!source.includes('output=embed')) {
       source += (source.includes('?') ? '&' : '?') + 'output=embed';
     }
