@@ -61,25 +61,25 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Genera una URL apta para iframe.
+   * getSafeMapUrl: Genera una URL apta para iframe utilizando el motor de búsqueda universal.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // Si es un iframe completo, extraemos el src original
+    // Si es un iframe completo, extraemos el src
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
       if (match) return match[1];
     }
 
     // Formato de búsqueda universal que Google permite en iframes (Sin API Key)
+    // Se añade un timestamp o el link para forzar refresco de seguridad
     return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(property.mapUrl);
-
   const operationText = property.operationType ? property.operationType.toUpperCase() : 'PROPIEDAD';
   const typeText = property.type ? property.type.toUpperCase() : 'INMUEBLE';
 
@@ -95,6 +95,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
               fill 
               className="object-cover transition-all duration-500"
               priority
+              sizes="(max-width: 768px) 100vw, 60vw"
             />
             <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs flex items-center gap-2">
               <Camera className="h-3 w-3" />
@@ -109,7 +110,13 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 onClick={() => setMainImage(url)}
                 className={`relative flex-shrink-0 w-24 aspect-square rounded-lg overflow-hidden border-2 transition-all ${mainImage === url ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}
               >
-                <Image src={url} alt={`${property.title} ${idx + 1}`} fill className="object-cover" />
+                <Image 
+                  src={url} 
+                  alt={`${property.title} ${idx + 1}`} 
+                  fill 
+                  className="object-cover" 
+                  sizes="96px"
+                />
               </button>
             ))}
           </div>
@@ -212,7 +219,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
           </div>
         </div>
 
-        {/* Mapa */}
+        {/* Mapa con Bypass de Seguridad */}
         <div className="space-y-6">
           <Card className="border-none shadow-md bg-white">
             <CardContent className="p-6">
@@ -223,6 +230,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
               <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative" style={{ minHeight: '300px' }}>
                 {embedUrl ? (
                   <iframe
+                    key={property.mapUrl}
                     src={embedUrl}
                     width="100%"
                     height="100%"
@@ -231,6 +239,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
+                    sandbox="allow-scripts allow-same-origin allow-popups"
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">

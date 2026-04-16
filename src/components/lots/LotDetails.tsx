@@ -61,7 +61,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Genera una URL apta para iframe.
+   * getSafeMapUrl: Genera una URL apta para iframe utilizando el motor de búsqueda universal.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
@@ -92,6 +92,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
               fill 
               className="object-cover transition-all duration-500"
               priority
+              sizes="(max-width: 768px) 100vw, 60vw"
             />
             <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs flex items-center gap-2">
               <Camera className="h-3 w-3" />
@@ -106,7 +107,13 @@ export function LotDetails({ lot }: LotDetailsProps) {
                 onClick={() => setMainImage(url)}
                 className={`relative flex-shrink-0 w-24 aspect-square rounded-lg overflow-hidden border-2 transition-all ${mainImage === url ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}
               >
-                <Image src={url} alt={`${lot.title} ${idx + 1}`} fill className="object-cover" />
+                <Image 
+                  src={url} 
+                  alt={`${lot.title} ${idx + 1}`} 
+                  fill 
+                  className="object-cover" 
+                  sizes="96px"
+                />
               </button>
             ))}
           </div>
@@ -204,7 +211,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
           </div>
         </div>
 
-        {/* Mapa */}
+        {/* Mapa con Bypass de Seguridad */}
         <div className="space-y-6">
           <Card className="border-none shadow-md bg-white">
             <CardContent className="p-6">
@@ -215,6 +222,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
               <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative" style={{ minHeight: '300px' }}>
                 {embedUrl ? (
                   <iframe
+                    key={lot.mapUrl}
                     src={embedUrl}
                     width="100%"
                     height="100%"
@@ -223,6 +231,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
+                    sandbox="allow-scripts allow-same-origin allow-popups"
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">

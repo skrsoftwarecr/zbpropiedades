@@ -61,58 +61,74 @@ export function Header() {
     return name[0];
   };
 
+  // Evitar errores de hidratación asegurando que la navegación dinámica sea consistente
+  if (!isClient) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2">
+              <Logo className="h-8 w-8 text-primary" />
+              <span className="font-bold text-lg hidden sm:inline-block tracking-tight text-primary uppercase">
+                ZB PROPIEDADES
+              </span>
+            </Link>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
-          {isClient && (
-            <div className="md:hidden">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="-ml-2">
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Alternar menú</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="flex flex-col p-0">
-                  <SheetHeader className="border-b p-4">
-                    <SheetTitle>
-                       <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-                        <Logo className="h-8 w-8 text-primary" />
-                        <span>ZB Propiedades</span>
-                      </Link>
-                    </SheetTitle>
-                  </SheetHeader>
-                  <nav className="flex flex-col gap-4 p-4">
-                    {navLinks.map((link) => (
-                      <SheetClose asChild key={link.href}>
-                        <Link
-                          href={link.href}
-                          className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                          {link.label}
-                        </Link>
-                      </SheetClose>
-                    ))}
-                    <SheetClose asChild>
-                      <a 
-                        href={WHATSAPP_URL} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-lg font-medium text-secondary"
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="-ml-2">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Alternar menú</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="flex flex-col p-0">
+                <SheetHeader className="border-b p-4">
+                  <SheetTitle>
+                     <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+                      <Logo className="h-8 w-8 text-primary" />
+                      <span>ZB Propiedades</span>
+                    </Link>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-4 p-4">
+                  {navLinks.map((link) => (
+                    <SheetClose asChild key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
                       >
-                        Contacto WhatsApp
-                      </a>
+                        {link.label}
+                      </Link>
                     </SheetClose>
-                  </nav>
-                </SheetContent>
-              </Sheet>
-            </div>
-          )}
+                  ))}
+                  <SheetClose asChild>
+                    <a 
+                      href={WHATSAPP_URL} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-lg font-medium text-secondary"
+                    >
+                      Contacto WhatsApp
+                    </a>
+                  </SheetClose>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
 
           <Link href="/" className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
-            <span className="font-bold text-lg hidden sm:inline-block tracking-tight text-primary">
+            <span className="font-bold text-lg hidden sm:inline-block tracking-tight text-primary uppercase">
               ZB PROPIEDADES
             </span>
           </Link>
