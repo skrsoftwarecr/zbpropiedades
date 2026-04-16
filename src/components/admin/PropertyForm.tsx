@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -192,8 +191,8 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
     <SheetRoot open={isOpen} onOpenChange={onOpenChange} modal={false}>
       <SheetContent 
         className="sm:max-w-2xl w-[90vw] overflow-y-auto"
-        onInteractOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
-        onPointerDownOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
       >
         <SheetHeader>
           <SheetTitle>{isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}</SheetTitle>

@@ -125,8 +125,12 @@ export function VehicleForm({ isOpen, onOpenChange, vehicle }: VehicleFormProps)
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-2xl w-[90vw] overflow-y-auto">
+    <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
+      <SheetContent 
+        className="sm:max-w-2xl w-[90vw] overflow-y-auto"
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <SheetHeader>
           <SheetTitle>{isEditing ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</SheetTitle>
           <SheetDescription>

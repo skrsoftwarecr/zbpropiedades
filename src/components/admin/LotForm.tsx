@@ -8,7 +8,7 @@ import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { addLot, updateLot } from '@/lib/firestore-service';
 import type { Lot } from '@/lib/types';
-import { ImagePlus, X, Landmark } from 'lucide-react';
+import { ImagePlus, X } from 'lucide-react';
 import Image from 'next/image';
 
 import {
@@ -156,8 +156,8 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
     <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
       <SheetContent 
         className="sm:max-w-2xl overflow-y-auto"
-        onInteractOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
-        onPointerDownOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
       >
         <SheetHeader>
           <SheetTitle>

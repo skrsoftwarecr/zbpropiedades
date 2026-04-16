@@ -131,8 +131,12 @@ export function ProductForm({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-lg w-[90vw] overflow-y-auto">
+    <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
+      <SheetContent 
+        className="sm:max-w-lg w-[90vw] overflow-y-auto"
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <SheetHeader>
           <SheetTitle>{isEditing ? 'Editar Repuesto' : 'Agregar Nuevo Repuesto'}</SheetTitle>
           <SheetDescription>
