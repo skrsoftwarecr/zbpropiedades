@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -22,7 +21,8 @@ export function PropertyCard({ property }: { property: Property }) {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
 
-  const operationLabel = property.operationType === 'Venta' ? 'En Venta' : 'En Alquiler';
+  const operationText = property.operationType ? property.operationType.toUpperCase() : 'PROPIEDAD';
+  const typeText = property.type ? property.type.toUpperCase() : 'INMUEBLE';
 
   return (
     <Card className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-none shadow-md flex flex-col h-full bg-white">
@@ -35,10 +35,10 @@ export function PropertyCard({ property }: { property: Property }) {
         />
         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
           <Badge className="bg-primary/90 backdrop-blur-md border-none px-3 py-1 uppercase tracking-wider text-[10px]">
-            {property.type}
+            {typeText}
           </Badge>
           <Badge variant="secondary" className="bg-secondary text-secondary-foreground border-none px-3 py-1 uppercase tracking-wider text-[10px] font-bold shadow-sm">
-            {operationLabel}
+            {operationText}
           </Badge>
         </div>
         <div className="absolute bottom-4 left-4 right-4">
