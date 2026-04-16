@@ -161,7 +161,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
       >
         <SheetHeader>
           <SheetTitle>
-            {isEditing ? 'Editar Registro' : `Nuevo ${values.lotType || defaultType}`}
+            {isEditing ? 'Editar Registro' : `Nuevo ${form.watch('lotType') || defaultType}`}
           </SheetTitle>
         </SheetHeader>
         <Form {...form}>
