@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
@@ -7,7 +6,7 @@ import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, LayoutDashboard, Landmark, PanelLeft, LogOut, Trees } from 'lucide-react';
+import { Home, LayoutDashboard, Landmark, PanelLeft, LogOut, Trees, Map } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/shared/Logo';
 import { useAuth } from '@/firebase/provider';
@@ -18,8 +17,7 @@ const AdminSidebarNav = ({ isSheet = false }: { isSheet?: boolean }) => {
   const navLinks = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/properties', label: 'Propiedades', icon: Home },
-    { href: '/admin/lots', label: 'Lotes', icon: Landmark },
-    { href: '/admin/quintas', label: 'Quintas', icon: Trees },
+    { href: '/admin/lotes-quintas', label: 'Lotes y Quintas', icon: Map },
   ];
 
   return (
