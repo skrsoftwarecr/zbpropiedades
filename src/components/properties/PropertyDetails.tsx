@@ -61,36 +61,37 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   /**
-   * Transforma cualquier entrada de mapa (iframe, link o dirección) 
-   * en una URL válida para un iframe de Google Maps.
+   * getSafeMapUrl: Garantiza que la URL sea válida para un iframe de Google Maps.
+   * Transforma links normales o texto en una búsqueda embebida compatible.
    */
-  const getEmbedUrl = (input: string | undefined) => {
+  const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // 1. Si es un iframe completo, extraemos el src
+    // 1. Extraer src de iframe si viene el código completo
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
       if (match) source = match[1];
     }
 
-    // 2. Si ya es una URL de embed directa, la usamos
-    if (source.includes('/embed/') || source.includes('pb=')) {
-      return source;
+    // 2. Asegurar protocolo seguro HTTPS
+    source = source.replace(/^http:\/\//i, 'https://');
+
+    // 3. Si no es una URL de embed nativa, convertirla en una búsqueda embebida
+    if (!source.includes('google.com/maps/embed') && !source.includes('pb=')) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     }
 
-    // 3. Si es un enlace normal de Google Maps, intentamos extraer el lugar/coordenadas
-    // o simplemente usamos el link con el truco output=embed
-    if (source.includes('google.com/maps') || source.includes('maps.app.goo.gl')) {
-      return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
+    // 4. Forzar parámetro de salida embebida para evitar bloqueos X-Frame
+    if (!source.includes('output=embed')) {
+      source += (source.includes('?') ? '&' : '?') + 'output=embed';
     }
 
-    // 4. Si es texto plano (dirección), generamos el embed por búsqueda
-    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
+    return source;
   };
 
-  const embedUrl = getEmbedUrl(property.mapUrl);
+  const embedUrl = getSafeMapUrl(property.mapUrl);
   const operationText = property.operationType ? property.operationType.toUpperCase() : 'PROPIEDAD';
   const typeText = property.type ? property.type.toUpperCase() : 'INMUEBLE';
 
@@ -231,7 +232,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación
               </h3>
-              <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative">
+              <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative" style={{ minHeight: '300px' }}>
                 {embedUrl ? (
                   <iframe
                     src={embedUrl}
@@ -241,6 +242,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
+                    style={{ minHeight: '300px' }}
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">
