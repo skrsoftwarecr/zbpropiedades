@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -20,6 +21,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function AdminLotesQuintasPage() {
   const firestore = useFirestore();
@@ -31,6 +42,7 @@ export default function AdminLotesQuintasPage() {
   const [activeTab, setActiveTab] = React.useState<'Lote' | 'Quinta'>('Lote');
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Lot | null>(null);
+  const [deleteId, setDeleteId] = React.useState<string | null>(null);
 
   const lots = React.useMemo(() => 
     allLots?.filter(l => !l.lotType || l.lotType === 'Lote') || [], 
@@ -44,6 +56,25 @@ export default function AdminLotesQuintasPage() {
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      deleteLot(firestore, deleteId);
+      toast({ 
+        title: 'Registro eliminado', 
+        description: 'El terreno ha sido borrado del sistema correctamente.' 
+      });
+    } catch (error) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Error', 
+        description: 'Hubo un problema al intentar eliminar el registro.' 
+      });
+    } finally {
+      setDeleteId(null);
+    }
   };
 
   const columns: ColumnDef<Lot>[] = [
@@ -81,7 +112,7 @@ export default function AdminLotesQuintasPage() {
                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => { setSelected(row.original); setIsFormOpen(true); }}>Editar</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => { if(confirm('¿Desea eliminar este registro permanentemente?')) deleteLot(firestore, row.original.id); }} className="text-destructive">Eliminar</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDeleteId(row.original.id)} className="text-destructive">Eliminar</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         )
@@ -134,6 +165,26 @@ export default function AdminLotesQuintasPage() {
         lot={selected} 
         defaultType={activeTab} 
       />
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar publicación?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar este terreno?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
