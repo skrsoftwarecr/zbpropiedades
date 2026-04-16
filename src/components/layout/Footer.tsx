@@ -11,7 +11,7 @@ export function Footer() {
             <Logo className="h-10 w-10 text-primary" />
             <div className='flex flex-col'>
                 <p className="text-xl font-bold text-primary">ZB Propiedades</p>
-                <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} SKR Software. Todos los derechos reservados.</p>
+                <p className="text-sm text-muted-foreground">&copy; 2026. Todos los derechos reservados. SKR Software</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
