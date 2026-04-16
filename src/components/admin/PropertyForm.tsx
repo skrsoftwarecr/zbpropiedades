@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -13,13 +12,11 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 import {
-  Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
   SheetFooter,
-  SheetClose,
 } from '@/components/ui/sheet';
 import { Sheet as SheetRoot } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -44,34 +41,27 @@ import { ImagePlus, X } from 'lucide-react';
 import Image from 'next/image';
 
 const formSchema = z.object({
-  title: z.string().min(5, 'El título debe tener al menos 5 caracteres.'),
-  description: z.string().min(10, 'La descripción es muy corta.'),
-  price: z.coerce.number().min(0, 'El precio no puede ser negativo.'),
-  type: z.enum(['Casa', 'Apartamento', 'Local Comercial', 'Oficina', 'Quinta']),
+  title: z.string().min(5, 'Título muy corto.'),
+  description: z.string().min(10, 'Descripción muy corta.'),
+  price: z.coerce.number().min(0),
+  type: z.enum(['Casa', 'Apartamento', 'Local Comercial']),
   operationType: z.enum(['Venta', 'Alquiler']),
   province: z.enum(["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"]),
-  city: z.string().min(2, 'La ciudad es requerida.'),
+  city: z.string().min(2),
   bedrooms: z.coerce.number().int().min(0),
   bathrooms: z.coerce.number().min(0),
   parking: z.coerce.number().int().min(0),
   area_m2: z.coerce.number().min(1),
-  features: z.string().min(1, 'Agregue al menos una característica.'),
+  features: z.string().min(1),
   mapUrl: z.string().optional(),
 });
 
 type PropertyFormValues = z.infer<typeof formSchema>;
 
-interface PropertyFormProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  property?: Property | null;
-}
-
-export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormProps) {
+export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boolean, onOpenChange: (o: boolean) => void, property?: Property | null }) {
   const firestore = useFirestore();
   const { toast } = useToast();
   const isEditing = !!property;
-
   const [uploadedImages, setUploadedImages] = React.useState<string[]>([]);
   const [isWidgetOpen, setIsWidgetOpen] = React.useState(false);
   const widgetRef = React.useRef<any>(null);
@@ -86,7 +76,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
         title: property?.title || '',
         description: property?.description || '',
         price: property?.price || 0,
-        type: property?.type || 'Casa',
+        type: (property?.type as any) === 'Lote' || (property?.type as any) === 'Quinta' ? 'Casa' : (property?.type as any) || 'Casa',
         operationType: property?.operationType || 'Venta',
         province: property?.province || 'San José',
         city: property?.city || '',
@@ -102,27 +92,21 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
   }, [property, isOpen, form]);
 
   const openWidget = () => {
-    // @ts-ignore
-    if (!window.cloudinary) return;
-
+    if (!(window as any).cloudinary) return;
     if (!widgetRef.current) {
-      // @ts-ignore
-      widgetRef.current = window.cloudinary.createUploadWidget(
+      widgetRef.current = (window as any).cloudinary.createUploadWidget(
         {
           cloudName: 'daylj7uv8',
           uploadPreset: 'zb_propieties',
           sources: ['local', 'url', 'camera'],
           multiple: true,
           language: 'es',
-          styles: {
-            zIndex: 100000
-          }
+          styles: { zIndex: 100000 }
         },
         (error: any, result: any) => {
           if (!error && result && result.event === "success") {
             setUploadedImages(prev => [...prev, result.info.secure_url]);
           }
-          
           if (result && result.event === "close") {
             setIsWidgetOpen(false);
             document.body.style.pointerEvents = 'auto';
@@ -130,7 +114,6 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
         }
       );
     }
-    
     setIsWidgetOpen(true);
     document.body.style.pointerEvents = 'auto';
     widgetRef.current.open();
@@ -142,10 +125,9 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
 
   const onSubmit = async (values: PropertyFormValues) => {
     if (uploadedImages.length === 0) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Debe subir al menos una imagen.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'Suba al menos una imagen.' });
       return;
     }
-
     try {
       const processedData = {
         ...values,
@@ -153,30 +135,21 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
         features: values.features.split('\n').map(item => item.trim()).filter(Boolean),
         updatedAt: serverTimestamp(),
       };
-
       if (isEditing && property) {
-        const docRef = doc(firestore, 'properties', property.id);
-        await updateDoc(docRef, processedData);
+        await updateDoc(doc(firestore, 'properties', property.id), processedData);
         toast({ title: 'Actualizado' });
       } else {
-        const colRef = collection(firestore, 'properties');
-        const newDocRef = doc(colRef);
-        await setDoc(newDocRef, {
-          ...processedData,
-          id: newDocRef.id,
-          createdAt: serverTimestamp(),
-        });
+        const newDocRef = doc(collection(firestore, 'properties'));
+        await setDoc(newDocRef, { ...processedData, id: newDocRef.id, createdAt: serverTimestamp() });
         toast({ title: 'Creado' });
       }
       onOpenChange(false);
     } catch (error: any) {
-      console.error(error);
-      const contextualError = new FirestorePermissionError({
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
         operation: isEditing ? 'update' : 'create',
         path: `properties/${property?.id || 'new'}`,
         requestResourceData: values,
-      });
-      errorEmitter.emit('permission-error', contextualError);
+      }));
     }
   };
 
@@ -184,16 +157,12 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
     <SheetRoot open={isOpen} onOpenChange={onOpenChange} modal={false}>
       <SheetContent 
         className="sm:max-w-2xl w-[90vw] overflow-y-auto"
-        onInteractOutside={(e) => {
-          if (isWidgetOpen) e.preventDefault();
-        }}
-        onPointerDownOutside={(e) => {
-          if (isWidgetOpen) e.preventDefault();
-        }}
+        onInteractOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
+        onPointerDownOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
       >
         <SheetHeader>
           <SheetTitle>{isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}</SheetTitle>
-          <SheetDescription>Complete los datos de la propiedad.</SheetDescription>
+          <SheetDescription>Complete los datos de la propiedad residencial o comercial.</SheetDescription>
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
@@ -207,7 +176,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                 )} />
                 <FormField control={form.control} name="operationType" render={({ field }) => (
                     <FormItem><FormLabel>Operación</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent>
                                 <SelectItem value="Venta">Venta</SelectItem>
@@ -221,21 +190,21 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
             <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="type" render={({ field }) => (
                     <FormItem><FormLabel>Tipo</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent>
-                                {['Casa', 'Apartamento', 'Local Comercial', 'Oficina', 'Quinta'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                <SelectItem value="Casa">Casa</SelectItem>
+                                <SelectItem value="Apartamento">Apartamento</SelectItem>
+                                <SelectItem value="Local Comercial">Local Comercial</SelectItem>
                             </SelectContent>
                         </Select><FormMessage />
                     </FormItem>
                 )} />
                 <FormField control={form.control} name="province" render={({ field }) => (
                     <FormItem><FormLabel>Provincia</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                {["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                            </SelectContent>
+                            <SelectContent>{["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                         </Select><FormMessage />
                     </FormItem>
                 )} />
@@ -268,13 +237,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
                 {uploadedImages.map((url, idx) => (
                   <div key={idx} className="relative w-20 h-20 rounded-md overflow-hidden border">
                     <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
-                    <button 
-                      type="button" 
-                      onClick={() => removeImage(idx)}
-                      className="absolute top-0 right-0 bg-destructive text-white p-0.5 rounded-bl-md"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+                    <button type="button" onClick={() => removeImage(idx)} className="absolute top-0 right-0 bg-destructive text-white p-0.5 rounded-bl-md"><X className="h-3 w-3" /></button>
                   </div>
                 ))}
               </div>
@@ -292,18 +255,11 @@ export function PropertyForm({ isOpen, onOpenChange, property }: PropertyFormPro
             )} />
             
             <FormField control={form.control} name="mapUrl" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Google Maps</FormLabel>
-                  <FormControl><Input {...field} placeholder="Pegue aquí el enlace o iframe" /></FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FormLabel>Google Maps</FormLabel><FormControl><Input {...field} placeholder="Enlace o iframe" /></FormControl><FormMessage /></FormItem>
             )} />
 
             <SheetFooter className="pt-4">
-              <SheetClose asChild><Button type="button" variant="outline">Cancelar</Button></SheetClose>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                Guardar Cambios
-              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">Guardar Cambios</Button>
             </SheetFooter>
           </form>
         </Form>
