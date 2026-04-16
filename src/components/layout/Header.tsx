@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -34,6 +33,8 @@ const navLinks = [
   { href: '/lotes', label: 'Lotes', icon: Landmark },
   { href: '/alquileres', label: 'Alquileres', icon: Key },
 ];
+
+const WHATSAPP_URL = "https://wa.me/50660148363";
 
 export function Header() {
   const { user } = useUser();
@@ -94,9 +95,14 @@ export function Header() {
                       </SheetClose>
                     ))}
                     <SheetClose asChild>
-                      <Link href="https://wa.me/50688888888" className="text-lg font-medium text-secondary">
+                      <a 
+                        href={WHATSAPP_URL} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-lg font-medium text-secondary"
+                      >
                         Contacto WhatsApp
-                      </Link>
+                      </a>
                     </SheetClose>
                   </nav>
                 </SheetContent>
@@ -125,9 +131,9 @@ export function Header() {
 
         <div className="flex items-center gap-4">
           <Button variant="outline" className="hidden sm:flex" asChild>
-            <Link href="https://wa.me/50688888888">
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Phone className="mr-2 h-4 w-4" /> Contactar
-            </Link>
+            </a>
           </Button>
           
           {user && (

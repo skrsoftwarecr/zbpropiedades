@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -10,6 +9,8 @@ import type { Property, Lot } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Home, Landmark, Key, Phone } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const WHATSAPP_URL = "https://wa.me/50660148363";
 
 const ServiceCard = ({ title, description, href, image, icon: Icon }: any) => (
   <Link href={href} className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:shadow-2xl">
@@ -94,7 +95,7 @@ export default function LandingPage() {
             <ServiceCard 
               title="Venda con Nosotros"
               description="Le ayudamos a encontrar al comprador ideal con estrategias de marketing premium."
-              href="/vender"
+              href="https://wa.me/50660148363"
               image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800"
               icon={Key}
             />
@@ -110,7 +111,7 @@ export default function LandingPage() {
             Nuestro equipo de asesores está listo para guiarle en cada paso del proceso de compra o venta.
           </p>
           <Button size="lg" variant="secondary" className="font-bold h-14 px-10" asChild>
-            <a href="https://wa.me/50688888888" target="_blank" rel="noopener noreferrer">
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Phone className="mr-2 h-5 w-5" /> Contactar Asesor
             </a>
           </Button>

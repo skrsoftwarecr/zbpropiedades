@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -13,6 +12,8 @@ interface PropertyDetailsProps {
   property: Property;
 }
 
+const WHATSAPP_NUMBER = "50660148363";
+
 export function PropertyDetails({ property }: PropertyDetailsProps) {
   const [mainImage, setMainImage] = useState(property.imageUrls[0]);
 
@@ -22,7 +23,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
 
   const handleWhatsAppContact = () => {
     const message = `¡Hola! Me interesa la propiedad: ${property.title} (${property.id}). Quisiera solicitar más información.`;
-    window.open(`https://wa.me/50688888888?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleShare = async () => {

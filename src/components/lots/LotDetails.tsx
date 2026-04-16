@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -13,6 +12,8 @@ interface LotDetailsProps {
   lot: Lot;
 }
 
+const WHATSAPP_NUMBER = "50660148363";
+
 export function LotDetails({ lot }: LotDetailsProps) {
   const [mainImage, setMainImage] = useState(lot.imageUrls[0]);
 
@@ -22,7 +23,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
 
   const handleWhatsAppContact = () => {
     const message = `¡Hola! Me interesa el lote: ${lot.title} (${lot.id}). Quisiera solicitar más información.`;
-    window.open(`https://wa.me/50688888888?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleShare = async () => {
