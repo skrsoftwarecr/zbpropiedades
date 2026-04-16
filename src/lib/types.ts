@@ -19,6 +19,10 @@ export interface Property {
   features: string[];
   mapUrl?: string;
   createdAt?: any;
+  // Campos específicos de Alquiler
+  incluyeServicios?: boolean;
+  tieneWifi?: boolean;
+  estaAmueblado?: boolean;
 }
 
 export interface Lot {

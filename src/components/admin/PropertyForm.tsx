@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -27,6 +28,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { ImagePlus, X } from 'lucide-react';
 import Image from 'next/image';
 
@@ -54,6 +57,10 @@ const formSchema = z.object({
   area_m2: z.coerce.number().min(1),
   features: z.string().min(1),
   mapUrl: z.string().optional(),
+  // Campos de Alquiler
+  incluyeServicios: z.boolean().default(false),
+  tieneWifi: z.boolean().default(false),
+  estaAmueblado: z.boolean().default(false),
 });
 
 type PropertyFormValues = z.infer<typeof formSchema>;
@@ -68,7 +75,15 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      operationType: 'Venta',
+      incluyeServicios: false,
+      tieneWifi: false,
+      estaAmueblado: false,
+    }
   });
+
+  const operationType = form.watch('operationType');
   
   React.useEffect(() => {
     if (isOpen) {
@@ -86,10 +101,22 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
         area_m2: property?.area_m2 || 0,
         features: property?.features.join('\n') || '',
         mapUrl: property?.mapUrl || '',
+        incluyeServicios: property?.incluyeServicios || false,
+        tieneWifi: property?.tieneWifi || false,
+        estaAmueblado: property?.estaAmueblado || false,
       });
       setUploadedImages(property?.imageUrls || []);
     }
   }, [property, isOpen, form]);
+
+  // Limpiar campos de alquiler si se cambia a Venta
+  React.useEffect(() => {
+    if (operationType === 'Venta') {
+      form.setValue('incluyeServicios', false);
+      form.setValue('tieneWifi', false);
+      form.setValue('estaAmueblado', false);
+    }
+  }, [operationType, form]);
 
   const openWidget = () => {
     if (!(window as any).cloudinary) return;
@@ -129,12 +156,20 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
       return;
     }
     try {
-      const processedData = {
+      const processedData: any = {
         ...values,
         imageUrls: uploadedImages,
         features: values.features.split('\n').map(item => item.trim()).filter(Boolean),
         updatedAt: serverTimestamp(),
       };
+
+      // Limpiar campos si no es alquiler antes de guardar
+      if (values.operationType === 'Venta') {
+        delete processedData.incluyeServicios;
+        delete processedData.tieneWifi;
+        delete processedData.estaAmueblado;
+      }
+
       if (isEditing && property) {
         await updateDoc(doc(firestore, 'properties', property.id), processedData);
         toast({ title: 'Actualizado' });
@@ -172,7 +207,11 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
             
             <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem><FormLabel>Precio (₡)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>{operationType === 'Alquiler' ? 'Precio por mes (₡)' : 'Precio (₡)'}</FormLabel>
+                      <FormControl><Input type="number" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
                 )} />
                 <FormField control={form.control} name="operationType" render={({ field }) => (
                     <FormItem><FormLabel>Operación</FormLabel>
@@ -186,6 +225,62 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
                     </FormItem>
                 )} />
             </div>
+
+            {operationType === 'Alquiler' && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg border border-dashed">
+                <FormField
+                  control={form.control}
+                  name="incluyeServicios"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
+                      <div className="space-y-0.5">
+                        <FormLabel>Servicios</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tieneWifi"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
+                      <div className="space-y-0.5">
+                        <FormLabel>Wi-Fi</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="estaAmueblado"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
+                      <div className="space-y-0.5">
+                        <FormLabel>Amueblado</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="type" render={({ field }) => (
