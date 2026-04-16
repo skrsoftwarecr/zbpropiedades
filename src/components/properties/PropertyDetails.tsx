@@ -7,6 +7,7 @@ import type { Property } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 interface PropertyDetailsProps {
   property: Property;
@@ -16,6 +17,7 @@ const WHATSAPP_NUMBER = "50660148363";
 
 export function PropertyDetails({ property }: PropertyDetailsProps) {
   const [mainImage, setMainImage] = useState(property.imageUrls[0]);
+  const { toast } = useToast();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -27,19 +29,34 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    const shareData = {
+      title: property.title,
+      text: `Mira esta propiedad en ZB Propiedades: ${property.title}`,
+      url: window.location.href,
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare?.(shareData)) {
       try {
-        await navigator.share({
-          title: property.title,
-          text: `Mira esta propiedad en ZB Propiedades: ${property.title}`,
-          url: window.location.href,
-        });
+        await navigator.share(shareData);
       } catch (err) {
-        console.error('Error sharing:', err);
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err);
+        }
       }
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Enlace copiado al portapapeles');
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Enlace copiado",
+          description: "El enlace de la propiedad se ha copiado al portapapeles.",
+        });
+      } catch (err) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo copiar el enlace.",
+        });
+      }
     }
   };
 
