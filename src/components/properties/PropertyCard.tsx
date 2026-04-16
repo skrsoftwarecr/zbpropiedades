@@ -22,6 +22,8 @@ export function PropertyCard({ property }: { property: Property }) {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
 
+  const operationLabel = property.operationType === 'Venta' ? 'En Venta' : 'En Alquiler';
+
   return (
     <Card className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-none shadow-md flex flex-col h-full bg-white">
       <Link href={`/propiedades/${property.id}`} className="block relative aspect-[16/10] overflow-hidden">
@@ -31,9 +33,12 @@ export function PropertyCard({ property }: { property: Property }) {
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute top-4 left-4 flex gap-2">
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
           <Badge className="bg-primary/90 backdrop-blur-md border-none px-3 py-1 uppercase tracking-wider text-[10px]">
             {property.type}
+          </Badge>
+          <Badge variant="secondary" className="bg-secondary text-secondary-foreground border-none px-3 py-1 uppercase tracking-wider text-[10px] font-bold shadow-sm">
+            {operationLabel}
           </Badge>
         </div>
         <div className="absolute bottom-4 left-4 right-4">

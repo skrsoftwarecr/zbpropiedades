@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -44,6 +45,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   const hasMap = property.mapUrl && property.mapUrl.startsWith('https://');
+  const operationLabel = property.operationType === 'Venta' ? 'en Venta' : 'en Alquiler';
 
   return (
     <div className="space-y-12">
@@ -81,8 +83,8 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
         <div className="lg:col-span-2 space-y-8">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="bg-secondary/10 text-secondary border-secondary/20 font-bold uppercase tracking-widest text-[10px]">
-                {property.type} en Venta
+              <Badge variant="secondary" className="bg-secondary text-secondary-foreground font-bold uppercase tracking-widest text-[10px] px-4 py-1.5">
+                {property.type} {operationLabel}
               </Badge>
               <Badge variant="outline" className="text-muted-foreground">
                 <MapPin className="h-3 w-3 mr-1" /> {property.province}
