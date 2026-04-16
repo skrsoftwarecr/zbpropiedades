@@ -61,7 +61,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Método de Búsqueda Directa Simplificado.
+   * getSafeMapUrl: Genera una URL apta para iframe.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
@@ -74,16 +74,11 @@ export function LotDetails({ lot }: LotDetailsProps) {
       if (match) return match[1];
     }
 
-    // Método de búsqueda universal de Google Maps
-    return `https://www.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
+    // Formato de búsqueda universal que Google permite en iframes (Sin API Key)
+    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(lot.mapUrl);
-
-  // Monitor de Diagnóstico
-  console.log('--- DIAGNÓSTICO DE MAPA (LOTE) ---');
-  console.log('Base de Datos:', lot.mapUrl);
-  console.log('URL Final (src):', embedUrl);
 
   return (
     <div className="space-y-12">
@@ -223,11 +218,11 @@ export function LotDetails({ lot }: LotDetailsProps) {
                     src={embedUrl}
                     width="100%"
                     height="100%"
-                    className="absolute inset-0 border-0"
+                    className="absolute inset-0"
+                    style={{ border: 0, minHeight: '300px' }}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    style={{ minHeight: '300px' }}
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">

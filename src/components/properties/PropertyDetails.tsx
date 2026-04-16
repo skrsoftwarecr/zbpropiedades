@@ -61,30 +61,24 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Método de Búsqueda Directa Simplificado.
-   * Utiliza la API de búsqueda para resolver cualquier link o texto.
+   * getSafeMapUrl: Genera una URL apta para iframe.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // Si es un iframe completo, extraemos el src original (prioridad)
+    // Si es un iframe completo, extraemos el src original
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
       if (match) return match[1];
     }
 
-    // Para links acortados o direcciones, usamos el formato de búsqueda más compatible
-    return `https://www.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
+    // Formato de búsqueda universal que Google permite en iframes (Sin API Key)
+    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(property.mapUrl);
-
-  // Monitor de Diagnóstico
-  console.log('--- DIAGNÓSTICO DE MAPA (PROPIEDAD) ---');
-  console.log('Base de Datos:', property.mapUrl);
-  console.log('URL Final (src):', embedUrl);
 
   const operationText = property.operationType ? property.operationType.toUpperCase() : 'PROPIEDAD';
   const typeText = property.type ? property.type.toUpperCase() : 'INMUEBLE';
@@ -232,11 +226,11 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                     src={embedUrl}
                     width="100%"
                     height="100%"
-                    className="absolute inset-0 border-0"
+                    className="absolute inset-0"
+                    style={{ border: 0, minHeight: '300px' }}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    style={{ minHeight: '300px' }}
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">
