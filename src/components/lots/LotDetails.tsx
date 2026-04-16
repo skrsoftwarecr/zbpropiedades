@@ -60,28 +60,21 @@ export function LotDetails({ lot }: LotDetailsProps) {
     }
   };
 
-  // Función para extraer URL limpia de un posible iframe o validar enlace directo
-  const extractMapUrl = (input: string | undefined) => {
-    // LOG DE DIAGNÓSTICO
-    console.log('DEBUG - Datos originales del Mapa (input - Lote):', input);
+  // Procesa la información del mapa para determinar si es embeddable o un link directo
+  const getMapData = (input: string | undefined) => {
+    if (!input) return { url: null, isEmbeddable: false };
     
-    if (!input) return null;
-    
-    let url = null;
+    let url = input;
     if (input.includes('<iframe')) {
-      // Soporta comillas dobles o simples
       const match = input.match(/src=["']([^"']+)["']/);
-      url = match ? match[1] : null;
-    } else {
-      url = input.startsWith('http') ? input : null;
+      url = match ? match[1] : input;
     }
 
-    // LOG DE DIAGNÓSTICO
-    console.log('DEBUG - URL Final extraída (Lote):', url);
-    return url;
+    const isEmbeddable = url.includes('/embed/') || url.includes('pb=');
+    return { url, isEmbeddable };
   };
 
-  const mapSrc = extractMapUrl(lot.mapUrl);
+  const mapData = getMapData(lot.mapUrl);
 
   return (
     <div className="space-y-12">
@@ -215,18 +208,33 @@ export function LotDetails({ lot }: LotDetailsProps) {
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación del Lote
               </h3>
-              {mapSrc ? (
-                <div className="w-full h-full min-h-[300px] rounded-xl overflow-hidden border shadow-inner bg-muted">
-                  <iframe
-                    src={mapSrc}
-                    width="100%"
-                    height="100%"
-                    className="w-full h-full min-h-[300px] border-0 rounded-lg block"
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  ></iframe>
-                </div>
+              {mapData.url ? (
+                mapData.isEmbeddable ? (
+                  <div className="w-full h-full min-h-[300px] rounded-xl overflow-hidden border shadow-inner bg-muted">
+                    <iframe
+                      src={mapData.url}
+                      width="100%"
+                      height="100%"
+                      className="w-full h-full min-h-[300px] border-0 rounded-lg block"
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                  </div>
+                ) : (
+                  <div className="aspect-square bg-muted rounded-xl flex flex-col items-center justify-center text-center p-8 border border-dashed border-muted-foreground/30 gap-4">
+                    <MapPin className="h-12 w-12 text-secondary opacity-50" />
+                    <div className="space-y-2">
+                      <p className="font-bold text-primary">Mapa Interactivo</p>
+                      <p className="text-xs text-muted-foreground">La ubicación está disponible mediante enlace directo.</p>
+                    </div>
+                    <Button asChild variant="secondary" className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold h-12">
+                      <a href={mapData.url} target="_blank" rel="noopener noreferrer">
+                        Ver en Google Maps
+                      </a>
+                    </Button>
+                  </div>
+                )
               ) : (
                 <div className="aspect-square bg-muted rounded-xl flex items-center justify-center text-muted-foreground text-center p-8 border border-dashed border-muted-foreground/30">
                   <div className="flex flex-col items-center">
