@@ -77,7 +77,7 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <ServiceCard 
               title="Residencias"
               description="Casas y apartamentos en preventa o listos para estrenar en las zonas de mayor plusvalía."
@@ -91,13 +91,6 @@ export default function LandingPage() {
               href="/lotes"
               image="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800"
               icon={Landmark}
-            />
-            <ServiceCard 
-              title="Venda con Nosotros"
-              description="Le ayudamos a encontrar al comprador ideal con estrategias de marketing premium."
-              href={WHATSAPP_URL}
-              image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800"
-              icon={Key}
             />
           </div>
         </div>
