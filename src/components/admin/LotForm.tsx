@@ -8,6 +8,8 @@ import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { addLot, updateLot } from '@/lib/firestore-service';
 import type { Lot } from '@/lib/types';
+import { ImagePlus, X, Landmark } from 'lucide-react';
+import Image from 'next/image';
 
 import {
   Sheet,
@@ -46,7 +48,7 @@ const formSchema = z.object({
   area_m2: z.coerce.number().min(1),
   topography: z.string().min(2),
   features: z.string().min(1),
-  imageUrls: z.string().min(1),
+  imageUrls: z.array(z.string()).min(1, 'Suba al menos una imagen.'),
   mapUrl: z.string().optional(),
 });
 
@@ -56,15 +58,17 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
   const firestore = useFirestore();
   const { toast } = useToast();
   const isEditing = !!lot;
+  const [isWidgetOpen, setIsWidgetOpen] = React.useState(false);
+  const widgetRef = React.useRef<any>(null);
 
   const form = useForm<LotFormValues>({ 
     resolver: zodResolver(formSchema),
     defaultValues: {
-      lotType: defaultType
+      lotType: defaultType,
+      imageUrls: []
     }
   });
 
-  // Suscribirse a los cambios de los valores del formulario para el título dinámico
   const values = form.watch();
   
   React.useEffect(() => {
@@ -79,11 +83,45 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
         area_m2: lot?.area_m2 || 0,
         topography: lot?.topography || 'Plana',
         features: lot?.features.join('\n') || '',
-        imageUrls: lot?.imageUrls.join('\n') || '',
+        imageUrls: lot?.imageUrls || [],
         mapUrl: lot?.mapUrl || '',
       });
     }
   }, [lot, isOpen, form, defaultType]);
+
+  const openWidget = () => {
+    if (!(window as any).cloudinary) return;
+    if (!widgetRef.current) {
+      widgetRef.current = (window as any).cloudinary.createUploadWidget(
+        {
+          cloudName: 'daylj7uv8',
+          uploadPreset: 'zb_propieties',
+          sources: ['local', 'url', 'camera'],
+          multiple: true,
+          language: 'es',
+          styles: { zIndex: 100000 }
+        },
+        (error: any, result: any) => {
+          if (!error && result && result.event === "success") {
+            const currentUrls = form.getValues('imageUrls') || [];
+            form.setValue('imageUrls', [...currentUrls, result.info.secure_url]);
+          }
+          if (result && result.event === "close") {
+            setIsWidgetOpen(false);
+            document.body.style.pointerEvents = 'auto';
+          }
+        }
+      );
+    }
+    setIsWidgetOpen(true);
+    document.body.style.pointerEvents = 'auto';
+    widgetRef.current.open();
+  };
+
+  const removeImage = (index: number) => {
+    const currentUrls = form.getValues('imageUrls');
+    form.setValue('imageUrls', currentUrls.filter((_, i) => i !== index));
+  };
 
   const extractMapUrl = (input: string) => {
     if (input.includes('<iframe')) {
@@ -98,7 +136,6 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
       ...data,
       mapUrl: extractMapUrl(data.mapUrl || ''),
       features: data.features.split('\n').map(i => i.trim()).filter(Boolean),
-      imageUrls: data.imageUrls.split('\n').map(i => i.trim()).filter(Boolean),
     };
 
     try {
@@ -116,8 +153,12 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-2xl overflow-y-auto">
+    <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
+      <SheetContent 
+        className="sm:max-w-2xl overflow-y-auto"
+        onInteractOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
+        onPointerDownOutside={(e) => { if (isWidgetOpen) e.preventDefault(); }}
+      >
         <SheetHeader>
           <SheetTitle>
             {isEditing ? 'Editar Registro' : `Nuevo ${values.lotType || defaultType}`}
@@ -211,13 +252,37 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
                   <FormMessage />
                 </FormItem>
             )} />
-            <FormField control={form.control} name="imageUrls" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Imágenes (una por línea)</FormLabel>
-                  <FormControl><Textarea {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-            )} />
+
+            <div className="space-y-4">
+              <FormLabel>Galería de Imágenes</FormLabel>
+              <div className="flex flex-wrap gap-3 mb-2">
+                {values.imageUrls?.map((url, idx) => (
+                  <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border-2 shadow-sm">
+                    <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
+                    <button 
+                      type="button" 
+                      onClick={() => removeImage(idx)} 
+                      className="absolute top-0 right-0 bg-destructive text-white p-1 rounded-bl-lg hover:bg-destructive/90 transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <Button 
+                type="button" 
+                onClick={openWidget} 
+                className="w-full bg-[#D4AF37] hover:bg-[#B8860B] text-white font-semibold"
+              >
+                <ImagePlus className="mr-2 h-4 w-4" /> Subir Fotos
+              </Button>
+              <FormField 
+                control={form.control} 
+                name="imageUrls" 
+                render={() => <FormMessage />} 
+              />
+            </div>
+
             <FormField control={form.control} name="mapUrl" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Google Maps (Insertar mapa)</FormLabel>
