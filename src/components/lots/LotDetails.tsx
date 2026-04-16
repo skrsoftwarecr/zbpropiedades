@@ -61,7 +61,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Método de Búsqueda Directa.
+   * getSafeMapUrl: Método de Búsqueda Directa Simplificado.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
@@ -75,10 +75,15 @@ export function LotDetails({ lot }: LotDetailsProps) {
     }
 
     // Método de búsqueda universal de Google Maps
-    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
+    return `https://www.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(lot.mapUrl);
+
+  // Monitor de Diagnóstico
+  console.log('--- DIAGNÓSTICO DE MAPA (LOTE) ---');
+  console.log('Base de Datos:', lot.mapUrl);
+  console.log('URL Final (src):', embedUrl);
 
   return (
     <div className="space-y-12">

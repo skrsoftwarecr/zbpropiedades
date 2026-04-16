@@ -61,26 +61,31 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Método de Búsqueda Directa.
-   * Utiliza el motor de búsqueda de Google para resolver cualquier link o texto.
+   * getSafeMapUrl: Método de Búsqueda Directa Simplificado.
+   * Utiliza la API de búsqueda para resolver cualquier link o texto.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // Si es un iframe completo, extraemos el src original
+    // Si es un iframe completo, extraemos el src original (prioridad)
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
       if (match) return match[1];
     }
 
-    // Para cualquier otra cosa (links acortados, direcciones, etc.), usamos el parámetro de búsqueda
-    // Esto obliga a Google a resolver la ubicación internamente dentro del embed
-    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
+    // Para links acortados o direcciones, usamos el formato de búsqueda más compatible
+    return `https://www.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(property.mapUrl);
+
+  // Monitor de Diagnóstico
+  console.log('--- DIAGNÓSTICO DE MAPA (PROPIEDAD) ---');
+  console.log('Base de Datos:', property.mapUrl);
+  console.log('URL Final (src):', embedUrl);
+
   const operationText = property.operationType ? property.operationType.toUpperCase() : 'PROPIEDAD';
   const typeText = property.type ? property.type.toUpperCase() : 'INMUEBLE';
 
