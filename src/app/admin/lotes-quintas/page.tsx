@@ -63,7 +63,11 @@ export default function AdminLotesQuintasPage() {
         )
     },
     { accessorKey: 'title', header: 'Título' },
-    { accessorKey: 'area_m2', header: 'Área (m²)' },
+    { 
+        accessorKey: 'area_m2', 
+        header: 'Área',
+        cell: ({ row }) => `${row.original.area_m2.toLocaleString()} m²`
+    },
     { 
         accessorKey: 'price', 
         header: 'Precio',
@@ -84,7 +88,14 @@ export default function AdminLotesQuintasPage() {
     }
   ];
 
-  if (isLoading) return <div className="space-y-4"><Skeleton className="h-12 w-full" /><Skeleton className="h-96 w-full" /></div>;
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

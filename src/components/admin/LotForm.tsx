@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -9,16 +8,13 @@ import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { addLot, updateLot } from '@/lib/firestore-service';
 import type { Lot } from '@/lib/types';
-import { serverTimestamp } from 'firebase/firestore';
 
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetFooter,
-  SheetClose,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
@@ -67,6 +63,9 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
       lotType: defaultType
     }
   });
+
+  // Suscribirse a los cambios de los valores del formulario para el título dinámico
+  const values = form.watch();
   
   React.useEffect(() => {
     if (isOpen) {
@@ -94,25 +93,25 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
     return input;
   };
 
-  const onSubmit = async (values: LotFormValues) => {
+  const onSubmit = async (data: LotFormValues) => {
     const processed = {
-      ...values,
-      mapUrl: extractMapUrl(values.mapUrl || ''),
-      features: values.features.split('\n').map(i => i.trim()).filter(Boolean),
-      imageUrls: values.imageUrls.split('\n').map(i => i.trim()).filter(Boolean),
+      ...data,
+      mapUrl: extractMapUrl(data.mapUrl || ''),
+      features: data.features.split('\n').map(i => i.trim()).filter(Boolean),
+      imageUrls: data.imageUrls.split('\n').map(i => i.trim()).filter(Boolean),
     };
 
     try {
       if (isEditing && lot) {
         updateLot(firestore, lot.id, processed);
-        toast({ title: 'Actualizado' });
+        toast({ title: '¡Actualizado!', description: 'El registro se ha modificado correctamente.' });
       } else {
         addLot(firestore, processed);
-        toast({ title: 'Creado' });
+        toast({ title: '¡Creado!', description: 'El nuevo terreno ha sido agregado.' });
       }
       onOpenChange(false);
     } catch (e) {
-      toast({ variant: 'destructive', title: 'Error' });
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo guardar la información.' });
     }
   };
 
@@ -120,66 +119,104 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{isEditing ? 'Editar Registro' : `Nuevo ${values.lotType || defaultType}`}</SheetTitle>
+          <SheetTitle>
+            {isEditing ? 'Editar Registro' : `Nuevo ${values.lotType || defaultType}`}
+          </SheetTitle>
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="title" render={({ field }) => (
-                  <FormItem className="col-span-2"><FormLabel>Título</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem className="col-span-2">
+                    <FormLabel>Título</FormLabel>
+                    <FormControl><Input {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
               )} />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="lotType" render={({ field }) => (
-                    <FormItem><FormLabel>Categoría</FormLabel>
+                    <FormItem>
+                      <FormLabel>Categoría</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent>
                                 <SelectItem value="Lote">Lote</SelectItem>
                                 <SelectItem value="Quinta">Quinta</SelectItem>
                             </SelectContent>
-                        </Select><FormMessage />
+                        </Select>
+                      <FormMessage />
                     </FormItem>
                 )} />
                 <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem><FormLabel>Precio (₡)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Precio (₡)</FormLabel>
+                      <FormControl><Input type="number" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
                 )} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="area_m2" render={({ field }) => (
-                    <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Área m²</FormLabel>
+                      <FormControl><Input type="number" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
                 )} />
                 <FormField control={form.control} name="topography" render={({ field }) => (
-                    <FormItem><FormLabel>Topografía</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Topografía</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
                 )} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="province" render={({ field }) => (
-                    <FormItem><FormLabel>Provincia</FormLabel>
+                    <FormItem>
+                      <FormLabel>Provincia</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent>
                                 {["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                             </SelectContent>
-                        </Select><FormMessage />
+                        </Select>
+                      <FormMessage />
                     </FormItem>
                 )} />
                 <FormField control={form.control} name="city" render={({ field }) => (
-                    <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Ciudad</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
                 )} />
             </div>
 
             <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem>
+                  <FormLabel>Descripción</FormLabel>
+                  <FormControl><Textarea {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
             )} />
             <FormField control={form.control} name="features" render={({ field }) => (
-                <FormItem><FormLabel>Características</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem>
+                  <FormLabel>Características (una por línea)</FormLabel>
+                  <FormControl><Textarea {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
             )} />
             <FormField control={form.control} name="imageUrls" render={({ field }) => (
-                <FormItem><FormLabel>Imágenes (una por línea)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem>
+                  <FormLabel>Imágenes (una por línea)</FormLabel>
+                  <FormControl><Textarea {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
             )} />
             <FormField control={form.control} name="mapUrl" render={({ field }) => (
                 <FormItem>
@@ -189,8 +226,8 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
                   <FormMessage />
                 </FormItem>
             )} />
-            <SheetFooter>
-              <Button type="submit">Guardar</Button>
+            <SheetFooter className="pt-4">
+              <Button type="submit" className="w-full">Guardar Cambios</Button>
             </SheetFooter>
           </form>
         </Form>

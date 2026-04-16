@@ -6,7 +6,7 @@ import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, LayoutDashboard, Landmark, PanelLeft, LogOut, Trees, Map } from 'lucide-react';
+import { Home, LayoutDashboard, PanelLeft, LogOut, Map } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/shared/Logo';
 import { useAuth } from '@/firebase/provider';
