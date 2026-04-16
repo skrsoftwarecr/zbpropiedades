@@ -30,7 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const navLinks = [
   { href: '/propiedades', label: 'Propiedades', icon: Home },
-  { href: '/lotes', label: 'Lotes', icon: Landmark },
+  { href: '/lotes', label: 'Lotes y Quintas', icon: Landmark },
   { href: '/alquileres', label: 'Alquileres', icon: Key },
 ];
 
