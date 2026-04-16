@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Facebook, Instagram } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 
 export function Footer() {
@@ -15,13 +15,20 @@ export function Footer() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <a href="#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-              <Twitter className="h-6 w-6" />
-            </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+            <a 
+              href="https://www.facebook.com/share/18icCQG8gX/?mibextid=wwXIfr" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
               <Facebook className="h-6 w-6" />
             </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+            <a 
+              href="https://www.instagram.com/marketingzb?igsh=bWV1ODE2YXV0Z3Zi" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
               <Instagram className="h-6 w-6" />
             </a>
           </div>

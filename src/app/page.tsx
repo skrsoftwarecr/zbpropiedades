@@ -95,7 +95,7 @@ export default function LandingPage() {
             <ServiceCard 
               title="Venda con Nosotros"
               description="Le ayudamos a encontrar al comprador ideal con estrategias de marketing premium."
-              href="https://wa.me/50660148363"
+              href={WHATSAPP_URL}
               image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800"
               icon={Key}
             />
