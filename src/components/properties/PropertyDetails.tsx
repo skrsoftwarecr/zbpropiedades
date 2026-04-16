@@ -61,50 +61,23 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Traductor Universal de Google Maps.
-   * Convierte enlaces normales, acortados o iframes en un formato embebido funcional.
+   * getSafeMapUrl: Método de Búsqueda Directa.
+   * Utiliza el motor de búsqueda de Google para resolver cualquier link o texto.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // 1. Extraer src si es un iframe completo
+    // Si es un iframe completo, extraemos el src original
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
-      if (match) source = match[1];
+      if (match) return match[1];
     }
 
-    // 2. Asegurar protocolo seguro
-    source = source.replace(/^http:\/\//i, 'https://');
-
-    // 3. Detección y Transformación de Enlaces Estándar
-    // Si no es una URL nativa de embed (pb=...), la convertimos al motor de búsqueda embebido
-    if (!source.includes('google.com/maps/embed') && !source.includes('pb=')) {
-      let location = source;
-
-      // Intentar extraer la dirección si es un link largo de /place/
-      const placeMatch = source.match(/place\/([^/?]+)/);
-      if (placeMatch) {
-        location = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
-      } else {
-        // Intentar extraer coordenadas si están presentes en el link (@lat,lng)
-        const coordMatch = source.match(/@([-0-9.]+),([-0-9.]+)/);
-        if (coordMatch) {
-          location = `${coordMatch[1]},${coordMatch[2]}`;
-        }
-      }
-
-      // Retornar formato de búsqueda embebida (altamente compatible con links acortados y texto)
-      return `https://maps.google.com/maps?q=${encodeURIComponent(location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-    }
-
-    // 4. Forzar parámetro de salida para evitar bloqueos X-Frame en enlaces nativos
-    if (!source.includes('output=embed')) {
-      source += (source.includes('?') ? '&' : '?') + 'output=embed';
-    }
-
-    return source;
+    // Para cualquier otra cosa (links acortados, direcciones, etc.), usamos el parámetro de búsqueda
+    // Esto obliga a Google a resolver la ubicación internamente dentro del embed
+    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(property.mapUrl);
@@ -264,7 +237,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">
                     <div className="flex flex-col items-center">
                       <MapPin className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                      <p className="text-sm font-medium">Ubicación no disponible en el mapa.<br/><strong>Zona: {property.city}</strong></p>
+                      <p className="text-sm font-medium">Ubicación pendiente de actualizar.</p>
                     </div>
                   </div>
                 )}

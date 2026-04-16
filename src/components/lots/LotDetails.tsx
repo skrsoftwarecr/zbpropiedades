@@ -61,48 +61,21 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Traductor Universal de Google Maps.
+   * getSafeMapUrl: Método de Búsqueda Directa.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // 1. Extraer src si es un iframe completo
+    // Si es un iframe completo, extraemos el src
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
-      if (match) source = match[1];
+      if (match) return match[1];
     }
 
-    // 2. Asegurar protocolo seguro
-    source = source.replace(/^http:\/\//i, 'https://');
-
-    // 3. Detección y Transformación de Enlaces Estándar
-    if (!source.includes('google.com/maps/embed') && !source.includes('pb=')) {
-      let location = source;
-
-      // Intentar extraer la dirección si es un link largo de /place/
-      const placeMatch = source.match(/place\/([^/?]+)/);
-      if (placeMatch) {
-        location = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
-      } else {
-        // Intentar extraer coordenadas (@lat,lng)
-        const coordMatch = source.match(/@([-0-9.]+),([-0-9.]+)/);
-        if (coordMatch) {
-          location = `${coordMatch[1]},${coordMatch[2]}`;
-        }
-      }
-
-      // Retornar formato de búsqueda embebida compatible con enlaces acortados
-      return `https://maps.google.com/maps?q=${encodeURIComponent(location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-    }
-
-    // 4. Forzar parámetro de salida para evitar bloqueos X-Frame
-    if (!source.includes('output=embed')) {
-      source += (source.includes('?') ? '&' : '?') + 'output=embed';
-    }
-
-    return source;
+    // Método de búsqueda universal de Google Maps
+    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(lot.mapUrl);
@@ -255,7 +228,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">
                     <div className="flex flex-col items-center">
                       <Landmark className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                      <p className="text-sm font-medium">Ubicación no disponible en el mapa.<br/><strong>Zona: {lot.city}</strong></p>
+                      <p className="text-sm font-medium">Ubicación pendiente de actualizar.</p>
                     </div>
                   </div>
                 )}
