@@ -66,15 +66,17 @@ export function LotDetails({ lot }: LotDetailsProps) {
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
+    // Limpiar caracteres invisibles o comillas accidentales
     let finalUrl = input.trim().replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/^['"]+|['"]$/g, "");
 
-    // 1. Si es un iframe completo, extraer solo el src
+    // 1. Si es un iframe completo, extraer solo el src usando Regex (evita truncamiento manual)
     if (finalUrl.includes('<iframe')) {
       const match = finalUrl.match(/src=["']([^"']+)["']/);
       if (match) finalUrl = match[1];
     }
 
     // 2. Si ya es un link de embed directo (pb= o /embed/), USAR TAL CUAL
+    // Esto evita el error de envolver un embed dentro de un buscador
     if (finalUrl.includes('/embed/') || finalUrl.includes('output=embed') || finalUrl.includes('pb=')) {
         return finalUrl;
     }
@@ -84,6 +86,11 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   const embedUrl = getSafeMapUrl(lot.mapUrl);
+
+  // Monitor de diagnóstico solicitado
+  if (embedUrl) {
+    console.log('URL Final (src):', embedUrl, 'Longitud:', embedUrl.length);
+  }
 
   return (
     <div className="space-y-12">
@@ -237,6 +244,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
                     loading="eager"
                     referrerPolicy="no-referrer"
                     sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+                    title="Ubicación exacta del lote"
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">

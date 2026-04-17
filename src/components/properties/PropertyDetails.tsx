@@ -68,13 +68,13 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
     
     let finalUrl = input.trim().replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/^['"]+|['"]$/g, "");
 
-    // 1. Extraer src si es iframe
+    // 1. Extraer src si es iframe usando Regex para evitar truncamientos
     if (finalUrl.includes('<iframe')) {
       const match = finalUrl.match(/src=["']([^"']+)["']/);
       if (match) finalUrl = match[1];
     }
 
-    // 2. Si ya es un formato de inserción válido, usar directo
+    // 2. Si ya es un formato de inserción válido, USAR DIRECTAMENTE
     if (finalUrl.includes('/embed/') || finalUrl.includes('output=embed') || finalUrl.includes('pb=')) {
         return finalUrl;
     }
@@ -84,6 +84,12 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   const embedUrl = getSafeMapUrl(property.mapUrl);
+
+  // Diagnóstico
+  if (embedUrl) {
+    console.log('URL Propiedad Final:', embedUrl, 'Longitud:', embedUrl.length);
+  }
+
   const operationText = property.operationType ? property.operationType.toUpperCase() : 'PROPIEDAD';
   const typeText = property.type ? property.type.toUpperCase() : 'INMUEBLE';
 
@@ -244,6 +250,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
                     loading="eager"
                     referrerPolicy="no-referrer"
                     sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+                    title="Ubicación de la propiedad"
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">
