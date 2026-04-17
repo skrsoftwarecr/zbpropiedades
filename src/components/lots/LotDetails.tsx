@@ -61,20 +61,20 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Genera una URL apta para iframe utilizando el motor de búsqueda universal.
+   * getSafeMapUrl: Restauración crítica. Extrae src de iframe o genera link de búsqueda embebido.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // Si es un iframe completo, extraemos el src
+    // Prioridad: Si es un iframe completo, extraemos el src original y NO lo tocamos
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
       if (match) return match[1];
     }
 
-    // Formato de búsqueda universal que Google permite en iframes (Sin API Key)
+    // Fallback: Formato de búsqueda universal que Google permite en iframes (Sin API Key)
     return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   };
 

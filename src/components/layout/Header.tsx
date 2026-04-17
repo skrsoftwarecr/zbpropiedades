@@ -61,24 +61,6 @@ export function Header() {
     return name[0];
   };
 
-  // Evitar errores de hidratación asegurando que la navegación dinámica sea consistente
-  if (!isClient) {
-    return (
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <Logo className="h-8 w-8 text-primary" />
-              <span className="font-bold text-lg hidden sm:inline-block tracking-tight text-primary uppercase">
-                ZB PROPIEDADES
-              </span>
-            </Link>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -152,7 +134,8 @@ export function Header() {
             </a>
           </Button>
           
-          {user && (
+          {/* Solo renderizamos el menú de usuario en el cliente para evitar errores de hidratación */}
+          {isClient && user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

@@ -61,21 +61,20 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Genera una URL apta para iframe utilizando el motor de búsqueda universal.
+   * getSafeMapUrl: Restauración crítica. Extrae src de iframe o genera link de búsqueda embebido.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
     let source = input.trim();
 
-    // Si es un iframe completo, extraemos el src
+    // Prioridad: Si es un iframe completo, extraemos el src y NO aplicamos transformaciones
     if (source.includes('<iframe')) {
       const match = source.match(/src=["']([^"']+)["']/);
       if (match) return match[1];
     }
 
-    // Formato de búsqueda universal que Google permite en iframes (Sin API Key)
-    // Se añade un timestamp o el link para forzar refresco de seguridad
+    // Fallback: Si es link o texto, usamos el motor de búsqueda universal compatible con iframes
     return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   };
 
