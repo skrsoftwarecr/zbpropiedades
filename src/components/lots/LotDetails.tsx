@@ -61,35 +61,26 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Sanitización Total y Agresiva para Lotes.
+   * getSafeMapUrl: Política de Cero Transformación para URLs válidas.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
-    // 1. Limpieza inicial radical
     let finalUrl = input.trim().replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/^['"]+|['"]$/g, "");
 
-    // 2. Extracción de src si es un iframe
+    // 1. Si es un iframe completo, extraer solo el src
     if (finalUrl.includes('<iframe')) {
       const match = finalUrl.match(/src=["']([^"']+)["']/);
       if (match) finalUrl = match[1];
     }
 
-    // 3. Forzar formato embed de búsqueda si no es un link directo de embed
-    if (!finalUrl.includes('output=embed') && !finalUrl.includes('/embed/')) {
-        finalUrl = `https://maps.google.com/maps?q=${encodeURIComponent(finalUrl)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    // 2. Si ya es un link de embed directo (pb= o /embed/), USAR TAL CUAL
+    if (finalUrl.includes('/embed/') || finalUrl.includes('output=embed') || finalUrl.includes('pb=')) {
+        return finalUrl;
     }
 
-    // 4. Garantía de parámetro de visualización
-    if (!finalUrl.includes('output=embed')) {
-        const separator = finalUrl.includes('?') ? '&' : '?';
-        finalUrl = `${finalUrl}${separator}output=embed`;
-    }
-
-    // Monitoreo en consola
-    console.warn('URL ENVIADA AL IFRAME (LOTE):', finalUrl);
-    
-    return finalUrl;
+    // 3. Solo si es una dirección de texto o link estándar, envolver en el motor de búsqueda universal
+    return `https://maps.google.com/maps?q=${encodeURIComponent(finalUrl)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   };
 
   const embedUrl = getSafeMapUrl(lot.mapUrl);
@@ -225,7 +216,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
           </div>
         </div>
 
-        {/* Mapa con Bypass de Seguridad para Lotes */}
+        {/* Mapa con Seguridad Blindada */}
         <div className="space-y-6">
           <Card className="border-none shadow-md bg-white overflow-hidden">
             <CardContent className="p-6">
@@ -236,7 +227,7 @@ export function LotDetails({ lot }: LotDetailsProps) {
               <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative z-10" style={{ minHeight: '300px' }}>
                 {embedUrl ? (
                   <iframe
-                    key={lot.mapUrl}
+                    key={lot.id}
                     src={embedUrl}
                     width="100%"
                     height="100%"
