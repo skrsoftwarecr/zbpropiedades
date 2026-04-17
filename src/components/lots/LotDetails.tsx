@@ -61,21 +61,35 @@ export function LotDetails({ lot }: LotDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Restauración crítica. Extrae src de iframe o genera link de búsqueda embebido.
+   * getSafeMapUrl: Sanitización Total y Agresiva para Lotes.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
-    let source = input.trim();
+    // 1. Limpieza inicial radical
+    let finalUrl = input.trim().replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/^['"]+|['"]$/g, "");
 
-    // Prioridad: Si es un iframe completo, extraemos el src original y NO lo tocamos
-    if (source.includes('<iframe')) {
-      const match = source.match(/src=["']([^"']+)["']/);
-      if (match) return match[1];
+    // 2. Extracción de src si es un iframe
+    if (finalUrl.includes('<iframe')) {
+      const match = finalUrl.match(/src=["']([^"']+)["']/);
+      if (match) finalUrl = match[1];
     }
 
-    // Fallback: Formato de búsqueda universal que Google permite en iframes (Sin API Key)
-    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    // 3. Forzar formato embed de búsqueda si no es un link directo de embed
+    if (!finalUrl.includes('output=embed') && !finalUrl.includes('/embed/')) {
+        finalUrl = `https://maps.google.com/maps?q=${encodeURIComponent(finalUrl)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    }
+
+    // 4. Garantía de parámetro de visualización
+    if (!finalUrl.includes('output=embed')) {
+        const separator = finalUrl.includes('?') ? '&' : '?';
+        finalUrl = `${finalUrl}${separator}output=embed`;
+    }
+
+    // Monitoreo en consola
+    console.warn('URL ENVIADA AL IFRAME (LOTE):', finalUrl);
+    
+    return finalUrl;
   };
 
   const embedUrl = getSafeMapUrl(lot.mapUrl);
@@ -211,27 +225,27 @@ export function LotDetails({ lot }: LotDetailsProps) {
           </div>
         </div>
 
-        {/* Mapa con Bypass de Seguridad */}
+        {/* Mapa con Bypass de Seguridad para Lotes */}
         <div className="space-y-6">
-          <Card className="border-none shadow-md bg-white">
+          <Card className="border-none shadow-md bg-white overflow-hidden">
             <CardContent className="p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación del Lote
               </h3>
-              <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative" style={{ minHeight: '300px' }}>
+              <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative z-10" style={{ minHeight: '300px' }}>
                 {embedUrl ? (
                   <iframe
                     key={lot.mapUrl}
                     src={embedUrl}
                     width="100%"
                     height="100%"
-                    className="absolute inset-0"
+                    className="absolute inset-0 w-full h-full"
                     style={{ border: 0, minHeight: '300px' }}
                     allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    sandbox="allow-scripts allow-same-origin allow-popups"
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">

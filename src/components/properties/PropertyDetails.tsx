@@ -61,21 +61,37 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   };
 
   /**
-   * getSafeMapUrl: Restauración crítica. Extrae src de iframe o genera link de búsqueda embebido.
+   * getSafeMapUrl: Sanitización Total y Agresiva.
+   * Resuelve iframes, links acortados y texto plano forzando el modo embed.
    */
   const getSafeMapUrl = (input: string | undefined) => {
     if (!input) return null;
     
-    let source = input.trim();
+    // 1. Limpieza inicial: Quitar espacios, caracteres invisibles y comillas accidentales
+    let finalUrl = input.trim().replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/^['"]+|['"]$/g, "");
 
-    // Prioridad: Si es un iframe completo, extraemos el src y NO aplicamos transformaciones
-    if (source.includes('<iframe')) {
-      const match = source.match(/src=["']([^"']+)["']/);
-      if (match) return match[1];
+    // 2. Si es un iframe completo, extraer solo el src
+    if (finalUrl.includes('<iframe')) {
+      const match = finalUrl.match(/src=["']([^"']+)["']/);
+      if (match) finalUrl = match[1];
     }
 
-    // Fallback: Si es link o texto, usamos el motor de búsqueda universal compatible con iframes
-    return `https://maps.google.com/maps?q=${encodeURIComponent(source)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    // 3. Si no es una URL de embed directa, tratarla como búsqueda para máxima compatibilidad
+    if (!finalUrl.includes('output=embed') && !finalUrl.includes('/embed/')) {
+        // Encapsular cualquier link o dirección en el motor de búsqueda universal que Google permite en iframes
+        finalUrl = `https://maps.google.com/maps?q=${encodeURIComponent(finalUrl)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    }
+
+    // 4. Garantía técnica: Asegurar que output=embed esté siempre presente
+    if (!finalUrl.includes('output=embed')) {
+        const separator = finalUrl.includes('?') ? '&' : '?';
+        finalUrl = `${finalUrl}${separator}output=embed`;
+    }
+
+    // Diagnóstico en consola para monitoreo
+    console.warn('URL ENVIADA AL IFRAME (PROPIEDAD):', finalUrl);
+    
+    return finalUrl;
   };
 
   const embedUrl = getSafeMapUrl(property.mapUrl);
@@ -218,27 +234,27 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
           </div>
         </div>
 
-        {/* Mapa con Bypass de Seguridad */}
+        {/* Mapa con Bypass de Seguridad Avanzado */}
         <div className="space-y-6">
-          <Card className="border-none shadow-md bg-white">
+          <Card className="border-none shadow-md bg-white overflow-hidden">
             <CardContent className="p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-secondary" />
                 Ubicación
               </h3>
-              <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative" style={{ minHeight: '300px' }}>
+              <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-muted relative z-10" style={{ minHeight: '300px' }}>
                 {embedUrl ? (
                   <iframe
                     key={property.mapUrl}
                     src={embedUrl}
                     width="100%"
                     height="100%"
-                    className="absolute inset-0"
+                    className="absolute inset-0 w-full h-full"
                     style={{ border: 0, minHeight: '300px' }}
                     allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    sandbox="allow-scripts allow-same-origin allow-popups"
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
                   ></iframe>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center p-8">
