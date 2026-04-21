@@ -60,9 +60,10 @@ export async function markPropertyAsSold(
 ) {
   const ref = doc(firestore, 'properties', property.id);
   const formattedPrice = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(montoVenta);
+  const formattedDate = fechaVenta.split('-').reverse().join('/');
 
   try {
-    // 1. Actualizar Propiedad
+    // 1. Actualizar Propiedad en Firestore
     await updateDoc(ref, {
       status: 'Vendido',
       montoVenta,
@@ -77,15 +78,19 @@ export async function markPropertyAsSold(
       message: {
         subject: `✅ Propiedad Vendida - ${property.title}`,
         html: `
-          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #16a34a;">Propiedad Vendida</h2>
-            <p><b>Propiedad:</b> ${property.title}</p>
-            <p><b>Tipo:</b> ${property.type}</p>
-            <p><b>Ciudad:</b> ${property.city}</p>
-            <p><b>Monto de venta:</b> ${formattedPrice}</p>
-            <p><b>Fecha de venta:</b> ${fechaVenta}</p>
-            <p style="margin-top: 20px; font-size: 12px; color: #666;">
-              Registrado automáticamente por el Sistema ZB Admin el ${new Date().toLocaleString('es-CR')}.
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">Registro de Cierre Exitoso</h2>
+            <p style="font-size: 16px;">Se ha registrado la venta de la siguiente propiedad:</p>
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 5px 0;"><strong>Propiedad:</strong> ${property.title}</p>
+              <p style="margin: 5px 0;"><strong>Tipo:</strong> ${property.type}</p>
+              <p style="margin: 5px 0;"><strong>Ubicación:</strong> ${property.city}, ${property.province}</p>
+              <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;" />
+              <p style="font-size: 18px; margin: 5px 0;"><strong>Monto de Cierre:</strong> <span style="color: #16a34a;">${formattedPrice}</span></p>
+              <p style="margin: 5px 0;"><strong>Fecha de la Venta:</strong> ${formattedDate}</p>
+            </div>
+            <p style="margin-top: 25px; font-size: 12px; color: #666; text-align: center;">
+              Mensaje automático de ZB Propiedades Admin - ${new Date().toLocaleDateString('es-CR')}
             </p>
           </div>
         `
@@ -110,22 +115,24 @@ export async function deletePropertyPermanent(firestore: Firestore, property: Pr
     // 1. Eliminar Documento
     await deleteDoc(ref);
 
-    // 2. Notificar Eliminación
+    // 2. Notificar Eliminación por correo
     await addDoc(collection(firestore, 'mail'), {
       to: 'skrsoftwarecr@gmail.com',
       message: {
         subject: `🗑️ Propiedad Eliminada - ${property.title}`,
         html: `
-          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #dc2626;">Propiedad Eliminada</h2>
-            <p>Se ha removido permanentemente un registro del sistema:</p>
-            <p><b>Propiedad:</b> ${property.title}</p>
-            <p><b>Tipo:</b> ${property.type}</p>
-            <p><b>Ciudad:</b> ${property.city}</p>
-            <p><b>Precio original:</b> ${formattedPrice}</p>
-            <p><b>Estado al eliminar:</b> ${property.status || 'Disponible'}</p>
-            <p style="margin-top: 20px; font-size: 12px; color: #666;">
-              Eliminada el ${new Date().toLocaleString('es-CR')}.
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Registro Eliminado</h2>
+            <p style="font-size: 16px;">Se ha removido permanentemente el siguiente registro del sistema:</p>
+            <div style="background-color: #fdf2f2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+              <p style="margin: 5px 0;"><strong>Propiedad:</strong> ${property.title}</p>
+              <p style="margin: 5px 0;"><strong>Tipo:</strong> ${property.type}</p>
+              <p style="margin: 5px 0;"><strong>Ubicación:</strong> ${property.city}, ${property.province}</p>
+              <p style="margin: 5px 0;"><strong>Precio original:</strong> ${formattedPrice}</p>
+              <p style="margin: 5px 0;"><strong>Estado final:</strong> ${property.status || 'Disponible'}</p>
+            </div>
+            <p style="margin-top: 25px; font-size: 12px; color: #666; text-align: center;">
+              Notificación de seguridad - Panel ZB Admin - ${new Date().toLocaleDateString('es-CR')}
             </p>
           </div>
         `
