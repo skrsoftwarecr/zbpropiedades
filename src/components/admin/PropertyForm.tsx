@@ -10,6 +10,7 @@ import type { Property } from '@/lib/types';
 import { collection, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { deletePropertyPermanent } from '@/lib/firestore-service';
 
 import {
   SheetContent,
@@ -39,8 +40,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, X, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   title: z.string().min(5, 'Título muy corto.'),
@@ -70,6 +81,8 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
   const isEditing = !!property;
   const [uploadedImages, setUploadedImages] = React.useState<string[]>([]);
   const [isWidgetOpen, setIsWidgetOpen] = React.useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const widgetRef = React.useRef<any>(null);
 
   const form = useForm<PropertyFormValues>({
@@ -149,6 +162,21 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleDeletePermanent = async () => {
+    if (!property) return;
+    setIsDeleting(true);
+    try {
+      await deletePropertyPermanent(firestore, property);
+      toast({ title: 'Propiedad eliminada', description: 'El registro se ha borrado correctamente.' });
+      setIsDeleteDialogOpen(false);
+      onOpenChange(false);
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar la propiedad.' });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const onSubmit = async (values: PropertyFormValues) => {
     if (uploadedImages.length === 0) {
       toast({ variant: 'destructive', title: 'Error', description: 'Suba al menos una imagen.' });
@@ -188,181 +216,222 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
   };
 
   return (
-    <SheetRoot open={isOpen} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent 
-        className="sm:max-w-2xl w-[90vw] overflow-y-auto"
-        onInteractOutside={(e) => e.preventDefault()}
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
-        <SheetHeader>
-          <SheetTitle>{isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}</SheetTitle>
-          <SheetDescription>Complete los datos de la propiedad residencial o comercial.</SheetDescription>
-        </SheetHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
-            <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel>Título</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            
-            <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{operationType === 'Alquiler' ? 'Precio por mes (₡)' : 'Precio (₡)'}</FormLabel>
-                      <FormControl><Input type="number" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="operationType" render={({ field }) => (
-                    <FormItem><FormLabel>Operación</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="Venta">Venta</SelectItem>
-                                <SelectItem value="Alquiler">Alquiler</SelectItem>
-                            </SelectContent>
-                        </Select><FormMessage />
-                    </FormItem>
-                )} />
-            </div>
-
-            {operationType === 'Alquiler' && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg border border-dashed">
-                <FormField
-                  control={form.control}
-                  name="incluyeServicios"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
-                      <div className="space-y-0.5">
-                        <FormLabel>Servicios</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="tieneWifi"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
-                      <div className="space-y-0.5">
-                        <FormLabel>Wi-Fi</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="estaAmueblado"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
-                      <div className="space-y-0.5">
-                        <FormLabel>Amueblado</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+    <>
+      <SheetRoot open={isOpen} onOpenChange={onOpenChange} modal={false}>
+        <SheetContent 
+          className="sm:max-w-2xl w-[90vw] overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          <SheetHeader>
+            <SheetTitle>{isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}</SheetTitle>
+            <SheetDescription>Complete los datos de la propiedad residencial o comercial.</SheetDescription>
+          </SheetHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
+              <FormField control={form.control} name="title" render={({ field }) => (
+                  <FormItem><FormLabel>Título</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              
+              <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="price" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{operationType === 'Alquiler' ? 'Precio por mes (₡)' : 'Precio (₡)'}</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+                  <FormField control={form.control} name="operationType" render={({ field }) => (
+                      <FormItem><FormLabel>Operación</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                  <SelectItem value="Venta">Venta</SelectItem>
+                                  <SelectItem value="Alquiler">Alquiler</SelectItem>
+                              </SelectContent>
+                          </Select><FormMessage />
+                      </FormItem>
+                  )} />
               </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="type" render={({ field }) => (
-                    <FormItem><FormLabel>Tipo</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="Casa">Casa</SelectItem>
-                                <SelectItem value="Apartamento">Apartamento</SelectItem>
-                                <SelectItem value="Local Comercial">Local Comercial</SelectItem>
-                            </SelectContent>
-                        </Select><FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="province" render={({ field }) => (
-                    <FormItem><FormLabel>Provincia</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>{["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                        </Select><FormMessage />
-                    </FormItem>
-                )} />
-            </div>
-
-            <FormField control={form.control} name="city" render={({ field }) => (
-                <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-
-            <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="area_m2" render={({ field }) => (
-                    <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <div className="grid grid-cols-3 gap-2">
-                    <FormField control={form.control} name="bedrooms" render={({ field }) => (
-                        <FormItem><FormLabel>Hab.</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="bathrooms" render={({ field }) => (
-                        <FormItem><FormLabel>Baños</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="parking" render={({ field }) => (
-                        <FormItem><FormLabel>Parqueo</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
+              {operationType === 'Alquiler' && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg border border-dashed">
+                  <FormField
+                    control={form.control}
+                    name="incluyeServicios"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
+                        <div className="space-y-0.5">
+                          <FormLabel>Servicios</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tieneWifi"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
+                        <div className="space-y-0.5">
+                          <FormLabel>Wi-Fi</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="estaAmueblado"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-background">
+                        <div className="space-y-0.5">
+                          <FormLabel>Amueblado</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </div>
-            </div>
+              )}
 
-            <div className="space-y-3 pt-2">
-              <FormLabel>Galería de Imágenes</FormLabel>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {uploadedImages.map((url, idx) => (
-                  <div key={idx} className="relative w-20 h-20 rounded-md overflow-hidden border">
-                    <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
-                    <button type="button" onClick={() => removeImage(idx)} className="absolute top-0 right-0 bg-destructive text-white p-0.5 rounded-bl-md"><X className="h-3 w-3" /></button>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="type" render={({ field }) => (
+                      <FormItem><FormLabel>Tipo</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                  <SelectItem value="Casa">Casa</SelectItem>
+                                  <SelectItem value="Apartamento">Apartamento</SelectItem>
+                                  <SelectItem value="Local Comercial">Local Comercial</SelectItem>
+                              </SelectContent>
+                          </Select><FormMessage />
+                      </FormItem>
+                  )} />
+                  <FormField control={form.control} name="province" render={({ field }) => (
+                      <FormItem><FormLabel>Provincia</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent>{["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                          </Select><FormMessage />
+                      </FormItem>
+                  )} />
               </div>
-              <Button type="button" onClick={openWidget} variant="secondary" className="w-full">
-                <ImagePlus className="mr-2 h-4 w-4" /> Subir Fotos
-              </Button>
-            </div>
 
-            <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            
-            <FormField control={form.control} name="features" render={({ field }) => (
-                <FormItem><FormLabel>Características (una por línea)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            
-            <FormField control={form.control} name="mapUrl" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Google Maps</FormLabel>
-                  <FormControl><Input {...field} placeholder="Enlace o iframe" /></FormControl>
-                  <FormDescription>Tip: Para mejores resultados, pega el código de "Insertar un mapa" de Google Maps.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-            )} />
+              <FormField control={form.control} name="city" render={({ field }) => (
+                  <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
 
-            <SheetFooter className="pt-4">
-              <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">Guardar Cambios</Button>
-            </SheetFooter>
-          </form>
-        </Form>
-      </SheetContent>
-    </SheetRoot>
+              <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="area_m2" render={({ field }) => (
+                      <FormItem><FormLabel>Área m²</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <div className="grid grid-cols-3 gap-2">
+                      <FormField control={form.control} name="bedrooms" render={({ field }) => (
+                          <FormItem><FormLabel>Hab.</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={form.control} name="bathrooms" render={({ field }) => (
+                          <FormItem><FormLabel>Baños</FormLabel><FormControl><Input type="number" step="0.5" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={form.control} name="parking" render={({ field }) => (
+                          <FormItem><FormLabel>Parqueo</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                  </div>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <FormLabel>Galería de Imágenes</FormLabel>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {uploadedImages.map((url, idx) => (
+                    <div key={idx} className="relative w-20 h-20 rounded-md overflow-hidden border">
+                      <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
+                      <button type="button" onClick={() => removeImage(idx)} className="absolute top-0 right-0 bg-destructive text-white p-0.5 rounded-bl-md"><X className="h-3 w-3" /></button>
+                    </div>
+                  ))}
+                </div>
+                <Button type="button" onClick={openWidget} variant="secondary" className="w-full">
+                  <ImagePlus className="mr-2 h-4 w-4" /> Subir Fotos
+                </Button>
+              </div>
+
+              <FormField control={form.control} name="description" render={({ field }) => (
+                  <FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              
+              <FormField control={form.control} name="features" render={({ field }) => (
+                  <FormItem><FormLabel>Características (una por línea)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              
+              <FormField control={form.control} name="mapUrl" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Google Maps</FormLabel>
+                    <FormControl><Input {...field} placeholder="Enlace o iframe" /></FormControl>
+                    <FormDescription>Tip: Para mejores resultados, pega el código de "Insertar un mapa" de Google Maps.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+              )} />
+
+              <SheetFooter className="pt-4 flex flex-col gap-4">
+                <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">Guardar Cambios</Button>
+                
+                {isEditing && property?.status === 'Vendido' && (
+                  <Button 
+                    type="button" 
+                    variant="destructive" 
+                    className="w-full bg-red-600 hover:bg-red-700"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar Propiedad
+                  </Button>
+                )}
+              </SheetFooter>
+            </form>
+          </Form>
+        </SheetContent>
+      </SheetRoot>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              ¿Eliminar propiedad?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente el registro de <strong>{property?.title}</strong>. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeletePermanent();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting}
+            >
+              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Sí, eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

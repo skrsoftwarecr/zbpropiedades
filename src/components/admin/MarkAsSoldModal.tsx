@@ -1,17 +1,13 @@
-
 'use client';
 
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { markPropertyAsSold } from '@/lib/firestore-service';
-import { notifyPropertySale } from '@/lib/actions';
 import type { Property } from '@/lib/types';
 
 import {
@@ -31,19 +27,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   montoVenta: z.coerce.number().min(1, 'El monto debe ser mayor a 0'),
-  fechaVenta: z.date({
-    required_error: "La fecha de venta es obligatoria",
-  }),
+  fechaVenta: z.string().min(1, 'La fecha de venta es obligatoria'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -58,11 +45,14 @@ export function MarkAsSoldModal({ property, onOpenChange }: MarkAsSoldModalProps
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  // Obtener fecha de hoy en formato YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       montoVenta: 0,
-      fechaVenta: new Date(),
+      fechaVenta: today,
     },
   });
 
@@ -70,17 +60,7 @@ export function MarkAsSoldModal({ property, onOpenChange }: MarkAsSoldModalProps
     if (!property) return;
     setIsSubmitting(true);
     try {
-      // 1. Update Firestore
-      await markPropertyAsSold(firestore, property.id, values.montoVenta, values.fechaVenta);
-
-      // 2. Notify by Email
-      await notifyPropertySale({
-        title: property.title,
-        type: property.type,
-        city: property.city,
-        price: values.montoVenta,
-        date: values.fechaVenta,
-      });
+      await markPropertyAsSold(firestore, property, values.montoVenta, values.fechaVenta);
 
       toast({ 
         title: '¡Venta Registrada!', 
@@ -127,40 +107,15 @@ export function MarkAsSoldModal({ property, onOpenChange }: MarkAsSoldModalProps
                 control={form.control}
                 name="fechaVenta"
                 render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem>
                     <FormLabel>Fecha de venta</FormLabel>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                        <FormControl>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                            )}
-                            >
-                            {field.value ? (
-                                format(field.value, "PPP", { locale: es })
-                            ) : (
-                                <span>Seleccionar fecha</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                        </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                                date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                            locale={es}
+                    <FormControl>
+                        <Input 
+                          type="date" 
+                          {...field} 
+                          className="w-full"
                         />
-                        </PopoverContent>
-                    </Popover>
+                    </FormControl>
                     <FormMessage />
                     </FormItem>
                 )}
