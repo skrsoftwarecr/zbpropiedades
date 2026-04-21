@@ -40,6 +40,9 @@ export default function RentalsPage() {
   const filtered = useMemo(() => {
     if (!rentals) return [];
     return rentals.filter(p => {
+      // Ocultar si está vendida (aunque sea alquiler, se usa status como flag de disponibilidad)
+      if (p.status === 'Vendido') return false;
+
       const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || 
                            (p.city && p.city.toLowerCase().includes(search.toLowerCase()));
       const matchesProvince = province === 'all' || p.province === province;

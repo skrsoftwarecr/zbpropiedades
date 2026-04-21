@@ -1,10 +1,11 @@
+
 'use client';
 
 import React from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Home, Landmark, Key, ListChecks, Trees } from 'lucide-react';
+import { Home, Landmark, Key, ListChecks, Trees, Tag } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   PieChart,
@@ -26,8 +27,11 @@ export default function AdminDashboardPage() {
   const { data: allLots, isLoading: loadingLots } = useCollection<Lot>(lotsQuery);
 
   // Cálculos de inventario
-  const salesInventory = properties?.filter(p => (!p.operationType || p.operationType === 'Venta')).length || 0;
-  const rentalsInventory = properties?.filter(p => p.operationType === 'Alquiler').length || 0;
+  const activeProperties = properties?.filter(p => p.status !== 'Vendido') || [];
+  const soldPropertiesCount = properties?.filter(p => p.status === 'Vendido').length || 0;
+
+  const salesInventory = activeProperties.filter(p => (!p.operationType || p.operationType === 'Venta')).length || 0;
+  const rentalsInventory = activeProperties.filter(p => p.operationType === 'Alquiler').length || 0;
   
   const lotsInventory = allLots?.filter(l => !l.lotType || l.lotType === 'Lote').length || 0;
   const quintasInventory = allLots?.filter(l => l.lotType === 'Quinta').length || 0;
@@ -37,15 +41,15 @@ export default function AdminDashboardPage() {
   const inventoryStats = [
     { title: "Propiedades", value: salesInventory, icon: Home, color: "text-blue-600", border: "#2563eb" },
     { title: "Alquileres", value: rentalsInventory, icon: Key, color: "text-amber-600", border: "#d97706" },
-    { title: "Lotes", value: lotsInventory, icon: Landmark, color: "text-emerald-600", border: "#059669" },
-    { title: "Quintas", value: quintasInventory, icon: Trees, color: "text-indigo-600", border: "#4f46e5" }
+    { title: "Terrenos", value: lotsInventory + quintasInventory, icon: Landmark, color: "text-emerald-600", border: "#059669" },
+    { title: "Vendidas", value: soldPropertiesCount, icon: Tag, color: "text-red-600", border: "#dc2626" }
   ];
 
   const chartData = [
     { name: 'Propiedades', value: salesInventory, color: '#2563eb' },
     { name: 'Alquileres', value: rentalsInventory, color: '#d97706' },
-    { name: 'Lotes', value: lotsInventory, color: '#059669' },
-    { name: 'Quintas', value: quintasInventory, color: '#4f46e5' },
+    { name: 'Terrenos', value: lotsInventory + quintasInventory, color: '#059669' },
+    { name: 'Vendidas', value: soldPropertiesCount, color: '#dc2626' },
   ].filter(item => item.value > 0);
 
   return (
@@ -70,7 +74,7 @@ export default function AdminDashboardPage() {
               </CardHeader>
               <CardContent>
                 {loadingProps || loadingLots ? <Skeleton className="h-8 w-16" /> : <div className="text-3xl font-bold">{stat.value}</div>}
-                <p className="text-xs text-muted-foreground mt-1">Registros activos</p>
+                <p className="text-xs text-muted-foreground mt-1">{stat.title === "Vendidas" ? "Cierres totales" : "Registros activos"}</p>
               </CardContent>
             </Card>
           ))}
@@ -81,7 +85,7 @@ export default function AdminDashboardPage() {
         <Card className="col-span-4 shadow-sm">
           <CardHeader>
             <CardTitle>Distribución de Categorías</CardTitle>
-            <CardDescription>Proporción visual de la oferta actual.</CardDescription>
+            <CardDescription>Proporción visual de la oferta y cierres.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
@@ -162,21 +166,11 @@ export default function AdminDashboardPage() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Lotes</span>
-                    <span className="font-medium">{totalInventory > 0 ? Math.round((lotsInventory / totalInventory) * 100) : 0}%</span>
+                    <span>Terrenos</span>
+                    <span className="font-medium">{totalInventory > 0 ? Math.round(((lotsInventory + quintasInventory) / totalInventory) * 100) : 0}%</span>
                   </div>
                   <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${totalInventory > 0 ? (lotsInventory / totalInventory) * 100 : 0}%` }} />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Quintas</span>
-                    <span className="font-medium">{totalInventory > 0 ? Math.round((quintasInventory / totalInventory) * 100) : 0}%</span>
-                  </div>
-                  <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-indigo-500 h-full transition-all duration-1000" style={{ width: `${totalInventory > 0 ? (quintasInventory / totalInventory) * 100 : 0}%` }} />
+                    <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${totalInventory > 0 ? ((lotsInventory + quintasInventory) / totalInventory) * 100 : 0}%` }} />
                   </div>
                 </div>
               </div>

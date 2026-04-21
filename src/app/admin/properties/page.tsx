@@ -8,39 +8,28 @@ import type { Property } from '@/lib/types';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { PropertyForm } from '@/components/admin/PropertyForm';
-import { deleteProperty } from '@/lib/firestore-service';
-import { useToast } from '@/hooks/use-toast';
+import { MarkAsSoldModal } from '@/components/admin/MarkAsSoldModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Tag } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 
 export default function AdminPropertiesPage() {
   const firestore = useFirestore();
-  const { toast } = useToast();
   
   const q = useMemoFirebase(() => query(collection(firestore, 'properties'), orderBy('createdAt', 'desc')), [firestore]);
   const { data: properties, isLoading } = useCollection<Property>(q);
 
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Property | null>(null);
-  const [deleteId, setDeleteId] = React.useState<string | null>(null);
+  const [soldProperty, setSoldProperty] = React.useState<Property | null>(null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -49,25 +38,6 @@ export default function AdminPropertiesPage() {
   const handleEdit = (p: Property) => { 
     setSelected(p); 
     setIsFormOpen(true); 
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteId) return;
-    try {
-      deleteProperty(firestore, deleteId);
-      toast({ 
-        title: 'Publicación eliminada', 
-        description: 'La propiedad ha sido removida del catálogo exitosamente.' 
-      });
-    } catch (error) {
-      toast({ 
-        variant: 'destructive', 
-        title: 'Error', 
-        description: 'No se pudo eliminar la propiedad. Intente de nuevo.' 
-      });
-    } finally {
-      setDeleteId(null);
-    }
   };
 
   const columns: ColumnDef<Property>[] = [
@@ -85,6 +55,18 @@ export default function AdminPropertiesPage() {
         )
     },
     { accessorKey: 'title', header: 'Título' },
+    { 
+        accessorKey: 'status', 
+        header: 'Estado',
+        cell: ({ row }) => {
+            const status = row.original.status || 'Disponible';
+            return (
+                <Badge variant={status === 'Vendido' ? 'destructive' : 'secondary'} className={status === 'Vendido' ? 'bg-red-100 text-red-700 hover:bg-red-100' : 'bg-green-100 text-green-700 hover:bg-green-100'}>
+                    {status}
+                </Badge>
+            );
+        }
+    },
     { accessorKey: 'type', header: 'Tipo' },
     { 
         accessorKey: 'price', 
@@ -99,7 +81,14 @@ export default function AdminPropertiesPage() {
                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleEdit(row.original)}>Editar</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setDeleteId(row.original.id)} className="text-destructive">Eliminar</DropdownMenuItem>
+                    {row.original.status !== 'Vendido' && (
+                        <DropdownMenuItem 
+                            onClick={() => setSoldProperty(row.original)} 
+                            className="text-green-600 font-medium focus:text-green-700 focus:bg-green-50"
+                        >
+                            <Tag className="mr-2 h-4 w-4" /> Marcar como Vendido
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         )
@@ -126,26 +115,11 @@ export default function AdminPropertiesPage() {
       <DataTable columns={columns} data={properties || []} />
       
       <PropertyForm isOpen={isFormOpen} onOpenChange={setIsFormOpen} property={selected} />
-
-      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar propiedad?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar esta publicación?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      
+      <MarkAsSoldModal 
+        property={soldProperty} 
+        onOpenChange={(open) => !open && setSoldProperty(null)} 
+      />
     </>
   );
 }

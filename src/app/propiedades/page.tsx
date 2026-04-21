@@ -27,7 +27,7 @@ export default function PropertiesPage() {
     setMounted(true);
   }, []);
 
-  // Filtramos por defecto las de "Venta" o las que no tienen tipo definido (legacy)
+  // Filtramos las propiedades activas (no vendidas)
   const q = useMemoFirebase(() => 
     query(collection(firestore, 'properties')), 
     [firestore]
@@ -41,6 +41,9 @@ export default function PropertiesPage() {
   const filtered = useMemo(() => {
     if (!properties) return [];
     return properties.filter(p => {
+      // Ocultar si ya está vendida
+      if (p.status === 'Vendido') return false;
+
       // Filtrar para que en esta página solo salgan las de Venta
       const isSale = !p.operationType || p.operationType === 'Venta';
       if (!isSale) return false;

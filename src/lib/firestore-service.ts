@@ -22,6 +22,7 @@ export function addProperty(firestore: Firestore, data: PropertyData) {
   const col = collection(firestore, 'properties');
   addDoc(col, {
     ...data,
+    status: data.status || 'Disponible',
     createdAt: serverTimestamp(),
   }).catch((error) => {
     const contextualError = new FirestorePermissionError({
@@ -52,6 +53,30 @@ export function updateProperty(
   });
 }
 
+export function markPropertyAsSold(
+  firestore: Firestore,
+  id: string,
+  montoVenta: number,
+  fechaVenta: Date
+) {
+  const ref = doc(firestore, 'properties', id);
+  return updateDoc(ref, {
+    status: 'Vendido',
+    montoVenta,
+    fechaVenta,
+    soldAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }).catch((error) => {
+    const contextualError = new FirestorePermissionError({
+      operation: 'update',
+      path: ref.path,
+      requestResourceData: { status: 'Vendido', montoVenta, fechaVenta },
+    });
+    errorEmitter.emit('permission-error', contextualError);
+    throw error;
+  });
+}
+
 export function deleteProperty(firestore: Firestore, id: string) {
   const ref = doc(firestore, 'properties', id);
   deleteDoc(ref).catch((error) => {
@@ -71,6 +96,7 @@ export function addLot(firestore: Firestore, data: LotData) {
   const col = collection(firestore, 'lots');
   addDoc(col, {
     ...data,
+    status: data.status || 'Disponible',
     createdAt: serverTimestamp(),
   }).catch((error) => {
     const contextualError = new FirestorePermissionError({
