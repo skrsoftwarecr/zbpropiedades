@@ -4,8 +4,8 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
-// URL exacta de tu Web App desplegada en Google Apps Script
-const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw1y643gJYCqmov2tRyEO3paVzj_faroSVrT1UsUFX9EYYhA3G9MXkEu7p3pXogJSjw/exec';
+// URL actualizada de la Web App desplegada en Google Apps Script
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzNMB6nEf0vU10rY9hRCk6Db8od-wmm1gozrPWEN92HSuuH6AWUomX_n-co2yY1VU4h/exec';
 
 function getFirebaseForServer() {
     if (!getApps().length) {
