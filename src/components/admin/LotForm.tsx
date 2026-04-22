@@ -95,7 +95,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
         city: lot?.city || '',
         area_m2: lot?.area_m2 || 0,
         topography: lot?.topography || 'Plana',
-        features: lot?.features.join('\n') || '',
+        features: lot?.features?.join('\n') || '',
         imageUrls: lot?.imageUrls || [],
         mapUrl: lot?.mapUrl || '',
       });
@@ -159,10 +159,10 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
 
     try {
       if (isEditing && lot) {
-        updateLot(firestore, lot.id, processed);
+        await updateLot(firestore, lot.id, processed);
         toast({ title: '¡Actualizado!', description: 'El registro se ha modificado correctamente.' });
       } else {
-        addLot(firestore, processed);
+        await addLot(firestore, processed);
         toast({ title: '¡Creado!', description: 'El nuevo terreno ha sido agregado.' });
       }
       onOpenChange(false);
@@ -308,11 +308,11 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
               )} />
               <SheetFooter className="pt-4 flex flex-col gap-4">
                 <Button type="submit" className="w-full">Guardar Cambios</Button>
-                {isEditing && lot?.status === 'Vendido' && (
+                {isEditing && (
                   <Button 
                     type="button" 
                     variant="destructive" 
-                    className="w-full bg-red-600 hover:bg-red-700"
+                    className="w-full bg-red-600 hover:bg-red-700 mt-2"
                     onClick={() => setIsDeleteDialogOpen(true)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" /> Eliminar Lote
@@ -332,7 +332,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
               ¿Eliminar lote?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará permanentemente el registro de <strong>{lot?.title}</strong>. Esta acción no se puede deshacer.
+              Esta acción eliminará permanentemente el registro de <strong>{lot?.title}</strong>. Esta acción no se puede deshacer y enviará una notificación por correo.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

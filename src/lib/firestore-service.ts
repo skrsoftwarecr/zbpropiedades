@@ -19,22 +19,26 @@ import { notifyPropertySale, notifyPropertyDeletion, notifyLotSale, notifyLotDel
 
 type PropertyData = Omit<Property, 'id' | 'createdAt'>;
 
-export function addProperty(firestore: Firestore, data: PropertyData) {
+export async function addProperty(firestore: Firestore, data: PropertyData) {
   const col = collection(firestore, 'properties');
-  addDoc(col, {
-    ...data,
-    status: data.status || 'Disponible',
-    createdAt: serverTimestamp(),
-  }).catch((error) => {
+  try {
+    await addDoc(col, {
+      ...data,
+      status: data.status || 'Disponible',
+      createdAt: serverTimestamp(),
+    });
+  } catch (error: any) {
     errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'create', path: col.path, requestResourceData: data }));
-  });
+  }
 }
 
-export function updateProperty(firestore: Firestore, id: string, data: Partial<PropertyData>) {
+export async function updateProperty(firestore: Firestore, id: string, data: Partial<PropertyData>) {
   const ref = doc(firestore, 'properties', id);
-  updateDoc(ref, { ...data, updatedAt: serverTimestamp() }).catch((error) => {
+  try {
+    await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
+  } catch (error: any) {
     errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'update', path: ref.path, requestResourceData: data }));
-  });
+  }
 }
 
 export async function markPropertyAsSold(firestore: Firestore, property: Property, montoVenta: number, fechaVenta: string) {
@@ -63,22 +67,26 @@ export async function deletePropertyPermanent(firestore: Firestore, property: Pr
 
 type LotData = Omit<Lot, 'id' | 'createdAt'>;
 
-export function addLot(firestore: Firestore, data: LotData) {
+export async function addLot(firestore: Firestore, data: LotData) {
   const col = collection(firestore, 'lots');
-  addDoc(col, {
-    ...data,
-    status: data.status || 'Disponible',
-    createdAt: serverTimestamp(),
-  }).catch((error) => {
+  try {
+    await addDoc(col, {
+      ...data,
+      status: data.status || 'Disponible',
+      createdAt: serverTimestamp(),
+    });
+  } catch (error: any) {
     errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'create', path: col.path, requestResourceData: data }));
-  });
+  }
 }
 
-export function updateLot(firestore: Firestore, id: string, data: Partial<LotData>) {
+export async function updateLot(firestore: Firestore, id: string, data: Partial<LotData>) {
   const ref = doc(firestore, 'lots', id);
-  updateDoc(ref, { ...data, updatedAt: serverTimestamp() }).catch((error) => {
+  try {
+    await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
+  } catch (error: any) {
     errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'update', path: ref.path, requestResourceData: data }));
-  });
+  }
 }
 
 export async function markLotAsSold(firestore: Firestore, lot: Lot, montoVenta: number, fechaVenta: string) {
