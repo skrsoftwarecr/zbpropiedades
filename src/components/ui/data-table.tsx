@@ -10,7 +10,6 @@ import {
   getSortedRowModel,
   SortingState,
   useReactTable,
-  RowSelectionState,
 } from '@tanstack/react-table';
 
 import {
@@ -26,16 +25,13 @@ import { Button } from '@/components/ui/button';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onRowSelectionChange?: (selectedRows: TData[]) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onRowSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   
   const table = useReactTable({
     data,
@@ -44,20 +40,10 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      rowSelection,
     },
   });
-
-  // Notificar al padre cuando cambie la selección
-  React.useEffect(() => {
-    if (onRowSelectionChange) {
-      const selectedData = table.getFilteredSelectedRowModel().rows.map(row => row.original);
-      onRowSelectionChange(selectedData);
-    }
-  }, [rowSelection, table, onRowSelectionChange]);
 
   return (
     <div>
@@ -86,7 +72,6 @@ export function DataTable<TData, TValue>({
                 table.getRowModel().rows.map((row) => (
                 <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
                 >
                     {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -105,30 +90,24 @@ export function DataTable<TData, TValue>({
             </TableBody>
         </Table>
         </div>
-        <div className="flex items-center justify-between py-4">
-            <div className="text-sm text-muted-foreground">
-              {table.getFilteredSelectedRowModel().rows.length} de{" "}
-              {table.getFilteredRowModel().rows.length} fila(s) seleccionadas.
-            </div>
-            <div className="flex items-center space-x-2">
-                <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                >
-                Anterior
-                </Button>
-                <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                >
-                Siguiente
-                </Button>
-            </div>
-      </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            >
+            Anterior
+            </Button>
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            >
+            Siguiente
+            </Button>
+        </div>
     </div>
   );
 }

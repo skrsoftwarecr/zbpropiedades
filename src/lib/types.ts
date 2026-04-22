@@ -23,9 +23,6 @@ export interface Property {
   montoVenta?: number;
   fechaVenta?: any;
   soldAt?: any;
-  compradorNombre?: string;
-  agenteResponsable?: string;
-  notasVenta?: string;
   // Campos específicos de Alquiler
   incluyeServicios?: boolean;
   tieneWifi?: boolean;
@@ -47,22 +44,4 @@ export interface Lot {
   features: string[];
   mapUrl?: string;
   createdAt?: any;
-}
-
-export interface BatchOperationResult {
-  total: number;
-  exitosos: number;
-  fallidos: number;
-  detalles: { id: string; success: boolean; error?: string }[];
-}
-
-export interface AuditLog {
-  id: string;
-  action: 'DELETE_BATCH' | 'SALE_BATCH' | 'DELETE' | 'SALE';
-  targetIds: string[];
-  userId: string;
-  userName?: string;
-  timestamp: any;
-  reason?: string;
-  metadata?: any;
 }
