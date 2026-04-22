@@ -9,16 +9,21 @@ import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { PropertyForm } from '@/components/admin/PropertyForm';
 import { MarkAsSoldModal } from '@/components/admin/MarkAsSoldModal';
+import { BatchSaleModal } from '@/components/admin/BatchSaleModal';
+import { BatchDeleteModal } from '@/components/admin/BatchDeleteModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Tag } from 'lucide-react';
+import { MoreHorizontal, Tag, Trash2, CheckCircle2, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
 
 export default function AdminPropertiesPage() {
@@ -30,6 +35,11 @@ export default function AdminPropertiesPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Property | null>(null);
   const [soldProperty, setSoldProperty] = React.useState<Property | null>(null);
+  
+  // Estados para operaciones en lote
+  const [selectedRows, setSelectedRows] = React.useState<Property[]>([]);
+  const [isBatchSaleOpen, setIsBatchSaleOpen] = React.useState(false);
+  const [isBatchDeleteOpen, setIsBatchDeleteOpen] = React.useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
@@ -41,6 +51,25 @@ export default function AdminPropertiesPage() {
   };
 
   const columns: ColumnDef<Property>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Seleccionar todo"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Seleccionar fila"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
         accessorKey: 'imageUrls',
         header: 'Imagen',
@@ -103,16 +132,47 @@ export default function AdminPropertiesPage() {
   );
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Gestión de Propiedades</h1>
-          <p className="text-muted-foreground text-sm">Venta y Alquiler de residencias y locales.</p>
+          <p className="text-muted-foreground text-sm">Administración total de inventario y cierres.</p>
         </div>
-        <Button onClick={() => { setSelected(null); setIsFormOpen(true); }}>Agregar Propiedad</Button>
+        <div className="flex items-center gap-2">
+          {selectedRows.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="border-primary text-primary animate-in fade-in slide-in-from-right-4">
+                  Acciones en Lote ({selectedRows.length}) <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Operaciones Masivas</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => setIsBatchSaleOpen(true)}
+                  className="text-green-600 focus:text-green-700"
+                >
+                  <CheckCircle2 className="mr-2 h-4 w-4" /> Marcar como Vendidos
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setIsBatchDeleteOpen(true)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Eliminar Seleccionados
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <Button onClick={() => { setSelected(null); setIsFormOpen(true); }}>Agregar Propiedad</Button>
+        </div>
       </div>
       
-      <DataTable columns={columns} data={properties || []} />
+      <DataTable 
+        columns={columns} 
+        data={properties || []} 
+        onRowSelectionChange={setSelectedRows}
+      />
       
       <PropertyForm isOpen={isFormOpen} onOpenChange={setIsFormOpen} property={selected} />
       
@@ -120,6 +180,20 @@ export default function AdminPropertiesPage() {
         property={soldProperty} 
         onOpenChange={(open) => !open && setSoldProperty(null)} 
       />
-    </>
+
+      <BatchSaleModal 
+        selectedProperties={selectedRows}
+        isOpen={isBatchSaleOpen}
+        onOpenChange={setIsBatchSaleOpen}
+        onSuccess={() => setSelectedRows([])}
+      />
+
+      <BatchDeleteModal 
+        selectedProperties={selectedRows}
+        isOpen={isBatchDeleteOpen}
+        onOpenChange={setIsBatchDeleteOpen}
+        onSuccess={() => setSelectedRows([])}
+      />
+    </div>
   );
 }
