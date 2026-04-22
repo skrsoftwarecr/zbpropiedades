@@ -32,3 +32,18 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
   }
 }
+
+/**
+ * FUNCIÓN PARA ACTIVAR PERMISOS
+ * Selecciona esta función en el editor de Google Apps Script y haz clic en "Ejecutar".
+ * Esto forzará la aparición de la ventana de autorización de Google.
+ */
+function testPermissions() {
+  var myEmail = Session.getActiveUser().getEmail();
+  MailApp.sendEmail({
+    to: myEmail,
+    subject: "Prueba de Permisos ZB Propiedades",
+    htmlBody: "<h1>Permisos Activos</h1><p>Si recibiste esto, el script ya tiene permiso para enviar correos en tu nombre.</p>"
+  });
+  Logger.log("Correo de prueba enviado a: " + myEmail);
+}

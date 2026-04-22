@@ -6,7 +6,6 @@ import { firebaseConfig } from '@/firebase/config';
 
 /**
  * URL de la Web App desplegada en Google Apps Script.
- * Esta es la dirección del puente que permite enviar correos sin extensiones.
  */
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwIbK0IZvc7TOont320I9bvCh1SQ3TVrbol0TfSzxyIFO9wiVMjqUSo0JOea-z7taNv/exec';
 
