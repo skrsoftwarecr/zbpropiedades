@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { markPropertyAsSold } from '@/lib/firestore-service';
 
 export default function AdminPropertiesPage() {
   const firestore = useFirestore();
@@ -38,6 +39,11 @@ export default function AdminPropertiesPage() {
   const handleEdit = (p: Property) => { 
     setSelected(p); 
     setIsFormOpen(true); 
+  };
+
+  const handleConfirmSold = async (monto: number, fecha: string) => {
+    if (!soldProperty) return;
+    await markPropertyAsSold(firestore, soldProperty, monto, fecha);
   };
 
   const columns: ColumnDef<Property>[] = [
@@ -117,8 +123,9 @@ export default function AdminPropertiesPage() {
       <PropertyForm isOpen={isFormOpen} onOpenChange={setIsFormOpen} property={selected} />
       
       <MarkAsSoldModal 
-        property={soldProperty} 
-        onOpenChange={(open) => !open && setSoldProperty(null)} 
+        item={soldProperty} 
+        onOpenChange={(open) => !open && setSoldProperty(null)}
+        onConfirm={handleConfirmSold}
       />
     </div>
   );

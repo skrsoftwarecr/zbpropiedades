@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,9 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
-import { addLot, updateLot } from '@/lib/firestore-service';
+import { addLot, updateLot, deleteLotPermanent } from '@/lib/firestore-service';
 import type { Lot } from '@/lib/types';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, X, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 import {
@@ -37,6 +38,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   title: z.string().min(5, 'Mínimo 5 caracteres.'),
@@ -59,6 +70,8 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
   const { toast } = useToast();
   const isEditing = !!lot;
   const [isWidgetOpen, setIsWidgetOpen] = React.useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const widgetRef = React.useRef<any>(null);
 
   const form = useForm<LotFormValues>({ 
@@ -123,18 +136,24 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
     form.setValue('imageUrls', currentUrls.filter((_, i) => i !== index));
   };
 
-  const extractMapUrl = (input: string) => {
-    if (input.includes('<iframe')) {
-      const match = input.match(/src="([^"]+)"/);
-      return match ? match[1] : input;
+  const handleDeletePermanent = async () => {
+    if (!lot) return;
+    setIsDeleting(true);
+    try {
+      await deleteLotPermanent(firestore, lot);
+      toast({ title: 'Lote eliminado', description: 'El registro se ha borrado correctamente.' });
+      setIsDeleteDialogOpen(false);
+      onOpenChange(false);
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar el registro.' });
+    } finally {
+      setIsDeleting(false);
     }
-    return input;
   };
 
   const onSubmit = async (data: LotFormValues) => {
     const processed = {
       ...data,
-      mapUrl: extractMapUrl(data.mapUrl || ''),
       features: data.features.split('\n').map(i => i.trim()).filter(Boolean),
     };
 
@@ -153,150 +172,185 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent 
-        className="sm:max-w-2xl overflow-y-auto"
-        onInteractOutside={(e) => e.preventDefault()}
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
-        <SheetHeader>
-          <SheetTitle>
-            {isEditing ? 'Editar Registro' : `Nuevo ${form.watch('lotType') || defaultType}`}
-          </SheetTitle>
-        </SheetHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="title" render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Título</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+    <>
+      <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
+        <SheetContent 
+          className="sm:max-w-2xl overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          <SheetHeader>
+            <SheetTitle>
+              {isEditing ? 'Editar Registro' : `Nuevo ${form.watch('lotType') || defaultType}`}
+            </SheetTitle>
+          </SheetHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="title" render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Título</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                )} />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="lotType" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categoría</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                  <SelectItem value="Lote">Lote</SelectItem>
+                                  <SelectItem value="Quinta">Quinta</SelectItem>
+                              </SelectContent>
+                          </Select>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+                  <FormField control={form.control} name="price" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Precio (₡)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="area_m2" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Área m²</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+                  <FormField control={form.control} name="topography" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Topografía</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="province" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Provincia</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                  {["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                              </SelectContent>
+                          </Select>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+                  <FormField control={form.control} name="city" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ciudad</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+              </div>
+
+              <FormField control={form.control} name="description" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descripción</FormLabel>
+                    <FormControl><Textarea {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
               )} />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="lotType" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Categoría</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="Lote">Lote</SelectItem>
-                                <SelectItem value="Quinta">Quinta</SelectItem>
-                            </SelectContent>
-                        </Select>
-                      <FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Precio (₡)</FormLabel>
-                      <FormControl><Input type="number" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                )} />
-            </div>
+              <FormField control={form.control} name="features" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Características (una por línea)</FormLabel>
+                    <FormControl><Textarea {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+              )} />
 
-            <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="area_m2" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Área m²</FormLabel>
-                      <FormControl><Input type="number" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="topography" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Topografía</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                )} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="province" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Provincia</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                {["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                      <FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="city" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ciudad</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                )} />
-            </div>
-
-            <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl><Textarea {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-            )} />
-            <FormField control={form.control} name="features" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Características (una por línea)</FormLabel>
-                  <FormControl><Textarea {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-            )} />
-
-            <div className="space-y-4">
-              <FormLabel>Galería de Imágenes</FormLabel>
-              <div className="flex flex-wrap gap-3 mb-2">
-                {values.imageUrls?.map((url, idx) => (
-                  <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border-2 shadow-sm">
-                    <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
-                    <button 
-                      type="button" 
-                      onClick={() => removeImage(idx)} 
-                      className="absolute top-0 right-0 bg-destructive text-white p-1 rounded-bl-lg hover:bg-destructive/90 transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                <FormLabel>Galería de Imágenes</FormLabel>
+                <div className="flex flex-wrap gap-3 mb-2">
+                  {values.imageUrls?.map((url, idx) => (
+                    <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border-2 shadow-sm">
+                      <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(idx)} 
+                        className="absolute top-0 right-0 bg-destructive text-white p-1 rounded-bl-lg hover:bg-destructive/90 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  type="button" 
+                  onClick={openWidget} 
+                  className="w-full bg-[#D4AF37] hover:bg-[#B8860B] text-white font-semibold"
+                >
+                  <ImagePlus className="mr-2 h-4 w-4" /> Subir Fotos
+                </Button>
               </div>
-              <Button 
-                type="button" 
-                onClick={openWidget} 
-                className="w-full bg-[#D4AF37] hover:bg-[#B8860B] text-white font-semibold"
-              >
-                <ImagePlus className="mr-2 h-4 w-4" /> Subir Fotos
-              </Button>
-              <FormField 
-                control={form.control} 
-                name="imageUrls" 
-                render={() => <FormMessage />} 
-              />
-            </div>
 
-            <FormField control={form.control} name="mapUrl" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Google Maps (Insertar mapa)</FormLabel>
-                  <FormControl><Input {...field} placeholder="Pegue aquí el enlace src o el código iframe completo" /></FormControl>
-                  <FormDescription>Tip: Para mejores resultados, pega el código de "Insertar un mapa" de Google Maps.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-            )} />
-            <SheetFooter className="pt-4">
-              <Button type="submit" className="w-full">Guardar Cambios</Button>
-            </SheetFooter>
-          </form>
-        </Form>
-      </SheetContent>
-    </Sheet>
+              <FormField control={form.control} name="mapUrl" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Google Maps (Insertar mapa)</FormLabel>
+                    <FormControl><Input {...field} placeholder="Pegue aquí el enlace src o el código iframe completo" /></FormControl>
+                    <FormDescription>Tip: Para mejores resultados, pega el código de "Insertar un mapa" de Google Maps.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+              )} />
+              <SheetFooter className="pt-4 flex flex-col gap-4">
+                <Button type="submit" className="w-full">Guardar Cambios</Button>
+                {isEditing && lot?.status === 'Vendido' && (
+                  <Button 
+                    type="button" 
+                    variant="destructive" 
+                    className="w-full bg-red-600 hover:bg-red-700"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar Lote
+                  </Button>
+                )}
+              </SheetFooter>
+            </form>
+          </Form>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              ¿Eliminar lote?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente el registro de <strong>{lot?.title}</strong>. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeletePermanent();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting}
+            >
+              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Sí, eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

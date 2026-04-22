@@ -8,11 +8,11 @@ import type { Lot } from '@/lib/types';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { LotForm } from '@/components/admin/LotForm';
-import { deleteLot } from '@/lib/firestore-service';
+import { deleteLot, markLotAsSold } from '@/lib/firestore-service';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Plus, Trees, Landmark } from 'lucide-react';
+import { MoreHorizontal, Plus, Trees, Landmark, Tag } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -31,6 +31,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
+import { MarkAsSoldModal } from '@/components/admin/MarkAsSoldModal';
 
 export default function AdminLotesQuintasPage() {
   const firestore = useFirestore();
@@ -43,6 +45,7 @@ export default function AdminLotesQuintasPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Lot | null>(null);
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
+  const [soldLot, setSoldLot] = React.useState<Lot | null>(null);
 
   const lots = React.useMemo(() => 
     allLots?.filter(l => !l.lotType || l.lotType === 'Lote') || [], 
@@ -56,6 +59,11 @@ export default function AdminLotesQuintasPage() {
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+  };
+
+  const handleConfirmSold = async (monto: number, fecha: string) => {
+    if (!soldLot) return;
+    await markLotAsSold(firestore, soldLot, monto, fecha);
   };
 
   const confirmDelete = async () => {
@@ -95,6 +103,18 @@ export default function AdminLotesQuintasPage() {
     },
     { accessorKey: 'title', header: 'Título' },
     { 
+        accessorKey: 'status', 
+        header: 'Estado',
+        cell: ({ row }) => {
+            const status = row.original.status || 'Disponible';
+            return (
+                <Badge variant={status === 'Vendido' ? 'destructive' : 'secondary'} className={status === 'Vendido' ? 'bg-red-100 text-red-700 hover:bg-red-100' : 'bg-green-100 text-green-700 hover:bg-green-100'}>
+                    {status}
+                </Badge>
+            );
+        }
+    },
+    { 
         accessorKey: 'area_m2', 
         header: 'Área',
         cell: ({ row }) => `${row.original.area_m2.toLocaleString()} m²`
@@ -112,7 +132,14 @@ export default function AdminLotesQuintasPage() {
                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => { setSelected(row.original); setIsFormOpen(true); }}>Editar</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setDeleteId(row.original.id)} className="text-destructive">Eliminar</DropdownMenuItem>
+                    {row.original.status !== 'Vendido' && (
+                        <DropdownMenuItem 
+                            onClick={() => setSoldLot(row.original)} 
+                            className="text-green-600 font-medium focus:text-green-700 focus:bg-green-50"
+                        >
+                            <Tag className="mr-2 h-4 w-4" /> Marcar como Vendido
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         )
@@ -164,6 +191,12 @@ export default function AdminLotesQuintasPage() {
         onOpenChange={setIsFormOpen} 
         lot={selected} 
         defaultType={activeTab} 
+      />
+
+      <MarkAsSoldModal 
+        item={soldLot} 
+        onOpenChange={(open) => !open && setSoldLot(null)}
+        onConfirm={handleConfirmSold}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>

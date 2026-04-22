@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,10 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Loader2 } from 'lucide-react';
-import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
-import { markPropertyAsSold } from '@/lib/firestore-service';
-import type { Property } from '@/lib/types';
 
 import {
   Dialog,
@@ -36,16 +34,15 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface MarkAsSoldModalProps {
-  property: Property | null;
+  item: { id: string; title: string } | null;
   onOpenChange: (open: boolean) => void;
+  onConfirm: (monto: number, fecha: string) => Promise<void>;
 }
 
-export function MarkAsSoldModal({ property, onOpenChange }: MarkAsSoldModalProps) {
-  const firestore = useFirestore();
+export function MarkAsSoldModal({ item, onOpenChange, onConfirm }: MarkAsSoldModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Obtener fecha de hoy en formato YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
 
   const form = useForm<FormValues>({
@@ -57,36 +54,28 @@ export function MarkAsSoldModal({ property, onOpenChange }: MarkAsSoldModalProps
   });
 
   const onSubmit = async (values: FormValues) => {
-    if (!property) return;
+    if (!item) return;
     setIsSubmitting(true);
     try {
-      await markPropertyAsSold(firestore, property, values.montoVenta, values.fechaVenta);
-
-      toast({ 
-        title: '¡Venta Registrada!', 
-        description: 'Propiedad marcada como vendida correctamente.',
-      });
+      await onConfirm(values.montoVenta, values.fechaVenta);
+      toast({ title: '¡Venta Registrada!', description: 'Marcado como vendido correctamente.' });
       onOpenChange(false);
     } catch (error) {
-      toast({ 
-        variant: 'destructive', 
-        title: 'Error', 
-        description: 'No se pudo registrar la venta.' 
-      });
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo registrar la venta.' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={!!property} onOpenChange={onOpenChange}>
+    <Dialog open={!!item} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-primary">Registrar Venta</DialogTitle>
         </DialogHeader>
         <div className="py-2">
             <p className="text-sm text-muted-foreground mb-4">
-                Ingrese los detalles del cierre para <strong>{property?.title}</strong>.
+                Ingrese los detalles del cierre para <strong>{item?.title}</strong>.
             </p>
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -110,30 +99,15 @@ export function MarkAsSoldModal({ property, onOpenChange }: MarkAsSoldModalProps
                     <FormItem>
                     <FormLabel>Fecha de venta</FormLabel>
                     <FormControl>
-                        <Input 
-                          type="date" 
-                          {...field} 
-                          className="w-full"
-                        />
+                        <Input type="date" {...field} className="w-full" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
                 )}
                 />
                 <DialogFooter className="pt-4">
-                    <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={() => onOpenChange(false)}
-                        disabled={isSubmitting}
-                    >
-                        Cancelar
-                    </Button>
-                    <Button 
-                        type="submit" 
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                        disabled={isSubmitting}
-                    >
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancelar</Button>
+                    <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white" disabled={isSubmitting}>
                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Confirmar Venta
                     </Button>

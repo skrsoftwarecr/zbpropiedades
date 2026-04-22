@@ -44,4 +44,8 @@ export interface Lot {
   features: string[];
   mapUrl?: string;
   createdAt?: any;
+  // Campos de venta
+  montoVenta?: number;
+  fechaVenta?: any;
+  soldAt?: any;
 }
