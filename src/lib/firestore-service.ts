@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -15,7 +14,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import type { Property, Lot } from '@/lib/types';
 import { notifyPropertySale, notifyPropertyDeletion, notifyLotSale, notifyLotDeletion } from './actions';
 
-// --- Property Actions ---
+// --- Acciones de Propiedades ---
 
 type PropertyData = Omit<Property, 'id' | 'createdAt'>;
 
@@ -44,10 +43,31 @@ export async function updateProperty(firestore: Firestore, id: string, data: Par
 export async function markPropertyAsSold(firestore: Firestore, property: Property, montoVenta: number, fechaVenta: string) {
   const ref = doc(firestore, 'properties', property.id);
   try {
-    await updateDoc(ref, { status: 'Vendido', montoVenta, fechaVenta, soldAt: serverTimestamp(), updatedAt: serverTimestamp() });
-    await notifyPropertySale({ title: property.title, type: property.type, city: property.city, province: property.province, price: property.price, salePrice: montoVenta, saleDate: fechaVenta });
+    // 1. Actualizar base de datos
+    await updateDoc(ref, { 
+      status: 'Vendido', 
+      montoVenta, 
+      fechaVenta, 
+      soldAt: serverTimestamp(), 
+      updatedAt: serverTimestamp() 
+    });
+    
+    // 2. Disparar notificación por correo
+    await notifyPropertySale({ 
+      title: property.title, 
+      type: property.type, 
+      city: property.city, 
+      province: property.province, 
+      price: property.price, 
+      salePrice: montoVenta, 
+      saleDate: fechaVenta 
+    });
   } catch (error: any) {
-    errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'update', path: ref.path, requestResourceData: { status: 'Vendido', montoVenta, fechaVenta } }));
+    errorEmitter.emit('permission-error', new FirestorePermissionError({ 
+      operation: 'update', 
+      path: ref.path, 
+      requestResourceData: { status: 'Vendido', montoVenta, fechaVenta } 
+    }));
     throw error;
   }
 }
@@ -55,15 +75,24 @@ export async function markPropertyAsSold(firestore: Firestore, property: Propert
 export async function deletePropertyPermanent(firestore: Firestore, property: Property) {
   const ref = doc(firestore, 'properties', property.id);
   try {
+    // 1. Eliminar de Firestore
     await deleteDoc(ref);
-    await notifyPropertyDeletion({ title: property.title, type: property.type, city: property.city, province: property.province, price: property.price });
+    
+    // 2. Notificar eliminación
+    await notifyPropertyDeletion({ 
+      title: property.title, 
+      type: property.type, 
+      city: property.city, 
+      province: property.province, 
+      price: property.price 
+    });
   } catch (error: any) {
     errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'delete', path: ref.path }));
     throw error;
   }
 }
 
-// --- Lot Actions ---
+// --- Acciones de Lotes ---
 
 type LotData = Omit<Lot, 'id' | 'createdAt'>;
 
@@ -92,10 +121,31 @@ export async function updateLot(firestore: Firestore, id: string, data: Partial<
 export async function markLotAsSold(firestore: Firestore, lot: Lot, montoVenta: number, fechaVenta: string) {
   const ref = doc(firestore, 'lots', lot.id);
   try {
-    await updateDoc(ref, { status: 'Vendido', montoVenta, fechaVenta, soldAt: serverTimestamp(), updatedAt: serverTimestamp() });
-    await notifyLotSale({ title: lot.title, lotType: lot.lotType, city: lot.city, province: lot.province, price: lot.price, salePrice: montoVenta, saleDate: fechaVenta });
+    // 1. Actualizar DB
+    await updateDoc(ref, { 
+      status: 'Vendido', 
+      montoVenta, 
+      fechaVenta, 
+      soldAt: serverTimestamp(), 
+      updatedAt: serverTimestamp() 
+    });
+    
+    // 2. Notificar por correo
+    await notifyLotSale({ 
+      title: lot.title, 
+      lotType: lot.lotType, 
+      city: lot.city, 
+      province: lot.province, 
+      price: lot.price, 
+      salePrice: montoVenta, 
+      saleDate: fechaVenta 
+    });
   } catch (error: any) {
-    errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'update', path: ref.path, requestResourceData: { status: 'Vendido', montoVenta, fechaVenta } }));
+    errorEmitter.emit('permission-error', new FirestorePermissionError({ 
+      operation: 'update', 
+      path: ref.path, 
+      requestResourceData: { status: 'Vendido', montoVenta, fechaVenta } 
+    }));
     throw error;
   }
 }
@@ -103,8 +153,17 @@ export async function markLotAsSold(firestore: Firestore, lot: Lot, montoVenta: 
 export async function deleteLotPermanent(firestore: Firestore, lot: Lot) {
   const ref = doc(firestore, 'lots', lot.id);
   try {
+    // 1. Eliminar DB
     await deleteDoc(ref);
-    await notifyLotDeletion({ title: lot.title, lotType: lot.lotType, city: lot.city, province: lot.province, price: lot.price });
+    
+    // 2. Notificar por correo
+    await notifyLotDeletion({ 
+      title: lot.title, 
+      lotType: lot.lotType, 
+      city: lot.city, 
+      province: lot.province, 
+      price: lot.price 
+    });
   } catch (error: any) {
     errorEmitter.emit('permission-error', new FirestorePermissionError({ operation: 'delete', path: ref.path }));
     throw error;
