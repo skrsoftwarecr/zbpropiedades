@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -60,6 +59,7 @@ export async function markPropertyAsSold(
   montoVenta: number,
   fechaVenta: string // Formato YYYY-MM-DD
 ) {
+  console.log(`Marcando como vendida: ${property.title}`);
   const ref = doc(firestore, 'properties', property.id);
 
   try {
@@ -72,7 +72,7 @@ export async function markPropertyAsSold(
       updatedAt: serverTimestamp(),
     });
 
-    // 2. Notificar vía Google Apps Script (Server Action)
+    // 2. Notificar vía Acción de Servidor (GAS + Firestore mail collection)
     await notifyPropertySale({
       title: property.title,
       type: property.type,
@@ -95,13 +95,14 @@ export async function markPropertyAsSold(
 }
 
 export async function deletePropertyPermanent(firestore: Firestore, property: Property) {
+  console.log(`Eliminando permanentemente: ${property.title}`);
   const ref = doc(firestore, 'properties', property.id);
 
   try {
     // 1. Eliminar Documento de Firestore
     await deleteDoc(ref);
 
-    // 2. Notificar vía Google Apps Script (Server Action)
+    // 2. Notificar vía Acción de Servidor (GAS + Firestore mail collection)
     await notifyPropertyDeletion({
       title: property.title,
       type: property.type,

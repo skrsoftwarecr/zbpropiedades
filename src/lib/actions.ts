@@ -2,13 +2,11 @@
 
 import type { Property, Lot } from './types';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
-// URL de tu Google Apps Script vinculada
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw1y643gJYCqmov2tRyEO3paVzj_faroSVrT1UsUFX9EYYhA3G9MXkEu7p3pXogJSjw/exec';
 
-// Inicialización de Firebase en el servidor
 function getFirebaseForServer() {
     if (!getApps().length) {
         return initializeApp(firebaseConfig);
@@ -18,8 +16,12 @@ function getFirebaseForServer() {
 
 /**
  * Envía un correo electrónico utilizando Google Apps Script como puente.
+ * IMPORTANTE: Se añade redirect: 'follow' para manejar el comportamiento de GAS.
  */
 async function sendEmailViaGAS(to: string, subject: string, html: string) {
+    console.log(`--- INICIANDO ENVÍO DE CORREO A: ${to} ---`);
+    console.log(`Asunto: ${subject}`);
+    
     try {
         const response = await fetch(GAS_WEBAPP_URL, {
             method: 'POST',
@@ -27,12 +29,47 @@ async function sendEmailViaGAS(to: string, subject: string, html: string) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            redirect: 'follow', // OBLIGATORIO para Google Apps Script
         });
+
         const result = await response.json();
-        return result.result === 'success';
+        console.log('Respuesta de Google Apps Script:', result);
+
+        if (result.result === 'success') {
+            console.log('✅ Correo enviado exitosamente vía GAS.');
+            return true;
+        } else {
+            console.error('❌ Error devuelto por GAS:', result.error);
+            return false;
+        }
     } catch (error) {
-        console.error("Error al llamar a Google Apps Script:", error);
+        console.error("❌ Fallo crítico al llamar a Google Apps Script:", error);
         return false;
+    }
+}
+
+/**
+ * Registra un documento en la colección 'mail' para persistencia y logs.
+ */
+async function logEmailInFirestore(to: string, subject: string, html: string) {
+    try {
+        const app = getFirebaseForServer();
+        const db = getFirestore(app);
+        await addDoc(collection(db, 'mail'), {
+            to,
+            message: {
+                subject,
+                html,
+            },
+            delivery: {
+                startTime: serverTimestamp(),
+                state: 'pending'
+            },
+            createdAt: serverTimestamp()
+        });
+        console.log('✅ Registro de correo creado en colección "mail".');
+    } catch (error) {
+        console.error('❌ Error al escribir en colección "mail":', error);
     }
 }
 
@@ -44,7 +81,6 @@ export async function getProperties(): Promise<Property[]> {
         const snap = await getDocs(col);
         return snap.docs.map(d => ({ id: d.id, ...d.data() } as Property));
     } catch (error) {
-        console.error("Error fetching properties:", error);
         return [];
     }
 }
@@ -57,40 +93,10 @@ export async function getPropertyById(id: string): Promise<Property | null> {
         const snap = await getDoc(ref);
         return snap.exists() ? ({ id: snap.id, ...snap.data() } as Property) : null;
     } catch (error) {
-        console.error("Error fetching property by id:", error);
         return null;
     }
 }
 
-export async function getLots(): Promise<Lot[]> {
-    try {
-        const app = getFirebaseForServer();
-        const db = getFirestore(app);
-        const col = collection(db, 'lots');
-        const snap = await getDocs(col);
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as Lot));
-    } catch (error) {
-        console.error("Error fetching lots:", error);
-        return [];
-    }
-}
-
-export async function getLotById(id: string): Promise<Lot | null> {
-    try {
-        const app = getFirebaseForServer();
-        const db = getFirestore(app);
-        const ref = doc(db, 'lots', id);
-        const snap = await getDoc(ref);
-        return snap.exists() ? ({ id: snap.id, ...snap.data() } as Lot) : null;
-    } catch (error) {
-        console.error("Error fetching lot by id:", error);
-        return null;
-    }
-}
-
-/**
- * Notifica la venta de una propiedad enviando un correo mediante GAS.
- */
 export async function notifyPropertySale(data: {
     title: string;
     type: string;
@@ -106,35 +112,32 @@ export async function notifyPropertySale(data: {
         minimumFractionDigits: 0 
     }).format(data.salePrice);
 
-    // Formatear fecha de YYYY-MM-DD a DD/MM/YYYY para el correo
     const formattedDate = data.saleDate.split('-').reverse().join('/');
-
     const subject = `✅ Propiedad Vendida - ${data.title}`;
     const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">Registro de Cierre Exitoso</h2>
-        <p style="font-size: 16px;">Se ha registrado la venta de la siguiente propiedad:</p>
-        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Propiedad:</strong> ${data.title}</p>
-          <p style="margin: 5px 0;"><strong>Tipo:</strong> ${data.type}</p>
-          <p style="margin: 5px 0;"><strong>Ubicación:</strong> ${data.city}, ${data.province}</p>
-          <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;" />
-          <p style="font-size: 18px; margin: 5px 0;"><strong>Monto de Cierre:</strong> <span style="color: #16a34a;">${formattedSalePrice}</span></p>
-          <p style="margin: 5px 0;"><strong>Fecha de la Venta:</strong> ${formattedDate}</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #16a34a;">Registro de Cierre Exitoso</h2>
+        <p>Se ha registrado la venta de la siguiente propiedad:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px;">
+          <p><strong>Propiedad:</strong> ${data.title}</p>
+          <p><strong>Tipo:</strong> ${data.type}</p>
+          <p><strong>Ubicación:</strong> ${data.city}, ${data.province}</p>
+          <hr />
+          <p style="font-size: 18px;"><strong>Monto de Cierre:</strong> ${formattedSalePrice}</p>
+          <p><strong>Fecha de la Venta:</strong> ${formattedDate}</p>
         </div>
-        <p style="margin-top: 25px; font-size: 12px; color: #666; text-align: center;">
-          Mensaje automático de ZB Propiedades Admin - ${new Date().toLocaleDateString('es-CR')}
-        </p>
       </div>
     `;
 
-    const success = await sendEmailViaGAS('skrsoftwarecr@gmail.com', subject, html);
-    return { success };
+    // 1. Intentar envío inmediato vía GAS
+    const sent = await sendEmailViaGAS('skrsoftwarecr@gmail.com', subject, html);
+    
+    // 2. Registrar en la colección 'mail' (para trigger email o logs)
+    await logEmailInFirestore('skrsoftwarecr@gmail.com', subject, html);
+
+    return { success: sent };
 }
 
-/**
- * Notifica la eliminación de una propiedad mediante GAS.
- */
 export async function notifyPropertyDeletion(data: {
     title: string;
     type: string;
@@ -150,21 +153,20 @@ export async function notifyPropertyDeletion(data: {
 
     const subject = `🗑️ Propiedad Eliminada - ${data.title}`;
     const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Registro Eliminado</h2>
-        <p style="font-size: 16px;">Se ha removido permanentemente el siguiente registro del sistema:</p>
-        <div style="background-color: #fdf2f2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
-          <p style="margin: 5px 0;"><strong>Propiedad:</strong> ${data.title}</p>
-          <p style="margin: 5px 0;"><strong>Tipo:</strong> ${data.type}</p>
-          <p style="margin: 5px 0;"><strong>Ubicación:</strong> ${data.city}, ${data.province}</p>
-          <p style="margin: 5px 0;"><strong>Precio original:</strong> ${formattedPrice}</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #dc2626;">Registro Eliminado</h2>
+        <p>Se ha removido el siguiente registro:</p>
+        <div style="background-color: #fdf2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #dc2626;">
+          <p><strong>Propiedad:</strong> ${data.title}</p>
+          <p><strong>Tipo:</strong> ${data.type}</p>
+          <p><strong>Ubicación:</strong> ${data.city}, ${data.province}</p>
+          <p><strong>Precio original:</strong> ${formattedPrice}</p>
         </div>
-        <p style="margin-top: 25px; font-size: 12px; color: #666; text-align: center;">
-          Notificación de seguridad - Panel ZB Admin - ${new Date().toLocaleDateString('es-CR')}
-        </p>
       </div>
     `;
 
-    const success = await sendEmailViaGAS('skrsoftwarecr@gmail.com', subject, html);
-    return { success };
+    const sent = await sendEmailViaGAS('skrsoftwarecr@gmail.com', subject, html);
+    await logEmailInFirestore('skrsoftwarecr@gmail.com', subject, html);
+
+    return { success: sent };
 }
