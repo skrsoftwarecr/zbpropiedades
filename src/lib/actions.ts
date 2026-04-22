@@ -6,9 +6,9 @@ import { firebaseConfig } from '@/firebase/config';
 
 /**
  * URL de la Web App desplegada en Google Apps Script.
- * RECUERDA: Esta URL debe ser la de tu última implementación con acceso para "Cualquiera".
+ * Esta es la dirección del puente que permite enviar correos sin extensiones.
  */
-const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzNMB6nEf0vU10rY9hRCk6Db8od-wmm1gozrPWEN92HSuuH6AWUomX_n-co2yY1VU4h/exec';
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwIbK0IZvc7TOont320I9bvCh1SQ3TVrbol0TfSzxyIFO9wiVMjqUSo0JOea-z7taNv/exec';
 
 function getFirebaseForServer() {
     if (!getApps().length) {
@@ -19,11 +19,11 @@ function getFirebaseForServer() {
 
 /**
  * Envía un correo electrónico utilizando Google Apps Script como puente.
- * IMPORTANTE: Se usa redirect: 'follow' para manejar las redirecciones de Google.
+ * Utiliza redirect: 'follow' para manejar las redirecciones internas de Google.
  */
 async function sendEmailViaGAS(to: string, subject: string, html: string) {
-    console.log(`--- INTENTANDO ENVÍO VÍA GAS ---`);
-    console.log(`Hacia: ${to}`);
+    console.log(`--- INICIANDO ENVÍO VÍA GOOGLE SCRIPT ---`);
+    console.log(`Destinatario: ${to}`);
     console.log(`Asunto: ${subject}`);
     
     try {
@@ -37,22 +37,21 @@ async function sendEmailViaGAS(to: string, subject: string, html: string) {
         });
 
         if (!response.ok) {
-            console.error(`❌ Error HTTP: ${response.status}`);
+            console.error(`❌ Error en la respuesta HTTP: ${response.status}`);
             return false;
         }
 
         const result = await response.json();
-        console.log('✅ Resultado GAS:', result);
+        console.log('✅ Respuesta de Google Script:', result);
         return result.result === 'success';
     } catch (error) {
-        console.error("❌ Fallo crítico en comunicación con GAS:", error);
+        console.error("❌ Fallo en la comunicación con Google Apps Script:", error);
         return false;
     }
 }
 
 /**
- * Registra un documento en la colección 'mail' para auditoría y respaldo.
- * Sigue la estructura de Firebase Trigger Email Extension.
+ * Registra el correo en la colección 'mail' para auditoría.
  */
 async function logEmailInFirestore(to: string, subject: string, html: string) {
     try {
@@ -66,9 +65,9 @@ async function logEmailInFirestore(to: string, subject: string, html: string) {
             },
             createdAt: serverTimestamp()
         });
-        console.log('✅ Respaldo registrado en Firestore (colección "mail")');
+        console.log('✅ Registro de auditoría creado en Firestore (colección "mail")');
     } catch (error) {
-        console.error('❌ Error al escribir auditoría en Firestore:', error);
+        console.error('❌ No se pudo guardar la auditoría en Firestore:', error);
     }
 }
 
@@ -94,7 +93,7 @@ export async function notifyPropertySale(data: {
             <p><b>Propiedad:</b> ${data.title}</p>
             <p><b>Tipo:</b> ${data.type}</p>
             <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
-            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; pt: 10px;">
+            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
               <b>Monto de cierre:</b> <span style="color: #16a34a;">${formattedPrice}</span>
             </p>
             <p><b>Fecha de la transacción:</b> ${data.saleDate}</p>
@@ -129,7 +128,7 @@ export async function notifyLotSale(data: {
             <p><b>Título:</b> ${data.title}</p>
             <p><b>Categoría:</b> ${data.lotType}</p>
             <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
-            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; pt: 10px;">
+            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
               <b>Monto de venta:</b> <span style="color: #16a34a;">${formattedPrice}</span>
             </p>
             <p><b>Fecha de venta:</b> ${data.saleDate}</p>
