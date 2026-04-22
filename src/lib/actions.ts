@@ -1,11 +1,10 @@
 'use server';
 
-import type { Property, Lot } from './types';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
-// URL de tu Google Apps Script
+// URL exacta de tu Web App desplegada en Google Apps Script
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw1y643gJYCqmov2tRyEO3paVzj_faroSVrT1UsUFX9EYYhA3G9MXkEu7p3pXogJSjw/exec';
 
 function getFirebaseForServer() {
@@ -21,7 +20,7 @@ function getFirebaseForServer() {
  */
 async function sendEmailViaGAS(to: string, subject: string, html: string) {
     console.log(`--- INICIANDO ENVÍO GAS ---`);
-    console.log(`Hacia: ${to}`);
+    console.log(`Destinatario: ${to}`);
     console.log(`Asunto: ${subject}`);
     
     try {
@@ -31,20 +30,25 @@ async function sendEmailViaGAS(to: string, subject: string, html: string) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            redirect: 'follow', // Vital para Google Apps Script
+            redirect: 'follow', // OBLIGATORIO para evitar errores de redirección de Google
         });
 
+        if (!response.ok) {
+            console.error(`❌ HTTP Error en GAS: ${response.status} ${response.statusText}`);
+            return false;
+        }
+
         const result = await response.json();
-        console.log('Respuesta de Google:', result);
+        console.log('✅ Respuesta de Google:', result);
         return result.result === 'success';
     } catch (error) {
-        console.error("❌ Error en la comunicación con GAS:", error);
+        console.error("❌ Fallo crítico en la comunicación con GAS:", error);
         return false;
     }
 }
 
 /**
- * Registra un documento en la colección 'mail' para auditoría y Trigger Email.
+ * Registra un documento en la colección 'mail' para auditoría y compatibilidad con Trigger Email Extension.
  */
 async function logEmailInFirestore(to: string, subject: string, html: string) {
     try {
@@ -60,7 +64,7 @@ async function logEmailInFirestore(to: string, subject: string, html: string) {
         });
         console.log('✅ Copia del correo registrada en Firestore (colección "mail")');
     } catch (error) {
-        console.error('❌ Error al escribir en Firestore:', error);
+        console.error('❌ Error al escribir auditoría en Firestore:', error);
     }
 }
 

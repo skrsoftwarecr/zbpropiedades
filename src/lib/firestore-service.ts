@@ -52,7 +52,7 @@ export async function markPropertyAsSold(firestore: Firestore, property: Propert
       updatedAt: serverTimestamp() 
     });
     
-    // 2. Disparar notificación por correo
+    // 2. Disparar notificación por correo vía Server Action
     await notifyPropertySale({ 
       title: property.title, 
       type: property.type, 
@@ -78,7 +78,7 @@ export async function deletePropertyPermanent(firestore: Firestore, property: Pr
     // 1. Eliminar de Firestore
     await deleteDoc(ref);
     
-    // 2. Notificar eliminación
+    // 2. Notificar eliminación vía Server Action
     await notifyPropertyDeletion({ 
       title: property.title, 
       type: property.type, 
@@ -130,7 +130,7 @@ export async function markLotAsSold(firestore: Firestore, lot: Lot, montoVenta: 
       updatedAt: serverTimestamp() 
     });
     
-    // 2. Notificar por correo
+    // 2. Notificar por correo vía Server Action
     await notifyLotSale({ 
       title: lot.title, 
       lotType: lot.lotType, 
@@ -156,7 +156,7 @@ export async function deleteLotPermanent(firestore: Firestore, lot: Lot) {
     // 1. Eliminar DB
     await deleteDoc(ref);
     
-    // 2. Notificar por correo
+    // 2. Notificar por correo vía Server Action
     await notifyLotDeletion({ 
       title: lot.title, 
       lotType: lot.lotType, 
