@@ -4,7 +4,10 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
-// URL actualizada de la Web App desplegada en Google Apps Script
+/**
+ * URL de la Web App desplegada en Google Apps Script.
+ * RECUERDA: Esta URL debe ser la de tu última implementación con acceso para "Cualquiera".
+ */
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzNMB6nEf0vU10rY9hRCk6Db8od-wmm1gozrPWEN92HSuuH6AWUomX_n-co2yY1VU4h/exec';
 
 function getFirebaseForServer() {
@@ -16,11 +19,11 @@ function getFirebaseForServer() {
 
 /**
  * Envía un correo electrónico utilizando Google Apps Script como puente.
- * IMPORTANTE: Usa redirect: 'follow' porque Google siempre redirecciona las peticiones de macros.
+ * IMPORTANTE: Se usa redirect: 'follow' para manejar las redirecciones de Google.
  */
 async function sendEmailViaGAS(to: string, subject: string, html: string) {
-    console.log(`--- INICIANDO ENVÍO GAS ---`);
-    console.log(`Destinatario: ${to}`);
+    console.log(`--- INTENTANDO ENVÍO VÍA GAS ---`);
+    console.log(`Hacia: ${to}`);
     console.log(`Asunto: ${subject}`);
     
     try {
@@ -30,25 +33,26 @@ async function sendEmailViaGAS(to: string, subject: string, html: string) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            redirect: 'follow', // OBLIGATORIO para evitar errores de redirección de Google
+            redirect: 'follow',
         });
 
         if (!response.ok) {
-            console.error(`❌ HTTP Error en GAS: ${response.status} ${response.statusText}`);
+            console.error(`❌ Error HTTP: ${response.status}`);
             return false;
         }
 
         const result = await response.json();
-        console.log('✅ Respuesta de Google:', result);
+        console.log('✅ Resultado GAS:', result);
         return result.result === 'success';
     } catch (error) {
-        console.error("❌ Fallo crítico en la comunicación con GAS:", error);
+        console.error("❌ Fallo crítico en comunicación con GAS:", error);
         return false;
     }
 }
 
 /**
- * Registra un documento en la colección 'mail' para auditoría y compatibilidad con Trigger Email Extension.
+ * Registra un documento en la colección 'mail' para auditoría y respaldo.
+ * Sigue la estructura de Firebase Trigger Email Extension.
  */
 async function logEmailInFirestore(to: string, subject: string, html: string) {
     try {
@@ -62,7 +66,7 @@ async function logEmailInFirestore(to: string, subject: string, html: string) {
             },
             createdAt: serverTimestamp()
         });
-        console.log('✅ Copia del correo registrada en Firestore (colección "mail")');
+        console.log('✅ Respaldo registrado en Firestore (colección "mail")');
     } catch (error) {
         console.error('❌ Error al escribir auditoría en Firestore:', error);
     }
@@ -83,17 +87,19 @@ export async function notifyPropertySale(data: {
     const formattedPrice = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(data.salePrice);
     const subject = `✅ Propiedad Vendida - ${data.title}`;
     const html = `
-      <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+      <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px;">
         <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">¡Venta Registrada!</h2>
         <p style="font-size: 16px;">Se ha marcado una propiedad como vendida en el sistema:</p>
-        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px;">
+        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
             <p><b>Propiedad:</b> ${data.title}</p>
             <p><b>Tipo:</b> ${data.type}</p>
             <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
-            <p style="font-size: 18px; color: #1e293b;"><b>Monto de cierre:</b> <span style="color: #16a34a;">${formattedPrice}</span></p>
+            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; pt: 10px;">
+              <b>Monto de cierre:</b> <span style="color: #16a34a;">${formattedPrice}</span>
+            </p>
             <p><b>Fecha de la transacción:</b> ${data.saleDate}</p>
         </div>
-        <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Este es un mensaje automático del sistema administrativo de ZB Propiedades.</p>
+        <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Mensaje automático del Sistema ZB Propiedades.</p>
       </div>
     `;
     
@@ -115,17 +121,20 @@ export async function notifyLotSale(data: {
     saleDate: string;
 }) {
     const formattedPrice = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(data.salePrice);
-    const subject = `✅ Lote/Quinta Vendido - ${data.title}`;
+    const subject = `✅ Terreno Vendido - ${data.title}`;
     const html = `
-      <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-        <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">¡Terreno Vendido!</h2>
-        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px;">
+      <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px;">
+        <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">¡Venta de Terreno Registrada!</h2>
+        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
             <p><b>Título:</b> ${data.title}</p>
             <p><b>Categoría:</b> ${data.lotType}</p>
             <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
-            <p style="font-size: 18px;"><b>Monto de venta:</b> <span style="color: #16a34a;">${formattedPrice}</span></p>
+            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; pt: 10px;">
+              <b>Monto de venta:</b> <span style="color: #16a34a;">${formattedPrice}</span>
+            </p>
             <p><b>Fecha de venta:</b> ${data.saleDate}</p>
         </div>
+        <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Mensaje automático del Sistema ZB Propiedades.</p>
       </div>
     `;
     
@@ -140,14 +149,16 @@ export async function notifyLotSale(data: {
 export async function notifyPropertyDeletion(data: { title: string; type: string; city: string; province: string; price: number }) {
     const subject = `🗑️ Propiedad Eliminada - ${data.title}`;
     const html = `
-        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #fee2e2; border-radius: 8px;">
-            <h2 style="color: #dc2626;">Registro Eliminado</h2>
+        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #fee2e2; border-radius: 8px; max-width: 600px;">
+            <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Registro Eliminado</h2>
             <p>Se ha removido permanentemente el siguiente registro del sistema:</p>
-            <ul>
-                <li><b>Título:</b> ${data.title}</li>
-                <li><b>Tipo:</b> ${data.type}</li>
-                <li><b>Ubicación:</b> ${data.city}, ${data.province}</li>
-            </ul>
+            <div style="background-color: #fff1f2; padding: 15px; border-radius: 6px;">
+                <p><b>Título:</b> ${data.title}</p>
+                <p><b>Tipo:</b> ${data.type}</p>
+                <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
+                <p><b>Precio Publicado:</b> ₡${data.price.toLocaleString('es-CR')}</p>
+            </div>
+            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Auditoría del Sistema ZB Propiedades.</p>
         </div>
     `;
     await logEmailInFirestore('skrsoftwarecr@gmail.com', subject, html);
@@ -156,16 +167,21 @@ export async function notifyPropertyDeletion(data: { title: string; type: string
 }
 
 /**
- * Notificación de Eliminación de Lote
+ * Notificación de Eliminación de Lote/Terreno
  */
 export async function notifyLotDeletion(data: { title: string; lotType: string; city: string; province: string; price: number }) {
-    const subject = `🗑️ Lote Eliminado - ${data.title}`;
+    const subject = `🗑️ Terreno Eliminado - ${data.title}`;
     const html = `
-        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #fee2e2; border-radius: 8px;">
-            <h2 style="color: #dc2626;">Terreno Eliminado</h2>
-            <p>Se ha eliminado el lote:</p>
-            <p><b>Título:</b> ${data.title}</p>
-            <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
+        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #fee2e2; border-radius: 8px; max-width: 600px;">
+            <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Terreno Eliminado</h2>
+            <p>Se ha removido el lote/quinta del sistema:</p>
+            <div style="background-color: #fff1f2; padding: 15px; border-radius: 6px;">
+                <p><b>Título:</b> ${data.title}</p>
+                <p><b>Categoría:</b> ${data.lotType}</p>
+                <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
+                <p><b>Precio Publicado:</b> ₡${data.price.toLocaleString('es-CR')}</p>
+            </div>
+            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Auditoría del Sistema ZB Propiedades.</p>
         </div>
     `;
     await logEmailInFirestore('skrsoftwarecr@gmail.com', subject, html);
