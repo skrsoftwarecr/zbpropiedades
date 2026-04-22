@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { Property, Lot } from './types';
@@ -6,10 +5,10 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
-// URL de Google Apps Script (Placeholder - Por favor reemplázala con la real cuando la tengas)
-const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz_XXXXXXXXX/exec';
+// URL de tu Google Apps Script vinculada
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw1y643gJYCqmov2tRyEO3paVzj_faroSVrT1UsUFX9EYYhA3G9MXkEu7p3pXogJSjw/exec';
 
-// Server-side firebase initialization
+// Inicialización de Firebase en el servidor
 function getFirebaseForServer() {
     if (!getApps().length) {
         return initializeApp(firebaseConfig);
@@ -32,7 +31,7 @@ async function sendEmailViaGAS(to: string, subject: string, html: string) {
         const result = await response.json();
         return result.result === 'success';
     } catch (error) {
-        console.error("Error calling GAS:", error);
+        console.error("Error al llamar a Google Apps Script:", error);
         return false;
     }
 }
@@ -107,7 +106,7 @@ export async function notifyPropertySale(data: {
         minimumFractionDigits: 0 
     }).format(data.salePrice);
 
-    // Formatear fecha de YYYY-MM-DD a DD/MM/YYYY
+    // Formatear fecha de YYYY-MM-DD a DD/MM/YYYY para el correo
     const formattedDate = data.saleDate.split('-').reverse().join('/');
 
     const subject = `✅ Propiedad Vendida - ${data.title}`;
