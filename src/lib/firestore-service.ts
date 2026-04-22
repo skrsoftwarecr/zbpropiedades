@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -12,6 +13,7 @@ import {
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { Property, Lot } from '@/lib/types';
+import { notifyPropertySale, notifyPropertyDeletion } from './actions';
 
 // --- Property Actions ---
 
@@ -59,8 +61,6 @@ export async function markPropertyAsSold(
   fechaVenta: string // Formato YYYY-MM-DD
 ) {
   const ref = doc(firestore, 'properties', property.id);
-  const formattedPrice = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(montoVenta);
-  const formattedDate = fechaVenta.split('-').reverse().join('/');
 
   try {
     // 1. Actualizar Propiedad en Firestore
@@ -72,30 +72,17 @@ export async function markPropertyAsSold(
       updatedAt: serverTimestamp(),
     });
 
-    // 2. Registrar Email de Notificación (Firebase Trigger Email)
-    await addDoc(collection(firestore, 'mail'), {
-      to: 'skrsoftwarecr@gmail.com',
-      message: {
-        subject: `✅ Propiedad Vendida - ${property.title}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">Registro de Cierre Exitoso</h2>
-            <p style="font-size: 16px;">Se ha registrado la venta de la siguiente propiedad:</p>
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p style="margin: 5px 0;"><strong>Propiedad:</strong> ${property.title}</p>
-              <p style="margin: 5px 0;"><strong>Tipo:</strong> ${property.type}</p>
-              <p style="margin: 5px 0;"><strong>Ubicación:</strong> ${property.city}, ${property.province}</p>
-              <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;" />
-              <p style="font-size: 18px; margin: 5px 0;"><strong>Monto de Cierre:</strong> <span style="color: #16a34a;">${formattedPrice}</span></p>
-              <p style="margin: 5px 0;"><strong>Fecha de la Venta:</strong> ${formattedDate}</p>
-            </div>
-            <p style="margin-top: 25px; font-size: 12px; color: #666; text-align: center;">
-              Mensaje automático de ZB Propiedades Admin - ${new Date().toLocaleDateString('es-CR')}
-            </p>
-          </div>
-        `
-      }
+    // 2. Notificar vía Google Apps Script (Server Action)
+    await notifyPropertySale({
+      title: property.title,
+      type: property.type,
+      city: property.city,
+      province: property.province,
+      price: property.price,
+      salePrice: montoVenta,
+      saleDate: fechaVenta,
     });
+
   } catch (error: any) {
     const contextualError = new FirestorePermissionError({
       operation: 'update',
@@ -109,35 +96,20 @@ export async function markPropertyAsSold(
 
 export async function deletePropertyPermanent(firestore: Firestore, property: Property) {
   const ref = doc(firestore, 'properties', property.id);
-  const formattedPrice = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(property.price);
 
   try {
-    // 1. Eliminar Documento
+    // 1. Eliminar Documento de Firestore
     await deleteDoc(ref);
 
-    // 2. Notificar Eliminación por correo
-    await addDoc(collection(firestore, 'mail'), {
-      to: 'skrsoftwarecr@gmail.com',
-      message: {
-        subject: `🗑️ Propiedad Eliminada - ${property.title}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Registro Eliminado</h2>
-            <p style="font-size: 16px;">Se ha removido permanentemente el siguiente registro del sistema:</p>
-            <div style="background-color: #fdf2f2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
-              <p style="margin: 5px 0;"><strong>Propiedad:</strong> ${property.title}</p>
-              <p style="margin: 5px 0;"><strong>Tipo:</strong> ${property.type}</p>
-              <p style="margin: 5px 0;"><strong>Ubicación:</strong> ${property.city}, ${property.province}</p>
-              <p style="margin: 5px 0;"><strong>Precio original:</strong> ${formattedPrice}</p>
-              <p style="margin: 5px 0;"><strong>Estado final:</strong> ${property.status || 'Disponible'}</p>
-            </div>
-            <p style="margin-top: 25px; font-size: 12px; color: #666; text-align: center;">
-              Notificación de seguridad - Panel ZB Admin - ${new Date().toLocaleDateString('es-CR')}
-            </p>
-          </div>
-        `
-      }
+    // 2. Notificar vía Google Apps Script (Server Action)
+    await notifyPropertyDeletion({
+      title: property.title,
+      type: property.type,
+      city: property.city,
+      province: property.province,
+      price: property.price,
     });
+
   } catch (error: any) {
     const contextualError = new FirestorePermissionError({
       operation: 'delete',
