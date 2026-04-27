@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ImagePlus, X, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { ImagePlus, X, Trash2, AlertTriangle, Loader2, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import {
   AlertDialog,
@@ -52,6 +52,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({
   title: z.string().min(5, 'Título muy corto.'),
@@ -385,6 +386,15 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
                     <FormMessage />
                   </FormItem>
               )} />
+
+              {/* Informative Banner */}
+              <Alert className="bg-green-50 border-green-200 text-green-800">
+                <ShieldCheck className="h-4 w-4 text-green-600" />
+                <AlertTitle className="font-semibold text-sm">Información importante</AlertTitle>
+                <AlertDescription className="text-xs">
+                  Sin costo por publicar — solo pagas cuando se cierra la venta de forma exitosa.
+                </AlertDescription>
+              </Alert>
 
               <SheetFooter className="pt-4 flex flex-col gap-4">
                 <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">Guardar Cambios</Button>

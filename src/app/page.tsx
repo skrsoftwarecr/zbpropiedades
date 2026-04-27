@@ -7,7 +7,7 @@ import { collection, query, orderBy, limit } from 'firebase/firestore';
 import type { Property, Lot } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
-import { Home, Landmark, Key, Phone } from 'lucide-react';
+import { Home, Landmark, Key, Phone, ShieldCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const WHATSAPP_URL = "https://wa.me/50660148363";
@@ -62,6 +62,12 @@ export default function LandingPage() {
               <Button size="lg" variant="outline" className="text-lg px-8 h-14 bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20" asChild>
                 <Link href="/lotes">Explorar Lotes</Link>
               </Button>
+            </div>
+            
+            {/* Trust Line */}
+            <div className="mt-6 flex items-center gap-2 text-white/90 text-sm md:text-base font-medium animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+              <ShieldCheck className="h-5 w-5 text-secondary" />
+              <span>Sin costo por publicar — solo pagas cuando se cierra la venta.</span>
             </div>
           </div>
         </div>
