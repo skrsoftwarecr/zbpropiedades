@@ -310,9 +310,9 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
               {/* Informative Banner */}
               <Alert className="bg-green-50 border-green-200 text-green-800">
                 <ShieldCheck className="h-4 w-4 text-green-600" />
-                <AlertTitle className="font-semibold text-sm">Sin costo por publicar</AlertTitle>
+                <AlertTitle className="font-semibold text-sm">Sin costo por publicidad</AlertTitle>
                 <AlertDescription className="text-xs">
-                  Solo pagas cuando se cierra la venta de forma exitosa. Publicación totalmente gratuita.
+                  Solo pagas cuando se cierra la venta de forma exitosa. Publicidad totalmente gratuita.
                 </AlertDescription>
               </Alert>
 

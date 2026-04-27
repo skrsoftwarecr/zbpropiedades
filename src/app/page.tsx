@@ -67,7 +67,7 @@ export default function LandingPage() {
             {/* Trust Line */}
             <div className="mt-6 flex items-center gap-2 text-white/90 text-sm md:text-base font-medium animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
               <ShieldCheck className="h-5 w-5 text-secondary" />
-              <span>Sin costo por publicar — solo pagas cuando se cierra la venta.</span>
+              <span>Sin costo por publicidad — solo pagas cuando se cierra la venta.</span>
             </div>
           </div>
         </div>

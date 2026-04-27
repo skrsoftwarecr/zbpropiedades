@@ -392,7 +392,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
                 <ShieldCheck className="h-4 w-4 text-green-600" />
                 <AlertTitle className="font-semibold text-sm">Información importante</AlertTitle>
                 <AlertDescription className="text-xs">
-                  Sin costo por publicar — solo pagas cuando se cierra la venta de forma exitosa.
+                  Sin costo por publicidad — solo pagas cuando se cierra la venta de forma exitosa.
                 </AlertDescription>
               </Alert>
 
