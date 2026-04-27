@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User as UserIcon, LogOut, Home, Landmark, Phone, Key } from 'lucide-react';
+import { Menu, User as UserIcon, LogOut, Home, Landmark, Phone, Key, Tag } from 'lucide-react';
 import { useUser } from '@/firebase/provider';
 import { signOutUser } from '@/firebase/auth-service';
 import { useAuth } from '@/firebase/provider';
@@ -32,6 +32,7 @@ const navLinks = [
   { href: '/propiedades', label: 'Propiedades', icon: Home },
   { href: '/lotes', label: 'Lotes y Quintas', icon: Landmark },
   { href: '/alquileres', label: 'Alquileres', icon: Key },
+  { href: '/vendemos-su-propiedad', label: 'Vendemos tu Propiedad', icon: Tag },
 ];
 
 const WHATSAPP_URL = "https://wa.me/50660148363";
@@ -134,7 +135,6 @@ export function Header() {
             </a>
           </Button>
           
-          {/* Solo renderizamos el menú de usuario en el cliente para evitar errores de hidratación */}
           {isClient && user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

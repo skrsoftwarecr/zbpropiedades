@@ -2,13 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, limit } from 'firebase/firestore';
-import type { Property, Lot } from '@/lib/types';
-
 import { Button } from '@/components/ui/button';
-import { Home, Landmark, Key, Phone, ShieldCheck } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Home, Landmark, Key, Phone, ArrowRight, Tag } from 'lucide-react';
 
 const WHATSAPP_URL = "https://wa.me/50660148363";
 
@@ -63,12 +58,6 @@ export default function LandingPage() {
                 <Link href="/lotes">Explorar Lotes</Link>
               </Button>
             </div>
-            
-            {/* Trust Line */}
-            <div className="mt-6 flex items-center gap-2 text-white/90 text-sm md:text-base font-medium animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-              <ShieldCheck className="h-5 w-5 text-secondary" />
-              <span>Sin costo por publicidad — solo pagas cuando se cierra la venta.</span>
-            </div>
           </div>
         </div>
       </section>
@@ -83,21 +72,53 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <ServiceCard 
               title="Residencias"
-              description="Casas y apartamentos en preventa o listos para estrenar en las zonas de mayor plusvalía."
+              description="Casas y apartamentos listos para estrenar en las zonas de mayor plusvalía."
               href="/propiedades"
               image="https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=800"
               icon={Home}
             />
             <ServiceCard 
               title="Lotes y Quintas"
-              description="Terrenos ideales para construir su proyecto de vida o inversión agrícola/comercial."
+              description="Terrenos ideales para construir su proyecto de vida o inversión agrícola."
               href="/lotes"
               image="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800"
               icon={Landmark}
             />
+            <ServiceCard 
+              title="Alquileres"
+              description="Opciones residenciales y comerciales con las mejores ubicaciones y precios."
+              href="/alquileres"
+              image="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800"
+              icon={Key}
+            />
+          </div>
+
+          <div className="mt-16 max-w-4xl mx-auto bg-muted/30 rounded-2xl p-8 border border-dashed flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1 space-y-4">
+              <div className="bg-secondary/10 text-secondary p-3 rounded-full w-fit">
+                <Tag className="h-6 w-6" />
+              </div>
+              <h3 className="text-2xl font-bold">¿Desea vender o alquilar su propiedad?</h3>
+              <p className="text-muted-foreground">
+                Nos encargamos de toda la gestión, desde la publicidad profesional hasta el cierre final. ¡Sin costos iniciales!
+              </p>
+              <Button asChild variant="link" className="p-0 h-auto font-bold text-primary group">
+                <Link href="/vendemos-su-propiedad" className="flex items-center gap-2">
+                  Conocer más del servicio <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </div>
+            <div className="relative w-full md:w-64 aspect-square rounded-xl overflow-hidden shadow-lg">
+               <Image 
+                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=600"
+                alt="Servicio inmobiliario"
+                fill
+                className="object-cover"
+               />
+            </div>
           </div>
         </div>
       </section>

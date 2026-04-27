@@ -8,7 +8,7 @@ import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { addLot, updateLot, deleteLotPermanent } from '@/lib/firestore-service';
 import type { Lot } from '@/lib/types';
-import { ImagePlus, X, Trash2, AlertTriangle, Loader2, ShieldCheck } from 'lucide-react';
+import { ImagePlus, X, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 import {
@@ -47,7 +47,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({
   title: z.string().min(5, 'Mínimo 5 caracteres.'),
@@ -307,15 +306,6 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
                   </FormItem>
               )} />
 
-              {/* Informative Banner */}
-              <Alert className="bg-green-50 border-green-200 text-green-800">
-                <ShieldCheck className="h-4 w-4 text-green-600" />
-                <AlertTitle className="font-semibold text-sm">Sin costo por publicidad</AlertTitle>
-                <AlertDescription className="text-xs">
-                  Solo pagas cuando se cierra la venta de forma exitosa. Publicidad totalmente gratuita.
-                </AlertDescription>
-              </Alert>
-
               <SheetFooter className="pt-4 flex flex-col gap-4">
                 <Button type="submit" className="w-full">Guardar Cambios</Button>
                 {isEditing && (
@@ -342,7 +332,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
               ¿Eliminar lote?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará permanentemente el registro de <strong>{lot?.title}</strong>. Esta acción no se puede deshacer y enviará una notificación por correo.
+              Esta acción eliminará permanentemente el registro de <strong>{lot?.title}</strong>. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
