@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -53,7 +52,7 @@ export default function LotsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside className="lg:col-span-1 space-y-6 bg-card p-6 rounded-xl border shadow-sm h-fit sticky top-24">
+        <aside className="lg:col-span-1 space-y-6 bg-card p-6 rounded-xl border shadow-sm h-fit lg:sticky lg:top-24 z-10">
           <h2 className="font-bold text-lg border-b pb-2">Filtrar Lotes</h2>
           
           <div className="space-y-4">

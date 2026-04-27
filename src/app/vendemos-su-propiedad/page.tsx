@@ -92,22 +92,12 @@ export default function SellWithUsPage() {
         </div>
       </section>
 
-      {/* Content Space for Future Expansion */}
-      <section className="py-16 bg-muted/20 border-y border-dashed">
-        <div className="container px-4 text-center">
-          <h3 className="text-2xl font-bold mb-4">Próximamente: Guía del Vendedor</h3>
-          <p className="text-muted-foreground max-w-xl mx-auto italic">
-            Estamos preparando contenido exclusivo para ayudarle a preparar su propiedad para el mercado y maximizar su valor de cierre.
-          </p>
-        </div>
-      </section>
-
       {/* Closing CTA */}
       <section className="py-20">
         <div className="container px-4">
           <div className="bg-primary rounded-[2rem] p-8 md:p-16 text-center text-primary-foreground relative overflow-hidden shadow-2xl">
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 font-headline">¿Hablamos de su propiedad?</h2>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 font-headline">Cuéntenos de su propiedad</h2>
               <p className="text-xl opacity-80 mb-10 max-w-2xl mx-auto">
                 No pierda más tiempo gestionando llamadas de curiosos. Deje que el equipo de ZB Propiedades se encargue de todo de forma profesional.
               </p>
