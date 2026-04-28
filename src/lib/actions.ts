@@ -86,17 +86,40 @@ export async function notifyPropertySale(data: {
     const isSale = data.operationType === 'Venta';
     const currencyFormatter = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 2 });
     
-    const formattedPrice = currencyFormatter.format(data.salePrice);
+    const formattedListingPrice = currencyFormatter.format(data.price);
+    const formattedSalePrice = currencyFormatter.format(data.salePrice);
     
-    // Cálculos de comisión si es venta
-    let commissionHtml = '';
+    let contentHtml = '';
+
     if (isSale) {
+        // Cálculos para Venta
         const gananciaAdmin = data.salePrice * 0.05;
         const comisionPagar = gananciaAdmin * 0.05;
-        
-        commissionHtml = `
-            <p style="margin: 5px 0;"><b>Ganancia del admin (5%):</b> ${currencyFormatter.format(gananciaAdmin)}</p>
-            <p style="margin: 5px 0;"><b>Comisión a pagar (5% de ganancia):</b> <span style="color: #dc2626; font-weight: bold;">${currencyFormatter.format(comisionPagar)}</span></p>
+
+        contentHtml = `
+            <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <p style="margin: 5px 0;"><b>Tipo de propiedad:</b> ${data.type}</p>
+                <p style="margin: 5px 0;"><b>Precio de publicación:</b> ${formattedListingPrice}</p>
+                <p style="margin: 5px 0; font-size: 18px; color: #1e293b;"><b>Precio de venta:</b> <span style="color: #16a34a; font-weight: bold;">${formattedSalePrice}</span></p>
+                <p style="margin: 15px 0 5px 0; padding-top: 10px; border-top: 1px solid #e2e8f0;"><b>Ganancia del admin (5%):</b> ${currencyFormatter.format(gananciaAdmin)}</p>
+                <p style="margin: 5px 0;"><b>Comisión a pagar (5% de ganancia):</b> <span style="color: #dc2626; font-weight: bold;">${currencyFormatter.format(comisionPagar)}</span></p>
+                <p style="margin: 15px 0 5px 0; padding-top: 10px; border-top: 1px solid #e2e8f0;"><b>Propiedad:</b> ${data.title}</p>
+                <p style="margin: 5px 0;"><b>Ubicación:</b> ${data.city}, ${data.province}</p>
+                <p style="margin: 5px 0;"><b>Fecha de cierre:</b> ${data.saleDate}</p>
+            </div>
+        `;
+    } else {
+        // Formato original para Alquiler
+        contentHtml = `
+            <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <p><b>Propiedad:</b> ${data.title}</p>
+                <p><b>Tipo:</b> ${data.type}</p>
+                <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
+                <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                  <b>Precio de cierre:</b> <span style="color: #16a34a;">${formattedSalePrice}</span>
+                </p>
+                <p style="margin-top: 10px;"><b>Fecha de la transacción:</b> ${data.saleDate}</p>
+            </div>
         `;
     }
 
@@ -105,16 +128,7 @@ export async function notifyPropertySale(data: {
       <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px;">
         <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">¡${isSale ? 'Venta' : 'Alquiler'} Registrado!</h2>
         <p style="font-size: 16px;">Detalles de la transacción en el sistema:</p>
-        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
-            <p><b>Propiedad:</b> ${data.title}</p>
-            <p><b>Tipo:</b> ${data.type}</p>
-            <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
-            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
-              <b>Precio de cierre:</b> <span style="color: #16a34a;">${formattedPrice}</span>
-            </p>
-            ${commissionHtml}
-            <p style="margin-top: 10px;"><b>Fecha de la transacción:</b> ${data.saleDate}</p>
-        </div>
+        ${contentHtml}
         <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Mensaje automático del Sistema ZB Propiedades.</p>
       </div>
     `;
@@ -137,9 +151,10 @@ export async function notifyLotSale(data: {
     saleDate: string;
 }) {
     const currencyFormatter = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 2 });
-    const formattedPrice = currencyFormatter.format(data.salePrice);
+    const formattedListingPrice = currencyFormatter.format(data.price);
+    const formattedSalePrice = currencyFormatter.format(data.salePrice);
     
-    // Cálculos de comisión (Lotes son siempre venta)
+    // Cálculos de comisión
     const gananciaAdmin = data.salePrice * 0.05;
     const comisionPagar = gananciaAdmin * 0.05;
 
@@ -147,16 +162,16 @@ export async function notifyLotSale(data: {
     const html = `
       <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px;">
         <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">¡Venta de Terreno Registrada!</h2>
+        <p style="font-size: 16px;">Detalles del cierre:</p>
         <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
-            <p><b>Título:</b> ${data.title}</p>
-            <p><b>Categoría:</b> ${data.lotType}</p>
-            <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
-            <p style="font-size: 18px; color: #1e293b; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
-              <b>Precio de venta:</b> <span style="color: #16a34a;">${formattedPrice}</span>
-            </p>
-            <p style="margin: 5px 0;"><b>Ganancia del admin (5%):</b> ${currencyFormatter.format(gananciaAdmin)}</p>
+            <p style="margin: 5px 0;"><b>Categoría:</b> ${data.lotType}</p>
+            <p style="margin: 5px 0;"><b>Precio de publicación:</b> ${formattedListingPrice}</p>
+            <p style="margin: 5px 0; font-size: 18px; color: #1e293b;"><b>Precio de venta:</b> <span style="color: #16a34a; font-weight: bold;">${formattedSalePrice}</span></p>
+            <p style="margin: 15px 0 5px 0; padding-top: 10px; border-top: 1px solid #e2e8f0;"><b>Ganancia del admin (5%):</b> ${currencyFormatter.format(gananciaAdmin)}</p>
             <p style="margin: 5px 0;"><b>Comisión a pagar (5% de ganancia):</b> <span style="color: #dc2626; font-weight: bold;">${currencyFormatter.format(comisionPagar)}</span></p>
-            <p style="margin-top: 10px;"><b>Fecha de venta:</b> ${data.saleDate}</p>
+            <p style="margin: 15px 0 5px 0; padding-top: 10px; border-top: 1px solid #e2e8f0;"><b>Título:</b> ${data.title}</p>
+            <p style="margin: 5px 0;"><b>Ubicación:</b> ${data.city}, ${data.province}</p>
+            <p style="margin: 5px 0;"><b>Fecha de venta:</b> ${data.saleDate}</p>
         </div>
         <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Mensaje automático del Sistema ZB Propiedades.</p>
       </div>
