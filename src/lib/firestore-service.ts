@@ -55,7 +55,8 @@ export async function markPropertyAsSold(firestore: Firestore, property: Propert
     // 2. Disparar notificación por correo vía Server Action
     await notifyPropertySale({ 
       title: property.title, 
-      type: property.type, 
+      type: property.type,
+      operationType: property.operationType,
       city: property.city, 
       province: property.province, 
       price: property.price, 
