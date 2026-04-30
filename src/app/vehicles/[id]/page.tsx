@@ -7,15 +7,14 @@ import { ChevronLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AppointmentForm } from '@/components/vehicles/AppointmentForm';
 import { VehicleDetails } from '@/components/vehicles/VehicleDetails';
-import type { Vehicle } from '@/lib/types';
-
 
 type Props = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const vehicle = await getVehicleById(params.id);
+  const { id } = await params;
+  const vehicle = await getVehicleById(id);
 
   if (!vehicle) {
     return {
@@ -46,7 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function VehicleDetailPage({ params }: Props) {
-  const vehicle = await getVehicleById(params.id);
+  const { id } = await params;
+  const vehicle = await getVehicleById(id);
 
   if (!vehicle) {
     notFound();
