@@ -1,4 +1,11 @@
+# 1. Agrega todos los cambios realizados
+git add .
 
+# 2. Crea un commit con una descripción clara
+git commit -m "Limpieza total: Eliminación de módulos de vehículos/repuestos y corrección de build en Netlify"
+
+# 3. Sube los cambios a tu rama principal
+git push origin main
 # ZB Propiedades - Plataforma Inmobiliaria
 
 Este proyecto es una aplicación de bienes raíces moderna construida con **Next.js 15**, **Firebase** y **Tailwind CSS**.
