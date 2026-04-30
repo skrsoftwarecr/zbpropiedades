@@ -4,10 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Home, Landmark, Key, Phone, ArrowRight, Tag } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const WHATSAPP_URL = "https://wa.me/50660148363";
 
-const ServiceCard = ({ title, description, href, image, icon: Icon }: any) => (
+const ServiceCard = ({ title, description, href, image, icon: Icon, imageHint }: any) => (
   <Link href={href} className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:shadow-2xl">
     <div className="aspect-[16/10] relative overflow-hidden">
       <Image 
@@ -15,6 +16,7 @@ const ServiceCard = ({ title, description, href, image, icon: Icon }: any) => (
         alt={title} 
         fill 
         className="object-cover transition-transform duration-500 group-hover:scale-110"
+        data-ai-hint={imageHint}
       />
       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
       <div className="absolute top-4 left-4 bg-primary text-primary-foreground p-2 rounded-lg">
@@ -29,6 +31,8 @@ const ServiceCard = ({ title, description, href, image, icon: Icon }: any) => (
 );
 
 export default function LandingPage() {
+  const residenciasImg = PlaceHolderImages.find(img => img.id === 'residencias-home');
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -77,7 +81,8 @@ export default function LandingPage() {
               title="Residencias"
               description="Casas y apartamentos listos para estrenar en las zonas de mayor plusvalía."
               href="/propiedades"
-              image="https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=800"
+              image={residenciasImg?.imageUrl || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=800"}
+              imageHint={residenciasImg?.imageHint || "modern house"}
               icon={Home}
             />
             <ServiceCard 
@@ -85,6 +90,7 @@ export default function LandingPage() {
               description="Terrenos ideales para construir su proyecto de vida o inversión agrícola."
               href="/lotes"
               image="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800"
+              imageHint="green field"
               icon={Landmark}
             />
             <ServiceCard 
@@ -92,6 +98,7 @@ export default function LandingPage() {
               description="Opciones residenciales y comerciales con las mejores ubicaciones y precios."
               href="/alquileres"
               image="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800"
+              imageHint="apartment interior"
               icon={Key}
             />
           </div>

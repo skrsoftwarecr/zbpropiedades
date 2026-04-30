@@ -7,6 +7,12 @@
       "imageHint": "bmw car"
     },
     {
+      "id": "residencias-home",
+      "description": "Modern luxury residence with pool",
+      "imageUrl": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=800",
+      "imageHint": "modern house"
+    },
+    {
       "id": "cta-repuestos",
       "description": "Close-up of a high-performance BMW wheel and brake assembly.",
       "imageUrl": "/images/Repuestos/repuestos%20portada.png",
