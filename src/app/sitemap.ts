@@ -1,35 +1,24 @@
+
 import { MetadataRoute } from 'next'
-import { getProducts, getVehicles } from '@/lib/actions';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = 'https://www.bimmercr.com'; // Use production URL
+  const siteUrl = 'https://www.zbpropiedades.com';
 
   const staticRoutes = [
     '',
-    '/parts',
-    '/vehicles',
-    '/sell-vehicle',
-    '/taller',
+    '/propiedades',
+    '/lotes',
+    '/alquileres',
+    '/vendemos-su-propiedad',
   ].map((route) => ({
     url: `${siteUrl}${route}`,
     lastModified: new Date().toISOString(),
   }));
 
-  const products = await getProducts();
-  const productRoutes = products.map(product => ({
-    url: `${siteUrl}/parts/${product.id}`,
-    lastModified: new Date().toISOString(),
-  }));
-
-  const vehicles = await getVehicles();
-  const vehicleRoutes = vehicles.map(vehicle => ({
-    url: `${siteUrl}/vehicles/${vehicle.id}`,
-    lastModified: new Date().toISOString(),
-  }));
-
+  // Nota: Las rutas dinámicas de propiedades/lotes se indexan automáticamente si están enlazadas.
+  // Para una implementación de producción, se recomienda realizar un fetch de IDs de Firestore aquí.
+  
   return [
     ...staticRoutes,
-    ...productRoutes,
-    ...vehicleRoutes,
   ];
 }

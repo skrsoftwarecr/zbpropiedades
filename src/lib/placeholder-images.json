@@ -1,64 +1,10 @@
 {
   "placeholderImages": [
     {
-      "id": "hero-1",
-      "description": "Dramatic shot of a BMW M4 driving on a mountain road",
-      "imageUrl": "/images/hero-1.jpg",
-      "imageHint": "bmw car"
-    },
-    {
       "id": "residencias-home",
       "description": "Modern luxury residence with pool",
       "imageUrl": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=800",
       "imageHint": "modern house"
-    },
-    {
-      "id": "cta-repuestos",
-      "description": "Close-up of a high-performance BMW wheel and brake assembly.",
-      "imageUrl": "/images/Repuestos/repuestos%20portada.png",
-      "imageHint": "bmw wheel"
-    },
-    {
-      "id": "cta-vehiculos",
-      "description": "A pristine white BMW M4 ready for the road.",
-      "imageUrl": "/images/Carros/Carros%20portada.png",
-      "imageHint": "bmw car"
-    },
-    {
-      "id": "cta-vender-vehiculo",
-      "description": "Interior of a luxury vehicle, showcasing its premium quality.",
-      "imageUrl": "/images/CompraVehiculos%20Portada/CompraVehiculos%20portada.png",
-      "imageHint": "luxury car interior"
-    },
-    {
-      "id": "cta-taller",
-      "description": "A high-performance BMW being serviced in a professional workshop.",
-      "imageUrl": "/images/Tallerr/Tallerr%20portada.png",
-      "imageHint": "bmw service"
-    },
-    {
-      "id": "taller-hero",
-      "description": "A dynamic shot of a BMW showcasing its performance and design.",
-      "imageUrl": "/images/Tallerr/Tallerr%20portada.png",
-      "imageHint": "bmw performance"
-    },
-    {
-      "id": "servicio-mecanica",
-      "description": "Expert mechanic performing diagnostics on a BMW.",
-      "imageUrl": "/images/servicio-mecanica.jpg",
-      "imageHint": "car diagnostics"
-    },
-    {
-      "id": "servicio-mantenimiento",
-      "description": "A clean and powerful BMW engine undergoing preventive maintenance.",
-      "imageUrl": "/images/servicio-mantenimiento.jpg",
-      "imageHint": "bmw engine"
-    },
-    {
-      "id": "servicio-pintura",
-      "description": "A BMW with a flawless, glossy black paint finish after a professional service.",
-      "imageUrl": "/images/servicio-pintura.jpg",
-      "imageHint": "car paint"
     }
   ]
 }

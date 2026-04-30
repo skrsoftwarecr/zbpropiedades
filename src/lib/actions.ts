@@ -1,13 +1,12 @@
+
 'use server';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
-import { products, vehicles } from './data';
 
 /**
  * URL de la Web App desplegada en Google Apps Script.
- * Se prefiere usar variable de entorno para mayor seguridad.
  */
 const GAS_WEBAPP_URL = process.env.GAS_WEBAPP_URL || 'https://script.google.com/macros/s/AKfycbwIbK0IZvc7TOont320I9bvCh1SQ3TVrbol0TfSzxyIFO9wiVMjqUSo0JOea-z7taNv/exec';
 
@@ -16,65 +15,6 @@ function getFirebaseForServer() {
         return initializeApp(firebaseConfig);
     }
     return getApp();
-}
-
-/**
- * Funciones de obtención de datos para Repuestos y Vehículos
- */
-export async function getProducts() {
-    return products;
-}
-
-export async function getProductById(id: string) {
-    return products.find(p => p.id === id);
-}
-
-export async function getVehicles() {
-    return vehicles;
-}
-
-export async function getVehicleById(id: string) {
-    return vehicles.find(v => v.id === id);
-}
-
-/**
- * Procesa una orden de compra de repuestos
- */
-export async function placeOrder(orderData: any) {
-    try {
-        const app = getFirebaseForServer();
-        const db = getFirestore(app);
-        const docRef = await addDoc(collection(db, 'pedidos'), {
-            ...orderData,
-            createdAt: serverTimestamp(),
-            status: 'Pendiente'
-        });
-        return { success: true, orderId: docRef.id };
-    } catch (e) {
-        console.error("Error placeOrder:", e);
-        return { success: false, message: 'No se pudo registrar el pedido.' };
-    }
-}
-
-/**
- * Notifica una solicitud de cita para inspección de vehículo
- */
-export async function sendAppointmentEmail(appointmentData: any) {
-    const subject = `📅 Nueva Solicitud de Cita - Vehículo ${appointmentData.vehicleId}`;
-    const html = `
-        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-            <h2 style="color: #1c69d4;">Solicitud de Inspección</h2>
-            <p><b>Cliente:</b> ${appointmentData.name}</p>
-            <p><b>Email:</b> ${appointmentData.email}</p>
-            <p><b>Teléfono:</b> ${appointmentData.phone}</p>
-            <p><b>Fecha sugerida:</b> ${appointmentData.preferredDate instanceof Date ? appointmentData.preferredDate.toLocaleDateString() : appointmentData.preferredDate}</p>
-            <p><b>Mensaje:</b> ${appointmentData.message || 'Sin mensaje adicional'}</p>
-            <hr />
-            <p style="font-size: 12px; color: #64748b;">Este es un mensaje automático del sistema Bimmer CR.</p>
-        </div>
-    `;
-    const sent = await sendEmailViaGAS('skrsoftwarecr@gmail.com', subject, html);
-    return { success: sent };
 }
 
 /**
