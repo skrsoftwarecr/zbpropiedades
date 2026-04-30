@@ -1,4 +1,3 @@
-
 export type Province = "San José" | "Alajuela" | "Cartago" | "Heredia" | "Guanacaste" | "Puntarenas" | "Limón";
 
 export interface Property {
@@ -19,11 +18,9 @@ export interface Property {
   features: string[];
   mapUrl?: string;
   createdAt?: any;
-  // Campos de venta
   montoVenta?: number;
   fechaVenta?: any;
   soldAt?: any;
-  // Campos específicos de Alquiler
   incluyeServicios?: boolean;
   tieneWifi?: boolean;
   estaAmueblado?: boolean;
@@ -44,7 +41,6 @@ export interface Lot {
   features: string[];
   mapUrl?: string;
   createdAt?: any;
-  // Campos de venta
   montoVenta?: number;
   fechaVenta?: any;
   soldAt?: any;
