@@ -1,3 +1,4 @@
+
 'use server';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -6,8 +7,9 @@ import { firebaseConfig } from '@/firebase/config';
 
 /**
  * URL de la Web App desplegada en Google Apps Script.
+ * Se prefiere usar variable de entorno para mayor seguridad.
  */
-const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwIbK0IZvc7TOont320I9bvCh1SQ3TVrbol0TfSzxyIFO9wiVMjqUSo0JOea-z7taNv/exec';
+const GAS_WEBAPP_URL = process.env.GAS_WEBAPP_URL || 'https://script.google.com/macros/s/AKfycbwIbK0IZvc7TOont320I9bvCh1SQ3TVrbol0TfSzxyIFO9wiVMjqUSo0JOea-z7taNv/exec';
 
 function getFirebaseForServer() {
     if (!getApps().length) {
@@ -18,12 +20,9 @@ function getFirebaseForServer() {
 
 /**
  * Envía un correo electrónico utilizando Google Apps Script como puente.
- * Utiliza redirect: 'follow' para manejar las redirecciones internas de Google.
  */
 async function sendEmailViaGAS(to: string, subject: string, html: string) {
     console.log(`--- INICIANDO ENVÍO VÍA GOOGLE SCRIPT ---`);
-    console.log(`Destinatario: ${to}`);
-    console.log(`Asunto: ${subject}`);
     
     try {
         const response = await fetch(GAS_WEBAPP_URL, {
@@ -41,7 +40,6 @@ async function sendEmailViaGAS(to: string, subject: string, html: string) {
         }
 
         const result = await response.json();
-        console.log('✅ Respuesta de Google Script:', result);
         return result.result === 'success';
     } catch (error) {
         console.error("❌ Fallo en la comunicación con Google Apps Script:", error);
@@ -49,30 +47,20 @@ async function sendEmailViaGAS(to: string, subject: string, html: string) {
     }
 }
 
-/**
- * Registra el correo en la colección 'mail' para auditoría.
- */
 async function logEmailInFirestore(to: string, subject: string, html: string) {
     try {
         const app = getFirebaseForServer();
         const db = getFirestore(app);
         await addDoc(collection(db, 'mail'), {
             to,
-            message: {
-                subject,
-                html,
-            },
+            message: { subject, html },
             createdAt: serverTimestamp()
         });
-        console.log('✅ Registro de auditoría creado en Firestore (colección "mail")');
     } catch (error) {
-        console.error('❌ No se pudo guardar la auditoría en Firestore:', error);
+        console.error('❌ Error auditoría Firestore:', error);
     }
 }
 
-/**
- * Notificación de Venta de Propiedad
- */
 export async function notifyPropertySale(data: {
     title: string;
     type: string;
@@ -92,7 +80,6 @@ export async function notifyPropertySale(data: {
     let contentHtml = '';
 
     if (isSale) {
-        // Cálculos para Venta
         const gananciaAdmin = data.salePrice * 0.05;
         const comisionPagar = gananciaAdmin * 0.05;
 
@@ -109,7 +96,6 @@ export async function notifyPropertySale(data: {
             </div>
         `;
     } else {
-        // Formato original para Alquiler
         contentHtml = `
             <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
                 <p><b>Propiedad:</b> ${data.title}</p>
@@ -127,9 +113,8 @@ export async function notifyPropertySale(data: {
     const html = `
       <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px;">
         <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">¡${isSale ? 'Venta' : 'Alquiler'} Registrado!</h2>
-        <p style="font-size: 16px;">Detalles de la transacción en el sistema:</p>
         ${contentHtml}
-        <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Mensaje automático del Sistema ZB Propiedades.</p>
+        <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Sistema ZB Propiedades.</p>
       </div>
     `;
     
@@ -138,9 +123,6 @@ export async function notifyPropertySale(data: {
     return { success: sent };
 }
 
-/**
- * Notificación de Venta de Lote/Quinta
- */
 export async function notifyLotSale(data: {
     title: string;
     lotType: string;
@@ -154,7 +136,6 @@ export async function notifyLotSale(data: {
     const formattedListingPrice = currencyFormatter.format(data.price);
     const formattedSalePrice = currencyFormatter.format(data.salePrice);
     
-    // Cálculos de comisión
     const gananciaAdmin = data.salePrice * 0.05;
     const comisionPagar = gananciaAdmin * 0.05;
 
@@ -162,7 +143,6 @@ export async function notifyLotSale(data: {
     const html = `
       <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px;">
         <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">¡Venta de Terreno Registrada!</h2>
-        <p style="font-size: 16px;">Detalles del cierre:</p>
         <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1;">
             <p style="margin: 5px 0;"><b>Categoría:</b> ${data.lotType}</p>
             <p style="margin: 5px 0;"><b>Precio de publicación:</b> ${formattedListingPrice}</p>
@@ -173,7 +153,7 @@ export async function notifyLotSale(data: {
             <p style="margin: 5px 0;"><b>Ubicación:</b> ${data.city}, ${data.province}</p>
             <p style="margin: 5px 0;"><b>Fecha de venta:</b> ${data.saleDate}</p>
         </div>
-        <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Mensaje automático del Sistema ZB Propiedades.</p>
+        <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Sistema ZB Propiedades.</p>
       </div>
     `;
     
@@ -182,22 +162,18 @@ export async function notifyLotSale(data: {
     return { success: sent };
 }
 
-/**
- * Notificación de Eliminación de Propiedad
- */
 export async function notifyPropertyDeletion(data: { title: string; type: string; city: string; province: string; price: number }) {
     const subject = `🗑️ Propiedad Eliminada - ${data.title}`;
     const html = `
         <div style="font-family: sans-serif; padding: 20px; border: 1px solid #fee2e2; border-radius: 8px; max-width: 600px;">
             <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Registro Eliminado</h2>
-            <p>Se ha removido permanentemente el siguiente registro del sistema:</p>
             <div style="background-color: #fff1f2; padding: 15px; border-radius: 6px;">
                 <p><b>Título:</b> ${data.title}</p>
                 <p><b>Tipo:</b> ${data.type}</p>
                 <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
                 <p><b>Precio Publicado:</b> ₡${data.price.toLocaleString('es-CR')}</p>
             </div>
-            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Auditoría del Sistema ZB Propiedades.</p>
+            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Auditoría ZB Propiedades.</p>
         </div>
     `;
     await logEmailInFirestore('skrsoftwarecr@gmail.com', subject, html);
@@ -205,22 +181,18 @@ export async function notifyPropertyDeletion(data: { title: string; type: string
     return { success: sent };
 }
 
-/**
- * Notificación de Eliminación de Lote/Terreno
- */
 export async function notifyLotDeletion(data: { title: string; lotType: string; city: string; province: string; price: number }) {
     const subject = `🗑️ Terreno Eliminado - ${data.title}`;
     const html = `
         <div style="font-family: sans-serif; padding: 20px; border: 1px solid #fee2e2; border-radius: 8px; max-width: 600px;">
             <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">Terreno Eliminado</h2>
-            <p>Se ha removido el lote/quinta del sistema:</p>
             <div style="background-color: #fff1f2; padding: 15px; border-radius: 6px;">
                 <p><b>Título:</b> ${data.title}</p>
                 <p><b>Categoría:</b> ${data.lotType}</p>
                 <p><b>Ubicación:</b> ${data.city}, ${data.province}</p>
                 <p><b>Precio Publicado:</b> ₡${data.price.toLocaleString('es-CR')}</p>
             </div>
-            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Auditoría del Sistema ZB Propiedades.</p>
+            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">Auditoría ZB Propiedades.</p>
         </div>
     `;
     await logEmailInFirestore('skrsoftwarecr@gmail.com', subject, html);
