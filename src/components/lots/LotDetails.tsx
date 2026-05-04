@@ -13,7 +13,7 @@ interface LotDetailsProps {
   lot: Lot;
 }
 
-const WHATSAPP_NUMBER = "50660148363";
+const WHATSAPP_NUMBER = "50664520745";
 
 export function LotDetails({ lot }: LotDetailsProps) {
   const [mainImage, setMainImage] = useState(lot.imageUrls[0]);

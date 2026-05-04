@@ -13,7 +13,7 @@ interface PropertyDetailsProps {
   property: Property;
 }
 
-const WHATSAPP_NUMBER = "50660148363";
+const WHATSAPP_NUMBER = "50664520745";
 
 export function PropertyDetails({ property }: PropertyDetailsProps) {
   const [mainImage, setMainImage] = useState(property.imageUrls[0]);

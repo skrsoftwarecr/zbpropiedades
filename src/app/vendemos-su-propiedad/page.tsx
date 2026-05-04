@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, MessageCircle, DollarSign, Camera, Users, ShieldCheck } from 'lucide-react';
 
-const WHATSAPP_NUMBER = "50660148363";
+const WHATSAPP_NUMBER = "50664520745";
 
 export default function SellWithUsPage() {
   const handleWhatsAppContact = () => {
@@ -115,7 +115,7 @@ export default function SellWithUsPage() {
                   className="bg-transparent border-white/20 text-white hover:bg-white hover:text-primary h-14 px-8"
                   asChild
                 >
-                  <a href="tel:+50660148363">Llamar Directamente</a>
+                  <a href="tel:+50664520745">Llamar Directamente</a>
                 </Button>
               </div>
             </div>

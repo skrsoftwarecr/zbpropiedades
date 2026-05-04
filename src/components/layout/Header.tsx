@@ -35,7 +35,7 @@ const navLinks = [
   { href: '/vendemos-su-propiedad', label: 'Vendemos tu Propiedad', icon: Tag },
 ];
 
-const WHATSAPP_URL = "https://wa.me/50660148363";
+const WHATSAPP_URL = "https://wa.me/50664520745";
 
 export function Header() {
   const { user } = useUser();

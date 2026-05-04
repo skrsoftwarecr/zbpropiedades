@@ -74,14 +74,7 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
   const [category, setCategory] = useState('all');
   const [model, setModel] = useState('all');
   const [sortBy, setSortBy] = useState('name-asc');
-  const [whatsappNumber, setWhatsappNumber] = useState('');
-
-  useEffect(() => {
-    // This runs only on the client, preventing mismatches
-    const phoneNumbers = ['50687216913', '50670210104', '50671733091'];
-    const randomIndex = Math.floor(Math.random() * phoneNumbers.length);
-    setWhatsappNumber(phoneNumbers[randomIndex]);
-  }, []);
+  const [whatsappNumber] = useState('50664520745');
 
   const availableModels = useMemo(() => {
     if (!products) return [];

@@ -58,13 +58,7 @@ type SellVehicleFormValues = z.infer<typeof formSchema>;
 
 export function SellVehicleForm() {
   const { toast } = useToast();
-  const [whatsappNumber, setWhatsappNumber] = useState('');
-
-  useEffect(() => {
-    const phoneNumbers = ['50687216913', '50670210104', '50671733091'];
-    const randomIndex = Math.floor(Math.random() * phoneNumbers.length);
-    setWhatsappNumber(phoneNumbers[randomIndex]);
-  }, []);
+  const [whatsappNumber] = useState('50664520745');
 
   const form = useForm<SellVehicleFormValues>({
     resolver: zodResolver(formSchema),

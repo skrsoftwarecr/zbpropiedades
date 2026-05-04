@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Home, Landmark, Key, Phone, ArrowRight, Tag } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const WHATSAPP_URL = "https://wa.me/50660148363";
+const WHATSAPP_URL = "https://wa.me/50664520745";
 
 const ServiceCard = ({ title, description, href, image, icon: Icon, imageHint }: any) => (
   <Link href={href} className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:shadow-2xl">

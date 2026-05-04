@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Facebook, Instagram } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 
@@ -8,7 +7,14 @@ export function Footer() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-3 mb-6 md:mb-0">
-            <Logo className="h-10 w-10 text-primary" />
+            <button
+              type="button"
+              className="touch-manipulation"
+              data-admin-touch-trigger
+              aria-label="ZB Propiedades"
+            >
+              <Logo className="h-10 w-10 text-primary" />
+            </button>
             <div className='flex flex-col'>
                 <p className="text-xl font-bold text-primary">ZB Propiedades</p>
                 <p className="text-sm text-muted-foreground">&copy; 2026. Todos los derechos reservados. SKR Software</p>
