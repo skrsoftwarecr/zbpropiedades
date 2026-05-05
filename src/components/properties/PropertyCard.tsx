@@ -12,10 +12,24 @@ import { formatCurrency } from '@/lib/currency';
 
 export function PropertyCard({ property }: { property: Property }) {
   const [mounted, setMounted] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (property.imageUrls.length <= 1) return;
+    const interval = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setCurrentIndex(prev => (prev + 1) % property.imageUrls.length);
+        setFading(false);
+      }, 350);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [property.imageUrls.length]);
 
   const formatPrice = (price: number) => {
     if (!mounted) return '...';
@@ -29,10 +43,10 @@ export function PropertyCard({ property }: { property: Property }) {
     <Card className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-none shadow-md flex flex-col h-full bg-white">
       <Link href={`/propiedades/${property.id}`} className="block relative aspect-[16/10] overflow-hidden">
         <Image 
-          src={property.imageUrls[0] || 'https://picsum.photos/seed/prop/800/600'} 
+          src={property.imageUrls[currentIndex] || 'https://picsum.photos/seed/prop/800/600'} 
           alt={property.title}
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className={`object-cover transition-all duration-300 group-hover:scale-110 ${fading ? 'opacity-0' : 'opacity-100'}`}
         />
         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
           <Badge className="bg-primary/90 backdrop-blur-md border-none px-3 py-1 uppercase tracking-wider text-[10px]">

@@ -18,7 +18,17 @@ const WHATSAPP_NUMBER = "50664520745";
 
 export function PropertyDetails({ property }: PropertyDetailsProps) {
   const [mainImage, setMainImage] = useState(property.imageUrls[0]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setLightboxOpen(false); setZoomed(false); }
+    };
+    if (lightboxOpen) document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [lightboxOpen]);
 
   const formatPrice = (price: number) => {
     return formatCurrency(price, property.currency);
@@ -99,7 +109,11 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
         {/* Galería de Imágenes */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border shadow-lg bg-muted">
+          <div
+            className="relative aspect-[16/10] overflow-hidden rounded-2xl border shadow-lg bg-muted cursor-zoom-in"
+            onClick={() => setLightboxOpen(true)}
+            title="Ver imagen completa"
+          >
             <Image 
               src={mainImage} 
               alt={property.title} 
@@ -111,6 +125,9 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
             <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs flex items-center gap-2">
               <Camera className="h-3 w-3" />
               {property.imageUrls.length} fotos
+            </div>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-sm text-white/80 text-[10px] px-3 py-1 rounded-full pointer-events-none">
+              Clic para ampliar
             </div>
           </div>
           
@@ -266,6 +283,44 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
           </Card>
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center animate-in fade-in duration-150"
+          onClick={() => { setLightboxOpen(false); setZoomed(false); }}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); setZoomed(false); }}
+            className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/25 text-white rounded-full p-2.5 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <p className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/50 text-xs pointer-events-none select-none">
+            {zoomed ? 'Clic para reducir · ESC para cerrar' : 'Clic en la imagen para ampliar · ESC para cerrar'}
+          </p>
+          <div
+            className={`absolute inset-0 flex items-center justify-center ${
+              zoomed ? 'overflow-auto cursor-zoom-out' : 'overflow-hidden cursor-zoom-in'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={mainImage}
+              alt={property.title}
+              onClick={() => setZoomed(z => !z)}
+              draggable={false}
+              className="select-none transition-all duration-300"
+              style={{
+                maxWidth: zoomed ? 'none' : '92vw',
+                maxHeight: zoomed ? 'none' : '92vh',
+                width: zoomed ? '220vw' : 'auto',
+                height: 'auto',
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

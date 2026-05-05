@@ -13,10 +13,24 @@ import { formatCurrency } from '@/lib/currency';
 
 export function LotCard({ lot }: { lot: Lot }) {
   const [mounted, setMounted] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (lot.imageUrls.length <= 1) return;
+    const interval = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setCurrentIndex(prev => (prev + 1) % lot.imageUrls.length);
+        setFading(false);
+      }, 350);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [lot.imageUrls.length]);
 
   const formatPrice = (price: number) => {
     if (!mounted) return '...';
@@ -27,10 +41,10 @@ export function LotCard({ lot }: { lot: Lot }) {
     <Card className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-none shadow-md flex flex-col h-full bg-white">
       <Link href={`/lotes/${lot.id}`} className="block relative aspect-[16/10] overflow-hidden">
         <Image 
-          src={lot.imageUrls[0] || 'https://picsum.photos/seed/lot/800/600'} 
+          src={lot.imageUrls[currentIndex] || 'https://picsum.photos/seed/lot/800/600'} 
           alt={lot.title}
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className={`object-cover transition-all duration-300 group-hover:scale-110 ${fading ? 'opacity-0' : 'opacity-100'}`}
         />
         <div className="absolute top-4 left-4 flex gap-2">
           <Badge className="bg-primary/90 backdrop-blur-md border-none px-3 py-1 uppercase tracking-wider text-[10px]">
