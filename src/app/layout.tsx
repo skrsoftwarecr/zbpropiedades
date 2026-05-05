@@ -14,6 +14,7 @@ const siteConfig = {
   url: 'https://www.zbpropiedades.com',
   ogImage: 'https://www.zbpropiedades.com/og-image.svg',
   phone: '+50664520745',
+  googleAnalyticsId: 'G-RCL9VW0YM0',
 };
 
 export const metadata: Metadata = {
@@ -137,6 +138,18 @@ export default function RootLayout({
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col selection:bg-secondary/30')}>
         <FirebaseClientProvider>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.googleAnalyticsId}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${siteConfig.googleAnalyticsId}');
+            `}
+          </Script>
           <Script
             id="structured-data"
             type="application/ld+json"
