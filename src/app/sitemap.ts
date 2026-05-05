@@ -5,14 +5,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = 'https://www.zbpropiedades.com';
 
   const staticRoutes = [
-    '',
-    '/propiedades',
-    '/lotes',
-    '/alquileres',
-    '/vendemos-su-propiedad',
-  ].map((route) => ({
+    { route: '', priority: 1, changeFrequency: 'weekly' as const },
+    { route: '/propiedades', priority: 0.95, changeFrequency: 'daily' as const },
+    { route: '/lotes', priority: 0.95, changeFrequency: 'daily' as const },
+    { route: '/alquileres', priority: 0.85, changeFrequency: 'weekly' as const },
+    { route: '/vendemos-su-propiedad', priority: 0.9, changeFrequency: 'weekly' as const },
+  ].map(({ route, priority, changeFrequency }) => ({
     url: `${siteUrl}${route}`,
     lastModified: new Date().toISOString(),
+    priority,
+    changeFrequency,
   }));
 
   // Nota: Las rutas dinámicas de propiedades/lotes se indexan automáticamente si están enlazadas.

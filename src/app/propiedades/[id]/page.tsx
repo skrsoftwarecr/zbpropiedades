@@ -1,67 +1,36 @@
 
-'use client';
-
-import { useParams, useRouter } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import type { Metadata } from 'next';
+import { getDocument } from '@/lib/firestore-rest';
 import type { Property } from '@/lib/types';
-import { Skeleton } from '@/components/ui/skeleton';
-import { PropertyDetails } from '@/components/properties/PropertyDetails';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import PropertyDetailClient from './PropertyDetailClient';
 
-export default function PropertyDetailPage() {
-  const params = useParams();
-  const id = params.id as string;
-  const firestore = useFirestore();
+interface Props {
+  params: Promise<{ id: string }>;
+}
 
-  const propertyRef = useMemoFirebase(() => doc(firestore, 'properties', id), [firestore, id]);
-  const { data: property, isLoading } = useDoc<Property>(propertyRef);
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <Skeleton className="h-10 w-32 mb-8" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <Skeleton className="h-[500px] w-full rounded-2xl" />
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-3/4" />
-            <Skeleton className="h-8 w-1/4" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-48 w-full" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const property = await getDocument<Property>('properties', id);
 
   if (!property) {
-    return (
-      <div className="container mx-auto px-4 py-24 text-center">
-        <h2 className="text-2xl font-bold mb-4">Propiedad no encontrada</h2>
-        <p className="text-muted-foreground mb-8">La propiedad que busca no existe o ya no está disponible.</p>
-        <Button asChild>
-          <Link href="/propiedades">Volver al catálogo</Link>
-        </Button>
-      </div>
-    );
+    return { title: 'Propiedad no encontrada | ZB Propiedades' };
   }
 
-  return (
-    <div className="bg-background min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Button variant="ghost" asChild className="-ml-4 text-muted-foreground hover:text-primary">
-            <Link href="/propiedades">
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Volver a Propiedades
-            </Link>
-          </Button>
-        </div>
-        
-        <PropertyDetails property={property} />
-      </div>
-    </div>
-  );
+  const operacion = property.operationType === 'Alquiler' ? 'en Alquiler' : 'en Venta';
+  const title = `${property.title} ${operacion} en ${property.city}, ${property.province} | ZB Propiedades`;
+  const description =
+    property.description?.slice(0, 160) ||
+    `${property.type} de ${property.area_m2} m², ${property.bedrooms} hab., ${property.bathrooms} baños en ${property.city}, ${property.province}. Precio: $${property.price?.toLocaleString('es-CR')}.`;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: 'website' },
+    twitter: { title, description },
+  };
+}
+
+export default async function PropertyDetailPage({ params }: Props) {
+  const { id } = await params;
+  return <PropertyDetailClient id={id} />;
 }
