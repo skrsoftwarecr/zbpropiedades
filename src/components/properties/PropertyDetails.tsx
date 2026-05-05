@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-import { MapPin, Bed, Bath, Square, CheckCircle2, MessageCircle, Share2, Camera } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapPin, Bed, Bath, Square, CheckCircle2, MessageCircle, Share2, Camera, X } from 'lucide-react';
 import type { Property } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
