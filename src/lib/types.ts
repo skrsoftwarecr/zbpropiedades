@@ -1,10 +1,12 @@
 export type Province = "San José" | "Alajuela" | "Cartago" | "Heredia" | "Guanacaste" | "Puntarenas" | "Limón";
+export type CurrencyCode = 'CRC' | 'USD';
 
 export interface Property {
   id: string;
   title: string;
   description: string;
   price: number;
+  currency?: CurrencyCode;
   type: "Casa" | "Apartamento" | "Local Comercial" | "Oficina" | "Quinta";
   operationType: "Venta" | "Alquiler";
   status?: "Disponible" | "Vendido" | "Alquilado";
@@ -31,6 +33,7 @@ export interface Lot {
   title: string;
   description: string;
   price: number;
+  currency?: CurrencyCode;
   lotType: "Lote" | "Quinta";
   province: Province;
   city: string;

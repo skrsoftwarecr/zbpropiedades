@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/currency';
 
 interface PropertyDetailsProps {
   property: Property;
@@ -20,7 +21,7 @@ export function PropertyDetails({ property }: PropertyDetailsProps) {
   const { toast } = useToast();
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+    return formatCurrency(price, property.currency);
   };
 
   const handleWhatsAppContact = () => {

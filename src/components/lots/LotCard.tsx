@@ -9,6 +9,7 @@ import type { Lot } from '@/lib/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/currency';
 
 export function LotCard({ lot }: { lot: Lot }) {
   const [mounted, setMounted] = useState(false);
@@ -19,7 +20,7 @@ export function LotCard({ lot }: { lot: Lot }) {
 
   const formatPrice = (price: number) => {
     if (!mounted) return '...';
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+    return formatCurrency(price, lot.currency);
   };
 
   return (

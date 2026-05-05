@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getDocument } from '@/lib/firestore-rest';
 import type { Lot } from '@/lib/types';
 import LotDetailClient from './LotDetailClient';
+import { formatCurrency } from '@/lib/currency';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${lot.title} en ${lot.city}, ${lot.province} | ZB Propiedades`;
   const description =
     lot.description?.slice(0, 160) ||
-    `${lot.lotType || 'Lote'} de ${lot.area_m2} m² en ${lot.city}, ${lot.province}. Precio: $${lot.price?.toLocaleString('es-CR')}.`;
+    `${lot.lotType || 'Lote'} de ${lot.area_m2} m² en ${lot.city}, ${lot.province}. Precio: ${formatCurrency(lot.price, lot.currency)}.`;
 
   return {
     title,

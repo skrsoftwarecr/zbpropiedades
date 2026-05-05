@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import { MarkAsSoldModal } from '@/components/admin/MarkAsSoldModal';
+import { formatCurrency } from '@/lib/currency';
 
 export default function AdminLotesQuintasPage() {
   const firestore = useFirestore();
@@ -57,9 +58,7 @@ export default function AdminLotesQuintasPage() {
     [allLots]
   );
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
-  };
+  const formatPrice = (price: number, currency?: Lot['currency']) => formatCurrency(price, currency);
 
   const handleConfirmSold = async (monto: number, fecha: string) => {
     if (!soldLot) return;
@@ -122,7 +121,7 @@ export default function AdminLotesQuintasPage() {
     { 
         accessorKey: 'price', 
         header: 'Precio',
-        cell: ({ row }) => formatPrice(row.original.price)
+      cell: ({ row }) => formatPrice(row.original.price, row.original.currency)
     },
     { accessorKey: 'city', header: 'Ubicación' },
     {

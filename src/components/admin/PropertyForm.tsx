@@ -11,6 +11,7 @@ import { collection, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/fi
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { deletePropertyPermanent } from '@/lib/firestore-service';
+import { currencySymbol } from '@/lib/currency';
 
 import {
   SheetContent,
@@ -57,6 +58,7 @@ const formSchema = z.object({
   title: z.string().min(5, 'Título muy corto.'),
   description: z.string().min(10, 'Descripción muy corta.'),
   price: z.coerce.number().min(0),
+  currency: z.enum(['CRC', 'USD']),
   type: z.enum(['Casa', 'Apartamento', 'Local Comercial']),
   operationType: z.enum(['Venta', 'Alquiler']),
   province: z.enum(["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"]),
@@ -88,6 +90,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
     resolver: zodResolver(formSchema),
     defaultValues: {
       operationType: 'Venta',
+      currency: 'CRC',
       incluyeServicios: false,
       tieneWifi: false,
       estaAmueblado: false,
@@ -102,6 +105,7 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
         title: property?.title || '',
         description: property?.description || '',
         price: property?.price || 0,
+        currency: property?.currency || 'CRC',
         type: (property?.type as any) === 'Lote' || (property?.type as any) === 'Quinta' ? 'Casa' : (property?.type as any) || 'Casa',
         operationType: property?.operationType || 'Venta',
         province: property?.province || 'San José',
@@ -230,13 +234,24 @@ export function PropertyForm({ isOpen, onOpenChange, property }: { isOpen: boole
                   <FormItem><FormLabel>Título</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               
-              <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormField control={form.control} name="price" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{operationType === 'Alquiler' ? 'Precio por mes (₡)' : 'Precio (₡)'}</FormLabel>
+                    <FormLabel>{operationType === 'Alquiler' ? `Precio por mes (${currencySymbol(form.watch('currency'))})` : `Precio (${currencySymbol(form.watch('currency'))})`}</FormLabel>
                         <FormControl><Input type="number" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
+                  )} />
+                  <FormField control={form.control} name="currency" render={({ field }) => (
+                    <FormItem><FormLabel>Moneda</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="CRC">Colones (₡)</SelectItem>
+                          <SelectItem value="USD">Dólares ($)</SelectItem>
+                        </SelectContent>
+                      </Select><FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="operationType" render={({ field }) => (
                       <FormItem><FormLabel>Operación</FormLabel>

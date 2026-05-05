@@ -10,8 +10,10 @@ import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Search, MapPin, Bed } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
+import { formatCurrency } from '@/lib/currency';
 
 const provinces: Province[] = ["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"];
+const MAX_PRICE_LIMIT = 800000000;
 
 export default function RentalsPage() {
   const firestore = useFirestore();
@@ -19,7 +21,8 @@ export default function RentalsPage() {
   const [province, setProvince] = useState('all');
   const [type, setType] = useState('all');
   const [minBedrooms, setMinBedrooms] = useState('all');
-  const [maxPrice, setMaxPrice] = useState([800000000]);
+  const [maxPrice, setMaxPrice] = useState([MAX_PRICE_LIMIT]);
+  const [maxPriceInput, setMaxPriceInput] = useState(String(MAX_PRICE_LIMIT));
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -33,7 +36,25 @@ export default function RentalsPage() {
   const { data: rentals, isLoading } = useCollection<Property>(q);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+    return formatCurrency(price, 'CRC');
+  };
+
+  useEffect(() => {
+    setMaxPriceInput(String(maxPrice[0] ?? MAX_PRICE_LIMIT));
+  }, [maxPrice]);
+
+  const handleSliderChange = (values: number[]) => {
+    const value = Math.min(Math.max(values[0] ?? 0, 0), MAX_PRICE_LIMIT);
+    setMaxPrice([value]);
+    setMaxPriceInput(String(value));
+  };
+
+  const handleMaxPriceInputChange = (value: string) => {
+    setMaxPriceInput(value);
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) return;
+    const clamped = Math.min(Math.max(parsed, 0), MAX_PRICE_LIMIT);
+    setMaxPrice([clamped]);
   };
 
   const filtered = useMemo(() => {
@@ -134,11 +155,23 @@ export default function RentalsPage() {
               </div>
               <Slider 
                 value={maxPrice} 
-                onValueChange={setMaxPrice} 
-                max={800000000} 
+                onValueChange={handleSliderChange} 
+                max={MAX_PRICE_LIMIT} 
                 step={1000000} 
                 className="py-4"
               />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Precio máximo manual (₡)</label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={MAX_PRICE_LIMIT}
+                  step={1000000}
+                  value={maxPriceInput}
+                  onChange={(e) => handleMaxPriceInputChange(e.target.value)}
+                  placeholder="Ingrese monto máximo"
+                />
+              </div>
             </div>
           </div>
         </aside>

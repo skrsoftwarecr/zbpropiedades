@@ -20,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { formatCurrency } from '@/lib/currency';
 
 export default function AdminLotsPage() {
   const firestore = useFirestore();
@@ -37,9 +38,7 @@ export default function AdminLotsPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Lot | null>(null);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
-  };
+  const formatPrice = (price: number, currency?: Lot['currency']) => formatCurrency(price, currency);
 
   const columns: ColumnDef<Lot>[] = [
     {
@@ -56,7 +55,7 @@ export default function AdminLotsPage() {
     { 
         accessorKey: 'price', 
         header: 'Precio',
-        cell: ({ row }) => formatPrice(row.original.price)
+      cell: ({ row }) => formatPrice(row.original.price, row.original.currency)
     },
     {
         id: 'actions',

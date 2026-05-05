@@ -21,6 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { markPropertyAsSold } from '@/lib/firestore-service';
+import { formatCurrency } from '@/lib/currency';
 
 export default function AdminPropertiesPage() {
   const firestore = useFirestore();
@@ -32,9 +33,7 @@ export default function AdminPropertiesPage() {
   const [selected, setSelected] = React.useState<Property | null>(null);
   const [soldProperty, setSoldProperty] = React.useState<Property | null>(null);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
-  };
+  const formatPrice = (price: number, currency?: Property['currency']) => formatCurrency(price, currency);
 
   const handleEdit = (p: Property) => { 
     setSelected(p); 
@@ -77,7 +76,7 @@ export default function AdminPropertiesPage() {
     { 
         accessorKey: 'price', 
         header: 'Precio',
-        cell: ({ row }) => formatPrice(row.original.price)
+      cell: ({ row }) => formatPrice(row.original.price, row.original.currency)
     },
     { accessorKey: 'city', header: 'Ciudad' },
     {

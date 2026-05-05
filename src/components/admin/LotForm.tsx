@@ -8,6 +8,7 @@ import { useFirestore } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { addLot, updateLot, deleteLotPermanent } from '@/lib/firestore-service';
 import type { Lot } from '@/lib/types';
+import { currencySymbol } from '@/lib/currency';
 import { ImagePlus, X, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -53,6 +54,7 @@ const formSchema = z.object({
   description: z.string().min(10, 'Mínimo 10 caracteres.'),
   lotType: z.enum(['Lote', 'Quinta']),
   price: z.coerce.number().min(0),
+  currency: z.enum(['CRC', 'USD']),
   province: z.enum(["San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", "Puntarenas", "Limón"]),
   city: z.string().min(2),
   area_m2: z.coerce.number().min(1),
@@ -77,6 +79,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
     resolver: zodResolver(formSchema),
     defaultValues: {
       lotType: defaultType,
+      currency: 'CRC',
       imageUrls: []
     }
   });
@@ -90,6 +93,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
         description: lot?.description || '',
         lotType: lot?.lotType || defaultType,
         price: lot?.price || 0,
+        currency: lot?.currency || 'CRC',
         province: lot?.province || 'San José',
         city: lot?.city || '',
         area_m2: lot?.area_m2 || 0,
@@ -195,7 +199,7 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
                 )} />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormField control={form.control} name="lotType" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Categoría</FormLabel>
@@ -211,8 +215,21 @@ export function LotForm({ isOpen, onOpenChange, lot, defaultType = 'Lote' }: { i
                   )} />
                   <FormField control={form.control} name="price" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Precio (₡)</FormLabel>
+                        <FormLabel>{`Precio (${currencySymbol(form.watch('currency'))})`}</FormLabel>
                         <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )} />
+                  <FormField control={form.control} name="currency" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Moneda</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                  <SelectItem value="CRC">Colones (₡)</SelectItem>
+                                  <SelectItem value="USD">Dólares ($)</SelectItem>
+                              </SelectContent>
+                          </Select>
                         <FormMessage />
                       </FormItem>
                   )} />
