@@ -17,6 +17,12 @@ export const metadata: Metadata = {
     description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su próximo proyecto.',
     url: '/lotes',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Lotes y terrenos en venta en Costa Rica',
+    description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su próximo proyecto.',
+    images: ['https://www.zbpropiedades.com/og-image.png'],
+  },
 };
 
 export default function LotsLayout({ children }: { children: React.ReactNode }) {

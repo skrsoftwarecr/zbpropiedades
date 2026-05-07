@@ -12,8 +12,13 @@ const siteConfig = {
   name: 'ZB Propiedades',
   description: 'Venta de propiedades, lotes, quintas y alquileres en Costa Rica. En ZB Propiedades le ayudamos a comprar, vender o publicar su inmueble con asesoría profesional.',
   url: 'https://www.zbpropiedades.com',
-  ogImage: 'https://www.zbpropiedades.com/og-image.svg',
+  ogImage: 'https://www.zbpropiedades.com/og-image.png',
   phone: '+50664520745',
+  email: 'Info@zbpropiedades.com',
+  addressLocality: 'Guacima Arriba',
+  addressRegion: 'Alajuela',
+  openingHours: 'Mo-Su 07:00-20:00',
+  yearsExperience: '10 años de experiencia en ventas',
   googleAnalyticsId: 'G-RCL9VW0YM0',
 };
 
@@ -42,10 +47,12 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon.ico', sizes: 'any' },
     ],
     shortcut: '/icon.svg',
-    apple: '/icon.svg',
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     type: 'website',
@@ -105,10 +112,18 @@ const structuredData = {
       image: siteConfig.ogImage,
       logo: `${siteConfig.url}/icon.svg`,
       telephone: siteConfig.phone,
+      email: siteConfig.email,
       areaServed: 'Costa Rica',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: siteConfig.addressLocality,
+        addressRegion: siteConfig.addressRegion,
+        addressCountry: 'CR',
+      },
       sameAs: [
         'https://www.facebook.com/share/18icCQG8gX/?mibextid=wwXIfr',
         'https://www.instagram.com/marketingzb?igsh=bWV1ODE2YXV0Z3Zi',
+        'https://wa.me/50664520745',
       ],
       knowsAbout: [
         'venta de propiedades',
@@ -116,6 +131,70 @@ const structuredData = {
         'quintas',
         'alquileres',
         'venta de inmuebles en Costa Rica',
+        siteConfig.yearsExperience,
+      ],
+    },
+    {
+      '@type': 'Organization',
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: `${siteConfig.url}/icon.svg`,
+      image: siteConfig.ogImage,
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          telephone: siteConfig.phone,
+          email: siteConfig.email,
+          contactType: 'customer support',
+          availableLanguage: ['es', 'en'],
+          areaServed: 'CR',
+        },
+      ],
+      sameAs: [
+        'https://www.facebook.com/share/18icCQG8gX/?mibextid=wwXIfr',
+        'https://www.instagram.com/marketingzb?igsh=bWV1ODE2YXV0Z3Zi',
+        'https://wa.me/50664520745',
+      ],
+    },
+    {
+      '@type': 'LocalBusiness',
+      name: siteConfig.name,
+      url: siteConfig.url,
+      telephone: siteConfig.phone,
+      email: siteConfig.email,
+      image: siteConfig.ogImage,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: siteConfig.addressLocality,
+        addressRegion: siteConfig.addressRegion,
+        addressCountry: 'CR',
+      },
+      openingHours: siteConfig.openingHours,
+      openingHoursSpecification: [
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
+          ],
+          opens: '07:00',
+          closes: '20:00',
+        },
+      ],
+      areaServed: {
+        '@type': 'Country',
+        name: 'Costa Rica',
+      },
+      priceRange: '$$',
+      sameAs: [
+        'https://www.facebook.com/share/18icCQG8gX/?mibextid=wwXIfr',
+        'https://www.instagram.com/marketingzb?igsh=bWV1ODE2YXV0Z3Zi',
+        'https://wa.me/50664520745',
       ],
     },
   ],

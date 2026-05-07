@@ -52,3 +52,26 @@ export async function getDocument<T>(
     return null;
   }
 }
+
+export async function getCollection<T>(
+  collection: string,
+  pageSize = 60
+): Promise<Array<T & { id: string }>> {
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${collection}?pageSize=${pageSize}&key=${API_KEY}`;
+  try {
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const documents = data.documents ?? [];
+
+    return documents
+      .map((doc: { name?: string; fields?: Record<string, FirestoreFieldValue> }) => {
+        if (!doc.fields || !doc.name) return null;
+        const id = doc.name.split('/').pop() || '';
+        return { id, ...parseFields(doc.fields) } as T & { id: string };
+      })
+      .filter(Boolean) as Array<T & { id: string }>;
+  } catch {
+    return [];
+  }
+}

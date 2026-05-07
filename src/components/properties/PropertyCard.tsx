@@ -27,12 +27,14 @@ export function PropertyCard({ property }: { property: Property }) {
         setCurrentIndex(prev => (prev + 1) % property.imageUrls.length);
         setFading(false);
       }, 350);
-    }, 3500);
+      import { useState, useEffect, useRef } from 'react';
     return () => clearInterval(interval);
   }, [property.imageUrls.length]);
 
   const formatPrice = (price: number) => {
-    if (!mounted) return '...';
+        const [nextIndex, setNextIndex] = useState<number | null>(null);
+        const [isTransitioning, setIsTransitioning] = useState(false);
+        const currentIndexRef = useRef(0);
     return formatCurrency(price, property.currency);
   };
 
@@ -44,29 +46,51 @@ export function PropertyCard({ property }: { property: Property }) {
       <Link href={`/propiedades/${property.id}`} className="block relative aspect-[16/10] overflow-hidden">
         <Image 
           src={property.imageUrls[currentIndex] || 'https://picsum.photos/seed/prop/800/600'} 
+          let switchTimeout: ReturnType<typeof setTimeout> | null = null;
           alt={property.title}
           fill
-          className={`object-cover transition-all duration-300 group-hover:scale-110 ${fading ? 'opacity-0' : 'opacity-100'}`}
-        />
-        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-          <Badge className="bg-primary/90 backdrop-blur-md border-none px-3 py-1 uppercase tracking-wider text-[10px]">
-            {typeText}
+            const upcoming = (currentIndexRef.current + 1) % property.imageUrls.length;
+            setNextIndex(upcoming);
+            setIsTransitioning(true);
+
+            switchTimeout = setTimeout(() => {
+              setCurrentIndex(upcoming);
+              currentIndexRef.current = upcoming;
+              setNextIndex(null);
+              setIsTransitioning(false);
+            }, 500);
           </Badge>
-          <Badge variant="secondary" className="bg-secondary text-secondary-foreground border-none px-3 py-1 uppercase tracking-wider text-[10px] font-bold shadow-sm">
+
+          return () => {
+            clearInterval(interval);
+            if (switchTimeout) clearTimeout(switchTimeout);
+          };
             {operationText}
           </Badge>
         </div>
         <div className="absolute bottom-4 left-4 right-4">
+        const currentImage = property.imageUrls[currentIndex] || 'https://picsum.photos/seed/prop/800/600';
+        const upcomingImage = nextIndex !== null
+          ? property.imageUrls[nextIndex] || 'https://picsum.photos/seed/prop/800/600'
+          : null;
            <div className="bg-black/20 backdrop-blur-sm text-white px-3 py-1 rounded text-xs inline-flex items-center gap-1">
               <MapPin className="h-3 w-3" />
               {property.city}, {property.province}
            </div>
-        </div>
-      </Link>
+              <Image
+                src={currentImage}
       
       <CardContent className="p-6 flex-grow">
-        <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1 font-headline">
+                className={`object-cover transition-[transform,opacity] duration-500 ease-in-out group-hover:scale-110 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
           {property.title}
+              {upcomingImage && (
+                <Image
+                  src={upcomingImage}
+                  alt={property.title}
+                  fill
+                  className={`object-cover transition-[transform,opacity] duration-500 ease-in-out group-hover:scale-110 ${isTransitioning ? 'opacity-100' : 'opacity-0'}`}
+                />
+              )}
         </h3>
         <p className="text-2xl font-bold text-secondary mb-4 tracking-tight">
           {formatPrice(property.price)}

@@ -17,6 +17,12 @@ export const metadata: Metadata = {
     description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompañamiento profesional para comercializar su inmueble en Costa Rica.',
     url: '/vendemos-su-propiedad',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Venda su propiedad o lote en Costa Rica',
+    description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompañamiento profesional para comercializar su inmueble en Costa Rica.',
+    images: ['https://www.zbpropiedades.com/og-image.png'],
+  },
 };
 
 export default function SellPropertyLayout({ children }: { children: React.ReactNode }) {

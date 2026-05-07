@@ -17,6 +17,12 @@ export const metadata: Metadata = {
     description: 'Revise propiedades residenciales y comerciales en alquiler en Costa Rica, con opciones en distintas provincias y presupuestos.',
     url: '/alquileres',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Propiedades en alquiler en Costa Rica',
+    description: 'Revise propiedades residenciales y comerciales en alquiler en Costa Rica, con opciones en distintas provincias y presupuestos.',
+    images: ['https://www.zbpropiedades.com/og-image.png'],
+  },
 };
 
 export default function RentalsLayout({ children }: { children: React.ReactNode }) {
