@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     lot.description?.slice(0, 160) ||
     `${lot.lotType || 'Lote'} de ${lot.area_m2} m² en ${lot.city}, ${lot.province}. Precio: ${formatCurrency(lot.price, lot.currency)}.`;
   const canonicalUrl = `/lotes/${id}`;
-  const image = lot.imageUrls?.[0] || 'https://www.zbpropiedades.com/og-image.png';
+  const image = lot.imageUrls?.[0] || 'https://zbpropiedades.com/og-image.png';
 
   return {
     title,
@@ -58,7 +58,7 @@ export default async function LotDetailPage({ params }: Props) {
   const { id } = await params;
   const lot = await getDocument<Lot>('lots', id);
   const priceCurrency = lot?.currency === 'USD' ? 'USD' : 'CRC';
-  const lotUrl = `https://www.zbpropiedades.com/lotes/${id}`;
+  const lotUrl = `https://zbpropiedades.com/lotes/${id}`;
 
   const listingSchema = lot
     ? {
@@ -67,7 +67,7 @@ export default async function LotDetailPage({ params }: Props) {
         name: lot.title,
         description: lot.description,
         url: lotUrl,
-        image: lot.imageUrls?.length ? lot.imageUrls : ['https://www.zbpropiedades.com/og-image.png'],
+        image: lot.imageUrls?.length ? lot.imageUrls : ['https://zbpropiedades.com/og-image.png'],
         datePosted: new Date().toISOString(),
         address: {
           '@type': 'PostalAddress',

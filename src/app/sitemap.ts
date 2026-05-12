@@ -1,10 +1,10 @@
-
+﻿
 import { MetadataRoute } from 'next'
 import { getCollection } from '@/lib/firestore-rest';
 import type { Property, Lot } from '@/lib/types';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = 'https://www.zbpropiedades.com';
+  const siteUrl = 'https://zbpropiedades.com';
 
   const staticRoutes = [
     { route: '', priority: 1, changeFrequency: 'weekly' as const },
@@ -47,3 +47,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...lotRoutes,
   ];
 }
+

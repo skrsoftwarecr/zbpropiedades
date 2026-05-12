@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import type { Property } from '@/lib/types';
 import { getCollection } from '@/lib/firestore-rest';
 import RentalsClient from './RentalsClient';
@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: 'Propiedades en alquiler en Costa Rica',
       description: 'Revise propiedades residenciales y comerciales en alquiler en Costa Rica, con opciones en distintas provincias y presupuestos.',
-      images: ['https://www.zbpropiedades.com/og-image.png'],
+      images: ['https://zbpropiedades.com/og-image.png'],
     },
   };
 }
@@ -30,3 +30,4 @@ export default async function RentalsPage() {
   const initialRentals = activeRentals(properties);
   return <RentalsClient initialRentals={initialRentals} />;
 }
+

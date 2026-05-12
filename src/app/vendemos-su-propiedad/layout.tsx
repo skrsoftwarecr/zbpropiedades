@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Venda su propiedad o lote en Costa Rica',
-  description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompañamiento profesional para comercializar su inmueble en Costa Rica.',
+  description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompaÃ±amiento profesional para comercializar su inmueble en Costa Rica.',
   keywords: [
     'vender propiedad Costa Rica',
     'vender lote Costa Rica',
@@ -14,14 +14,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Venda su propiedad o lote en Costa Rica',
-    description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompañamiento profesional para comercializar su inmueble en Costa Rica.',
+    description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompaÃ±amiento profesional para comercializar su inmueble en Costa Rica.',
     url: '/vendemos-su-propiedad',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Venda su propiedad o lote en Costa Rica',
-    description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompañamiento profesional para comercializar su inmueble en Costa Rica.',
-    images: ['https://www.zbpropiedades.com/og-image.png'],
+    description: 'Publique y venda su propiedad, lote o quinta con ZB Propiedades. Reciba acompaÃ±amiento profesional para comercializar su inmueble en Costa Rica.',
+    images: ['https://zbpropiedades.com/og-image.png'],
   },
 };
 

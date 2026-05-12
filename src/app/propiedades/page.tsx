@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import type { Property } from '@/lib/types';
 import { getCollection } from '@/lib/firestore-rest';
 import PropertiesClient from './PropertiesClient';
@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: 'Propiedades en venta en Costa Rica',
       description: 'Explore casas, apartamentos, quintas, locales comerciales y oficinas en venta en Costa Rica con ZB Propiedades.',
-      images: ['https://www.zbpropiedades.com/og-image.png'],
+      images: ['https://zbpropiedades.com/og-image.png'],
     },
   };
 }
@@ -30,3 +30,4 @@ export default async function PropertiesPage() {
   const initialProperties = activeSaleProperties(properties);
   return <PropertiesClient initialProperties={initialProperties} />;
 }
+

@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Lotes y terrenos en venta en Costa Rica',
-  description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su próximo proyecto.',
+  description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su prÃ³ximo proyecto.',
   keywords: [
     'lotes en venta Costa Rica',
     'terrenos en venta Costa Rica',
@@ -14,14 +14,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Lotes y terrenos en venta en Costa Rica',
-    description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su próximo proyecto.',
+    description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su prÃ³ximo proyecto.',
     url: '/lotes',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Lotes y terrenos en venta en Costa Rica',
-    description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su próximo proyecto.',
-    images: ['https://www.zbpropiedades.com/og-image.png'],
+    description: 'Encuentre lotes, terrenos y quintas en venta en Costa Rica para construir, invertir o desarrollar su prÃ³ximo proyecto.',
+    images: ['https://zbpropiedades.com/og-image.png'],
   },
 };
 

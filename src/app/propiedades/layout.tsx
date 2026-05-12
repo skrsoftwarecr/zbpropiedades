@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Propiedades en venta en Costa Rica',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Propiedades en venta en Costa Rica',
     description: 'Explore casas, apartamentos, quintas, locales comerciales y oficinas en venta en Costa Rica con ZB Propiedades.',
-    images: ['https://www.zbpropiedades.com/og-image.png'],
+    images: ['https://zbpropiedades.com/og-image.png'],
   },
 };
 

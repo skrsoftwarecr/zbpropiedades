@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     property.description?.slice(0, 160) ||
     `${property.type} de ${property.area_m2} m², ${property.bedrooms} hab., ${property.bathrooms} baños en ${property.city}, ${property.province}. Precio: ${formatCurrency(property.price, property.currency)}.`;
   const canonicalUrl = `/propiedades/${id}`;
-  const image = property.imageUrls?.[0] || 'https://www.zbpropiedades.com/og-image.png';
+  const image = property.imageUrls?.[0] || 'https://zbpropiedades.com/og-image.png';
 
   return {
     title,
@@ -59,7 +59,7 @@ export default async function PropertyDetailPage({ params }: Props) {
   const { id } = await params;
   const property = await getDocument<Property>('properties', id);
   const priceCurrency = property?.currency === 'USD' ? 'USD' : 'CRC';
-  const propertyUrl = `https://www.zbpropiedades.com/propiedades/${id}`;
+  const propertyUrl = `https://zbpropiedades.com/propiedades/${id}`;
 
   const listingSchema = property
     ? {
@@ -68,7 +68,7 @@ export default async function PropertyDetailPage({ params }: Props) {
         name: property.title,
         description: property.description,
         url: propertyUrl,
-        image: property.imageUrls?.length ? property.imageUrls : ['https://www.zbpropiedades.com/og-image.png'],
+        image: property.imageUrls?.length ? property.imageUrls : ['https://zbpropiedades.com/og-image.png'],
         datePosted: new Date().toISOString(),
         address: {
           '@type': 'PostalAddress',

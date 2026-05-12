@@ -97,6 +97,30 @@ export async function deletePropertyPermanent(firestore: Firestore, property: Pr
 
 type LotData = Omit<Lot, 'id' | 'createdAt'>;
 
+export async function updateAppointmentStatus(
+  firestore: Firestore,
+  id: string,
+  status: 'Completed' | 'Cancelled'
+) {
+  const ref = doc(firestore, 'appointments', id);
+  try {
+    await updateDoc(ref, {
+      status,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error: any) {
+    errorEmitter.emit(
+      'permission-error',
+      new FirestorePermissionError({
+        operation: 'update',
+        path: ref.path,
+        requestResourceData: { status },
+      })
+    );
+    throw error;
+  }
+}
+
 export async function addLot(firestore: Firestore, data: LotData) {
   const col = collection(firestore, 'lots');
   try {

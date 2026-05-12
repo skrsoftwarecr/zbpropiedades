@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -10,15 +10,15 @@ import { KonamiListener } from '@/components/admin/konami-listener';
 
 const siteConfig = {
   name: 'ZB Propiedades',
-  description: 'Venta de propiedades, lotes, quintas y alquileres en Costa Rica. En ZB Propiedades le ayudamos a comprar, vender o publicar su inmueble con asesoría profesional.',
-  url: 'https://www.zbpropiedades.com',
-  ogImage: 'https://www.zbpropiedades.com/og-image.png',
+  description: 'Venta de propiedades, lotes, quintas y alquileres en Costa Rica. En ZB Propiedades le ayudamos a comprar, vender o publicar su inmueble con asesorÃ­a profesional.',
+  url: 'https://zbpropiedades.com',
+  ogImage: 'https://zbpropiedades.com/og-image.png',
   phone: '+50664520745',
   email: 'Info@zbpropiedades.com',
   addressLocality: 'Guacima Arriba',
   addressRegion: 'Alajuela',
   openingHours: 'Mo-Su 07:00-20:00',
-  yearsExperience: '10 años de experiencia en ventas',
+  yearsExperience: '10 aÃ±os de experiencia en ventas',
   googleAnalyticsId: 'G-RCL9VW0YM0',
 };
 
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.name,
   keywords: [
-    'bienes raíces Costa Rica',
+    'bienes raÃ­ces Costa Rica',
     'propiedades en venta Costa Rica',
     'lotes en venta Costa Rica',
     'venta de casas Costa Rica',
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
         url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: `${siteConfig.name} - Bienes raíces en Costa Rica`,
+        alt: `${siteConfig.name} - Bienes raÃ­ces en Costa Rica`,
       },
     ],
   },
@@ -249,3 +249,4 @@ export default function RootLayout({
     </html>
   );
 }
+

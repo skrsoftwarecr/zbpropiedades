@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Propiedades en alquiler en Costa Rica',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Propiedades en alquiler en Costa Rica',
     description: 'Revise propiedades residenciales y comerciales en alquiler en Costa Rica, con opciones en distintas provincias y presupuestos.',
-    images: ['https://www.zbpropiedades.com/og-image.png'],
+    images: ['https://zbpropiedades.com/og-image.png'],
   },
 };
 

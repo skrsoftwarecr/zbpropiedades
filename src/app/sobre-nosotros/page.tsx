@@ -1,4 +1,4 @@
-import Script from 'next/script';
+﻿import Script from 'next/script';
 import { ShieldCheck, Users, Building2, BadgeCheck, Phone, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -10,7 +10,7 @@ const aboutSchema = {
     {
       '@type': 'AboutPage',
       name: 'Sobre Nosotros | ZB Propiedades',
-      url: 'https://www.zbpropiedades.com/sobre-nosotros',
+      url: 'https://zbpropiedades.com/sobre-nosotros',
       about: {
         '@type': 'Organization',
         name: 'ZB Propiedades',
@@ -19,8 +19,8 @@ const aboutSchema = {
     {
       '@type': 'Organization',
       name: 'ZB Propiedades',
-      url: 'https://www.zbpropiedades.com',
-      logo: 'https://www.zbpropiedades.com/icon.svg',
+      url: 'https://zbpropiedades.com',
+      logo: 'https://zbpropiedades.com/icon.svg',
       telephone: '+50664520745',
       email: 'Info@zbpropiedades.com',
       address: {
@@ -40,7 +40,7 @@ const aboutSchema = {
     {
       '@type': 'LocalBusiness',
       name: 'ZB Propiedades',
-      url: 'https://www.zbpropiedades.com',
+      url: 'https://zbpropiedades.com',
       telephone: '+50664520745',
       email: 'Info@zbpropiedades.com',
       address: {
@@ -85,10 +85,10 @@ export default function AboutPage() {
           <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">Sobre ZB Propiedades</h1>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
             Somos una firma inmobiliaria enfocada en conectar familias e inversionistas con oportunidades reales en Costa Rica,
-            mediante procesos transparentes, asesoría profesional y acompañamiento de inicio a cierre.
+            mediante procesos transparentes, asesorÃ­a profesional y acompaÃ±amiento de inicio a cierre.
           </p>
           <p className="text-sm text-muted-foreground max-w-3xl mx-auto">
-            Base de operaciones: Alajuela, Guácima Arriba. Horario de atención: 7:00 a.m. a 8:00 p.m.
+            Base de operaciones: Alajuela, GuÃ¡cima Arriba. Horario de atenciÃ³n: 7:00 a.m. a 8:00 p.m.
           </p>
         </div>
 
@@ -99,11 +99,11 @@ export default function AboutPage() {
               <h2 className="text-xl font-bold">Nuestra trayectoria</h2>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Hemos acompañado a clientes en procesos de compra, venta y alquiler de inmuebles en distintas provincias del país,
-              con enfoque en análisis de mercado, presentación comercial y negociación segura.
+              Hemos acompaÃ±ado a clientes en procesos de compra, venta y alquiler de inmuebles en distintas provincias del paÃ­s,
+              con enfoque en anÃ¡lisis de mercado, presentaciÃ³n comercial y negociaciÃ³n segura.
             </p>
             <p className="text-muted-foreground leading-relaxed mt-3 font-medium">
-              Contamos con 10 años de experiencia en ventas inmobiliarias.
+              Contamos con 10 aÃ±os de experiencia en ventas.
             </p>
           </div>
 
@@ -113,43 +113,43 @@ export default function AboutPage() {
               <h2 className="text-xl font-bold">Compromiso y transparencia</h2>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Priorizamos claridad documental, comunicación constante y validación de información para que cada decisión de alto
+              Priorizamos claridad documental, comunicaciÃ³n constante y validaciÃ³n de informaciÃ³n para que cada decisiÃ³n de alto
               impacto financiero se tome con respaldo profesional.
             </p>
           </div>
         </div>
 
         <div className="rounded-2xl border p-6 md:p-8 bg-muted/20">
-          <h2 className="text-2xl font-bold mb-6">Señales de confianza</h2>
+          <h2 className="text-2xl font-bold mb-6">SeÃ±ales de confianza</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex items-start gap-3">
               <Users className="h-5 w-5 text-secondary mt-1" />
               <div>
-                <p className="font-semibold">Atención personalizada</p>
+                <p className="font-semibold">AtenciÃ³n personalizada</p>
                 <p className="text-sm text-muted-foreground">Cada propiedad se trabaja con estrategia comercial y seguimiento directo.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <BadgeCheck className="h-5 w-5 text-secondary mt-1" />
               <div>
-                <p className="font-semibold">Acompañamiento integral</p>
-                <p className="text-sm text-muted-foreground">Desde la publicación hasta la negociación y formalización final.</p>
+                <p className="font-semibold">AcompaÃ±amiento integral</p>
+                <p className="text-sm text-muted-foreground">Desde la publicaciÃ³n hasta la negociaciÃ³n y formalizaciÃ³n final.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Phone className="h-5 w-5 text-secondary mt-1" />
               <div>
                 <p className="font-semibold">Canal directo</p>
-                <p className="text-sm text-muted-foreground">Asesoría por WhatsApp y llamada al +506 6452-0745. Correo: Info@zbpropiedades.com.</p>
+                <p className="text-sm text-muted-foreground">AsesorÃ­a por WhatsApp y llamada al +506 6452-0745. Correo: Info@zbpropiedades.com.</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="rounded-2xl bg-primary text-primary-foreground p-8 text-center space-y-4">
-          <h2 className="text-2xl md:text-3xl font-bold">¿Desea vender o comprar con respaldo profesional?</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">Â¿Desea vender o comprar con respaldo profesional?</h2>
           <p className="text-primary-foreground/85 max-w-2xl mx-auto">
-            Nuestro equipo puede orientarle con una ruta clara para su próximo paso inmobiliario.
+            Nuestro equipo puede orientarle con una ruta clara para su prÃ³ximo paso inmobiliario.
           </p>
           <Button size="lg" variant="secondary" asChild>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
@@ -161,3 +161,4 @@ export default function AboutPage() {
     </div>
   );
 }
+
